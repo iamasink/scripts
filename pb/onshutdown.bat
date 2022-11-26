@@ -1,0 +1,1 @@
+curl -k https://api.pushbullet.com/v2/pushes -u o.vDH1OX2C0FwUxCkow4u3BV38PEu4yAu2: -X POST -d type=note -d title="Computer Booted" -d body="PC off"
