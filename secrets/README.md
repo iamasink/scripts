@@ -1,2 +1,2 @@
 # Secrets
-See [here](../README.md)
+See [here](../README.md#secrets)
