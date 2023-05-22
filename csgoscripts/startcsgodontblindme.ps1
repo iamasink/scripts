@@ -1,0 +1,1 @@
+Start-Process -WindowStyle hidden -FilePath "C:\Users\sink\Desktop\scripts-other\csgo_dont_blind_me\app.exe"
