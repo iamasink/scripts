@@ -1,2 +1,3 @@
 secrets/*
 !secrets/README.md
+csgoscripts/csgo_dont_blind_me
