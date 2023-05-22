@@ -1,1 +1,0 @@
-powershell -executionPolicy bypass -file "D:\scripts\csgoscripts\csgo_dont_blind_me\startcsgodontblindme.ps1"

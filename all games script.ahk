@@ -2,39 +2,128 @@
 #Persistent
 SetCapsLockState, alwaysoff
 SetDefaultMouseSpeed, 0
-CoordMode, Mouse, Screen
+CoordMode, Mouse, 
+SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+
+; read secrets
+FileRead, homeassistantToken, secrets\homeassistant.txt ; load the token from file
+
+
+
+getSpotifyHwnd() {
+	WinGet, spotifyHwnd, ID, ahk_exe spotify.exe
+	Return spotifyHwnd
+}
+lighttoggle(r,g,b,w,brightness)
+{
+	global homeassistantToken
+	Run, curl -X POST -H "Authorization: Bearer %homeassistantToken%" -H "Content-Type: application/json" -d "{\"entity_id\":\"light.wiz_rgbw_tunable_b0afb2\"`, \"rgbw_color\":[%r%`,%g%`,%b%`,%w%]`, \"brightness_pct\": %brightness%}" http://homeassistant.local:8123/api/services/light/toggle,,hide
+}
+lighton(r,g,b,w,brightness)
+{
+	global homeassistantToken
+	Run, curl -X POST -H "Authorization: Bearer %homeassistantToken%" -H "Content-Type: application/json" -d "{\"entity_id\":\"light.wiz_rgbw_tunable_b0afb2\"`, \"rgbw_color\":[%r%`,%g%`,%b%`,%w%]`, \"brightness_pct\": %brightness%}" http://homeassistant.local:8123/api/services/light/turn_on,,hide
+}
+lightoff()
+{
+	global homeassistantToken
+	lighttemp(6500,100) ; the light should always be reset to this value before turning off, so it turns on as expected when via other means
+	Sleep, 50
+	Run, curl -X POST -H "Authorization: Bearer %homeassistantToken%" -H "Content-Type: application/json" -d "{\"entity_id\":\"light.wiz_rgbw_tunable_b0afb2\"}" http://homeassistant.local:8123/api/services/light/turn_off,,hide
+}
+lighttemp(k,brightness)
+{
+	global homeassistantToken
+	Run, curl -X POST -H "Authorization: Bearer %homeassistantToken%" -H "Content-Type: application/json" -d "{\"entity_id\":\"light.wiz_rgbw_tunable_b0afb2\"`, \"color_temp_kelvin\":%k%`, \"brightness_pct\": %brightness%}" http://homeassistant.local:8123/api/services/light/turn_on,,hide
+}
+^!l:: ;Control-Alt-L 
+	time := 0
+	While !GetKeyState("Numpad0") && !GetKeyState("Numpad1") && !GetKeyState("Numpad2") && !GetKeyState("Numpad3") && time < 5000
+	{
+    	Sleep 10
+		time := time + 10
+	}
+	if GetKeyState("Numpad0") {
+		lightoff()
+	}
+	if GetKeyState("Numpad1") {
+		lighton(0,255,0,0,100)
+	}
+	if GetKeyState("Numpad2") {
+		lighttemp(6500,100)
+	}
+	if GetKeyState("Numpad3") {
+		lighton(254,0,76,13,100)
+	}
+return
 
 ; Always
-+`::~
-Shift & CapsLock::Send {Delete} 
-CapsLock::Backspace
+#IfWinNotActive PLAYERUNKNOWN
+	+`::~
+	Shift & CapsLock::Send {Delete} 
+	CapsLock::Backspace
+	!+e::Send {Media_Next}
+	!+w::Send {Media_Play_Pause}
+	!+q::Send {Media_Prev}
+	; on lock
+	#L::
+		Send {Media_Stop}
+		Sleep,50
+		Send {Media_Stop}
+		Sleep,500
+		Send {Media_Stop}
+		Sleep,5000
+		Send {Media_Stop}
+	Return
 
-; on lock
-#L::
-Send {Media_Stop}
-Sleep,500
-Send {Media_Stop}
+	#InputLevel 1
 
-#InputLevel 1
+	Ctrl & CapsLock::
+	Send, ​ ; zwsp character #
+	return
+	F15::
+	Send, ​ ; zwsp character
+	return
+	RShift::
+	Send, ​ ; zwsp character
+	return
 
 
-Ctrl & CapsLock::
-Send, ​ ; zwsp character #
+
 return
-F15::
-Send, ​ ; zwsp character
-return
-RShift::
-Send, ​ ; zwsp character
-return
-
-F14::Send {Media_Play_Pause}
-F13::Send {Media_Next}
-+F13::Send {Media_Prev}
 
 
+F14::
+	PostMessage, 0x319, 0, 0xE0000, , ahk_exe Spotify.exe 	; Send  Media_Play_Pause  to spotify
+	Send, {Volume_Up 1} ; show flyout 
+Return
+F13::
+	Send {Media_Stop}
+	Sleep,10
+	Send {Media_Stop}
+	Send {Media_Stop}
+	PostMessage, 0x319,, 0xB0000,, ahk_exe Spotify.exe	 ;Send  Media_Next to spotify
+Return
++F13::
+	PostMessage, 0x319,, 0xC0000,, ahk_exe Spotify.exe	 ;Send  Media_Prev to spotify
+	Send, {Volume_Up 1}
+Return
+F17::
+	Send {Media_Stop}
+	Sleep,10
+	Send {Media_Stop}
+	Send {Media_Stop}
+	If (!WinActive(Progman)) {
+		WinMinimizeAll
+	}
+	lighttemp(6500,25) ; turn light on at temp 6500k and brightness 25
+	Sleep, 5000
+	lighttemp(6500,75)
+	Input, SingleKey, L1, {LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}
+	WinMinimizeAllUndo
 
-
+	lightoff()
+Return
 
 
 
@@ -46,83 +135,12 @@ LWin & Space::
 	SetCapsLockState, off
 RETURN
 
-Browser_Home::Send, {vk07sc000}
-Volume_Up::Send, {vk07sc001}
-Volume_Down::Send, {vk07sc002}
+; used for old controller with volume keys on it
+; Browser_Home::Send, {vk07sc000} ; guide button
+; Volume_Up::Send, {vk07sc001}
+; Volume_Down::Send, {vk07sc002}
 
 ScrollLock::Send, 🎷🐈
-
-
-#InputLevel 0
-SendLevel 0
-
-
-#Hotstring EndChars #-()[]{}:;'"/\,.?!`n `t
-
-; zwsp
-:*:whe​::where{Space}
-:*:w​::what{Space}
-:*:th​::there{Space}
-:*:t​::the{Space}
-:*:ti​::this{Space}
-:*:h​::how{Space}
-:*:a​::about{Space}
-:*:ba​::back{Space}
-:*:how​::how are you doing{Space}
-:*:he​::hello{Space}
-:*:ty​::thanks{Space}
-:*:tyy​::thank you{Space}
-:*:tyyy​::thank youuu{Space}
-:*:u​::you{Space}
-:*:wh​::which{Space}
-:*:cud​::could{Space}
-:*:wud​::would
-:*:shud​::should{Space}
-:*:c​::see{Space}
-:*:v​::very{Space}
-:*:n​::and{Space}
-:*:lil​::little{Space}
-:*:ppl​::people{Space}
-:*:pls​::please{Space}
-:*:plz​::please{Space}
-:*:b​::but{Space}
-:*:cuz​::because{Space}
-:*:bcuz​::because{Space}
-:*:thru​::through{Space}
-:*:o​::oh{Space}
-:*:s1​::someone{Space}
-:*:1​::one{Space}
-:*:2​::two{Space}
-:*:3​::three{Space}
-:*:4​::four{Space}
-:*:5​::five{Space}
-:*:6​::six{Space}
-:*:7​::seven{Space}
-:*:8​::eight{Space}
-:*:9​::nine{Space}
-:*:0​::zero{Space}
-:*:wtf​::what the fuck{Space}
-:*:wth​::what the hell{Space}
-:*:wut​::what{Space}
-:*:no​::know{Space}
-:*:b4​::before{Space}
-:*:cs​::🎷🐈{Space}
-:*:idk​::i dont know{Space}
-:*:Idk​::I don't know{Space}
-
-:*:q⠀::i
-:*:--⠀::--userphone
-
-; if character sent alone, return
-:*:​:: 
-Send, ^{Backspace}
-return ;zwsp
-:*:⠀::
-return ;braille
-
-
-
-
 
 
 #IfWinActive ChroMapper
@@ -199,6 +217,7 @@ return
 #IfWinActive Hammer - 
 F21::z
 
+Return
 
 
 #IfWinActive Mediocre Map Assistant 2
@@ -360,8 +379,43 @@ F22::End
 F21::]
 return
 
+#IfWinActive Phasmophobia
+!+LButton:: ;On/Off with alt ctrl leftmouse
+SendEactive2 := !SendEactive2
+If SendEactive2
+	SetTimer SendE2, 10 ;spams every x ms
+Else
+	SetTimer SendE2, Off
+Return
+SendE2: ;spams 
+	Send, {LButton}
+Return
+!+RButton:: ;On/Off with alt ctrl leftmouse
+SendRactive2 := !SendRactive2
+If SendRactive2
+	SetTimer SendR2, 50 ;spams every x ms
+Else
+	SetTimer SendR2, Off
+Return
+SendR2: ;spams 
+	Send, {RButton}
+Return
+F22::Click
 
-
+!+F::
+SendFactive := !SendFactive
+If SendFactive
+	SetTimer SendF, 50 ;spams every x ms
+Else
+	SetTimer SendF, Off
+Return
+SendF: ;spams 
+	Sleep, 10
+	Send, e
+	Sleep, 10
+	Send, g
+	Sleep, 10
+Return
 
 
 
@@ -375,7 +429,7 @@ If SendEactive
 Else
 	SetTimer SendE, Off
 Return
-SendE: ;spams key e
+SendE: ;spams 
 	Send, {LButton}
 Return
 !+RButton:: ;On/Off with alt ctrl leftmouse
@@ -385,10 +439,12 @@ If SendRactive
 Else
 	SetTimer SendR, Off
 Return
-SendR: ;spams key e
+SendR: ;spams 
 	Send, {RButton}
 Return
 F22::Click
+
+
 
 
 chatopen := 0
@@ -477,13 +533,10 @@ XButton1::Up
 XButton2::Down
 return
 
-#IfWinActive osu!  - 
-XButton1::Esc
-F1::x
-F2::c
-w::x
-e::c
+#IfWinActive osu!
+
 return
+
 
 ;#IfWinActive TETR.IO
 ;a::
@@ -516,57 +569,33 @@ CapsLock::#
 return
 
 
+#IfWinActive paint.net
+XButton2::]
+XButton1::[
+F22::
+Send k
+Click
+Return
+
+; #IfWinActive Roblox
+; WheelDown::
+; SendInput, {Space Down}
+; Sleep, 10
+; SendInput, {Space Up}
+
+; Return
+; WheelUp::
+; SendInput, {Space Down}
+; Sleep, 10
+; SendInput, {Space Up}
+
+; Return
+
 
 ; reload the script when its saved
 #ifwinactive, all games script.ahk - 
 ^s::
 Send ^s
-reload "D:\scripts\all games script.ahk"
-return
-
-#If WinActive("Visual Studio Code") || WinActive("Firefox") || WinActive("Opera")
-F16::
-	if (WASDArrow = 1) {
-	WASDArrow = 0
-	tooltip, WASDArrow off
-		SoundBeep, 523, 50
-	tooltip
-	}
-	else {
-	WASDArrow = 1
-	tooltip, WASDArrow on
-	SoundBeep, 200, 200
-	tooltip
-	}
-Return
-*w:: ; 
-	if (WASDArrow = 1) {
-		Send {Blind}{Up}
-		} else {
-			Send {Blind}w
-		}
-return
-
-*a::
-	if (WASDArrow = 1) {
-		Send {Blind}{Left}
-		} else {
-			Send {Blind}a
-		}
-return
-
-*s::
-	if (WASDArrow = 1) {
-		Send {Blind}{Down}
-		} else {
-			Send {Blind}s
-		}
-return
-*d::
-	if (WASDArrow = 1) {
-		Send {Blind}{Right}
-		} else {
-			Send {Blind}d
-		}
-return
+reload %A_ScriptFullPath%
+msgbox, reloading!
 return
