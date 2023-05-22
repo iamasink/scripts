@@ -1,4 +1,4 @@
-﻿SetTitleMatchMode,2
+﻿SetTitleMatchMode,2 ;A window's title can contain WinTitle anywhere inside it to be a match.
 #Persistent
 SetCapsLockState, alwaysoff
 SetDefaultMouseSpeed, 0
@@ -56,7 +56,7 @@ lighttemp(k,brightness)
 		lighton(254,0,76,13,100)
 	}
 return
-
+ 
 ; Always
 #IfWinNotActive PLAYERUNKNOWN
 	+`::~
@@ -87,8 +87,6 @@ return
 	RShift::
 	Send, ​ ; zwsp character
 	return
-
-
 
 return
 
@@ -593,9 +591,9 @@ Return
 
 
 ; reload the script when its saved
-#ifwinactive, all games script.ahk - 
-^s::
-Send ^s
-reload %A_ScriptFullPath%
-msgbox, reloading!
+#IfWinActive ahk_exe Code.exe
+	^s::
+	Send ^s
+	reload %A_ScriptFullPath%
+	msgbox, reloading!
 return
