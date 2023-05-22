@@ -13,10 +13,10 @@ Just right click, **Create Shortcut**.
 
 ## secrets
 
-In `secrets`, text files are needed for some stuff
+In `secrets`, text files are needed for some stuff  
 Currently it's just
 - `homeassistant.txt` - homeassistant access token
-  - Goto [your home assistance url]/profile, for me http://homeassistant.local:8123/profile
+  - Goto http://homeassistant.local:8123/profile
   - Scroll to "Long-Lived Access Tokens"
   - Create a token
   - Copy the token it gives you and put it, and only it into `secrets\homeassistant.txt`
