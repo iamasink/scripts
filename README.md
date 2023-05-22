@@ -1,4 +1,4 @@
-# scripts
+# [scripts](https://github.com/iamasink/scripts)
 
 random scripts and AHK stuff i use because windows sucks  
 
