@@ -7,17 +7,17 @@ CoordMode, Mouse,
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 ; ----- Current F13-24 Binds -----
-; Mouse (G502 - set in G HUB):
+; Mouse (G502 - set in G Hub):
 ; 	Side button // DPI shift- F21
 ; 	DPI Up / Top left / G8 - F22
 ; 	DPI Down / Top left but down a bit / G7- F23
 ; 	Top middle / G9 - F24
-; Keyboard (Razer Blackwidow v2 chroma - set in razer synapse)
-; M1 - F13
-; M2 - F14
-; M3 - F15
-; M4 - F16
-; M5 - F17
+; Keyboard (Razer Blackwidow v2 chroma - set in razer synapse):
+; 	M1 - F13
+; 	M2 - F14
+; 	M3 - F15
+; 	M4 - F16
+; 	M5 - F17
 
 
 ; read secrets
@@ -115,7 +115,10 @@ return
 
 
 F14:: ; M2
-	PostMessage, 0x319, 0, 0xE0000, , ahk_exe Spotify.exe 	; Send  Media_Play_Pause  to spotify
+	; Send  Media_Play_Pause  to spotify.
+	; sending it only to spotify means that discord, firefox, etc won't mess up the thing
+	; it makes the key control specifically spotify so its more useful
+	PostMessage, 0x319, 0, 0xE0000, , ahk_exe Spotify.exe 	
 	Send, {Volume_Up 1} ; show flyout 
 Return
 F13:: ; M1
