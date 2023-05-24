@@ -19,10 +19,9 @@ HideShowTaskbar(action) {
 repeat:
 {
 	WinGetTitle, title, A
-	If (InStr(title, "YouTube")) {
+	If (InStr(title, " - YouTube")) {
 		If (New = 1) {
 			HideShowTaskbar(true)
-			; WinHide, ahk_class Shell_TrayWnd
 		}
 		New = 0
 
@@ -40,14 +39,12 @@ repeat:
 	} else {
 		If (New = 0) {
 			HideShowTaskbar(false)
-			; WinShow, ahk_class Shell_TrayWnd
 		}
 		New = 1
 	}
 }
 
 SetTimer, repeat, 250
-
 ; reload the script when its saved
 #IfWinActive ahk_exe Code.exe
 	^s::

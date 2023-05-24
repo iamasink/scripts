@@ -5,6 +5,20 @@ SetDefaultMouseSpeed, 0
 CoordMode, Mouse, 
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
+; ----- Current F13-24 Binds -----
+; Mouse (G502 - set in G HUB):
+; 	Side button // DPI shift- F21
+; 	DPI Up / Top left / G8 - F22
+; 	DPI Down / Top left but down a bit / G7- F23
+; 	Top middle / G9 - F24
+; Keyboard (Razer Blackwidow v2 chroma - set in razer synapse)
+; M1 - F13
+; M2 - F14
+; M3 - F15
+; M4 - F16
+; M5 - F17
+
+
 ; read secrets
 FileRead, homeassistantToken, secrets\homeassistant.txt ; load the token from file
 
@@ -18,6 +32,11 @@ lighttoggle(r,g,b,w,brightness)
 {
 	global homeassistantToken
 	Run, curl -X POST -H "Authorization: Bearer %homeassistantToken%" -H "Content-Type: application/json" -d "{\"entity_id\":\"light.wiz_rgbw_tunable_b0afb2\"`, \"rgbw_color\":[%r%`,%g%`,%b%`,%w%]`, \"brightness_pct\": %brightness%}" http://homeassistant.local:8123/api/services/light/toggle,,hide
+}
+lighttoggletemp(k,brightness)
+{
+	global homeassistantToken
+	Run, curl -X POST -H "Authorization: Bearer %homeassistantToken%" -H "Content-Type: application/json" -d "{\"entity_id\":\"light.wiz_rgbw_tunable_b0afb2\"`, \"color_temp_kelvin\":%k%`, \"brightness_pct\": %brightness%}" http://homeassistant.local:8123/api/services/light/toggle,,hide
 }
 lighton(r,g,b,w,brightness)
 {
@@ -91,43 +110,47 @@ return
 return
 
 
-F14::
+F14:: ; M2
 	PostMessage, 0x319, 0, 0xE0000, , ahk_exe Spotify.exe 	; Send  Media_Play_Pause  to spotify
 	Send, {Volume_Up 1} ; show flyout 
 Return
-F13::
+F13:: ; M1
 	Send {Media_Stop}
 	Sleep,10
 	Send {Media_Stop}
 	Send {Media_Stop}
 	PostMessage, 0x319,, 0xB0000,, ahk_exe Spotify.exe	 ;Send  Media_Next to spotify
 Return
-+F13::
++F13:: ; Shift + M1
 	PostMessage, 0x319,, 0xC0000,, ahk_exe Spotify.exe	 ;Send  Media_Prev to spotify
 	Send, {Volume_Up 1}
 Return
-F17::
+F16:: ; M4
+	; stop all media
 	Send {Media_Stop}
 	Sleep,10
 	Send {Media_Stop}
 	Send {Media_Stop}
+	; if the desktop isn't shown, minimize all windows
 	If (!WinActive(Progman)) {
 		WinMinimizeAll
 	}
-	lighttemp(6500,25) ; turn light on at temp 6500k and brightness 25
-	Sleep, 5000
+	; turn on the light
 	lighttemp(6500,75)
+	; await any input
 	Input, SingleKey, L1, {LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}
-	WinMinimizeAllUndo
 
+	WinMinimizeAllUndo
 	lightoff()
 Return
+F17:: ; M5
+	lighttoggletemp(6500,100)
+Return
 
+; Alt & CapsLock::Send, ⠀ ; braille black character
+; Alt & F15::Send, ⠀ ; braille black character
 
-
-Alt & CapsLock::Send, ⠀ ; braille black character
-Alt & F15::Send, ⠀ ; braille black character
-
+; force turn off capslock when win+space because sometimes its weird?
 LWin & Space::
 	Send #{space}
 	SetCapsLockState, off
@@ -138,6 +161,7 @@ RETURN
 ; Volume_Up::Send, {vk07sc001}
 ; Volume_Down::Send, {vk07sc002}
 
+; meow
 ScrollLock::Send, 🎷🐈
 
 
@@ -595,5 +619,5 @@ Return
 	^s::
 	Send ^s
 	reload %A_ScriptFullPath%
-	msgbox, reloading!
+	; msgbox, reloading!
 return
