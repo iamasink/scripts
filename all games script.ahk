@@ -1,4 +1,5 @@
-﻿SetTitleMatchMode,2 ;A window's title can contain WinTitle anywhere inside it to be a match.
+﻿; main script. it does more than just for games i'm just too lazy to change the name
+SetTitleMatchMode,2 ;A window's title can contain WinTitle anywhere inside it to be a match.
 #Persistent
 SetCapsLockState, alwaysoff
 SetDefaultMouseSpeed, 0
@@ -57,11 +58,13 @@ lighttemp(k,brightness)
 }
 ^!l:: ;Control-Alt-L 
 	time := 0
+	; while not anythings pressed, just wait
 	While !GetKeyState("Numpad0") && !GetKeyState("Numpad1") && !GetKeyState("Numpad2") && !GetKeyState("Numpad3") && time < 5000
 	{
     	Sleep 10
 		time := time + 10
 	}
+	; if a key is pressed do something
 	if GetKeyState("Numpad0") {
 		lightoff()
 	}
@@ -77,6 +80,7 @@ lighttemp(k,brightness)
 return
  
 ; Always
+; todo make a group of all games that stuff might mess up with
 #IfWinNotActive PLAYERUNKNOWN
 	+`::~
 	Shift & CapsLock::Send {Delete} 
@@ -97,15 +101,15 @@ return
 
 	#InputLevel 1
 
-	Ctrl & CapsLock::
-	Send, ​ ; zwsp character #
-	return
-	F15::
-	Send, ​ ; zwsp character
-	return
-	RShift::
-	Send, ​ ; zwsp character
-	return
+	; Ctrl & CapsLock::
+	; Send, ​ ; zwsp character #
+	; return
+	; F15::
+	; Send, ​ ; zwsp character
+	; return
+	; RShift::
+	; Send, ​ ; zwsp character
+	; return
 
 return
 
