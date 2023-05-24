@@ -1,3 +1,4 @@
+; i dont use this cuz its kinda annoying but yea
 #NoEnv
 #SingleInstance, Force
 SendMode, Input
@@ -19,13 +20,17 @@ HideShowTaskbar(action) {
 repeat:
 {
 	WinGetTitle, title, A
+	; if youtube video open
 	If (InStr(title, " - YouTube")) {
+		; hide taskbar
 		If (New = 1) {
 			HideShowTaskbar(true)
 		}
 		New = 0
 
+		; if mouse idle for over 10 seconds
 		If (A_TimeIdleMouse>=10000) {
+			; fullscreen
 			If (New2 = 0) {
 				Send, f
 			}
@@ -44,6 +49,7 @@ repeat:
 	}
 }
 
+; run repeat every .25 seconds
 SetTimer, repeat, 250
 ; reload the script when its saved
 #IfWinActive ahk_exe Code.exe
