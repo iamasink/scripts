@@ -1,8 +1,11 @@
 # [scripts](https://github.com/iamasink/scripts)
 
 random scripts and AHK stuff i use because windows sucks  
+Mostly for myself like if windows breaks and i have to reset it (again) but maybe my awful ahk stuff is useful for someone ¯\_(ツ)_/¯
 
-## shell:startup
+## auto start up stuffs
+
+### shell:startup
 
 Visit `shell:startup` or `%appdata%\Microsoft\Windows\Start Menu\Programs\Startup`  
 Here, go scripts that don't need Administrator or to run before login.  
@@ -10,6 +13,12 @@ I advise you use shortcuts instead of copying the file, so all scripts are in th
 Just right click, **Create Shortcut**.
 
 - csgoscripts\startcsgodontblindme.bat  
+
+### Task Scheduler
+some things need to go in Task Scheduler because they run weirdly!
+run startobs.bat on workstation unlock of any user
+run stopobs.bat on workstation lock, maybe needs highest privaleges
+run main script at log on of any user, needs highest privielger
 
 ## Change this stuff!!!
 
