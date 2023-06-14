@@ -1,7 +1,7 @@
 # [scripts](https://github.com/iamasink/scripts)
 
 random scripts and AHK stuff i use because windows sucks  
-Mostly for myself like if windows breaks and i have to reset it (again) but maybe my awful ahk stuff is useful for someone ¯\_(ツ)_/¯
+Mostly for myself like if windows breaks and i have to reset it (again) but maybe my awful ahk stuff is useful for someone ¯\\\_(ツ)\_/¯
 
 ## auto start up stuffs
 
