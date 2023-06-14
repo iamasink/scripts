@@ -113,7 +113,6 @@ return
 
 return
 
-
 F14:: ; M2
 	; Send  Media_Play_Pause  to spotify.
 	; sending it only to spotify means that discord, firefox, etc won't mess up the thing
@@ -122,20 +121,18 @@ F14:: ; M2
 	Send, {Volume_Up 1} ; show flyout 
 Return
 F13:: ; M1
-	Send {Media_Stop}
-	Sleep,10
-	Send {Media_Stop}
-	Send {Media_Stop}
+	; Send {Media_Stop} ; originally i did this multiple times but spotify would complain (it says can't play this right now..? but idk) and it would be slower and stuff so idk
+	; Sleep, 10
 	PostMessage, 0x319,, 0xB0000,, ahk_exe Spotify.exe	 ;Send  Media_Next to spotify
 Return
 +F13:: ; Shift + M1
 	PostMessage, 0x319,, 0xC0000,, ahk_exe Spotify.exe	 ;Send  Media_Prev to spotify
-	Send, {Volume_Up 1}
+	; Send, {Volume_Up 1}
 Return
 F16:: ; M4
 	; stop all media
 	Send {Media_Stop}
-	Sleep,10
+	Sleep, 100
 	Send {Media_Stop}
 	Send {Media_Stop}
 	; if the desktop isn't shown, minimize all windows
