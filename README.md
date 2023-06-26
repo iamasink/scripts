@@ -30,7 +30,7 @@ Currently it's just
   - Goto http://homeassistant.local:8123/profile
   - Scroll to "Long-Lived Access Tokens"
   - Create a token
-  - Copy the token it gives you and put it, and only it into `secrets\homeassistant.txt`
+  - Copy the token it gives you and put it, and only it, into `secrets\homeassistant.txt`
 
 ### csgodontblindme
  - Download latest [dev7355608/csgo_dont_blind_me](https://github.com/dev7355608/csgo_dont_blind_me/releases/)
