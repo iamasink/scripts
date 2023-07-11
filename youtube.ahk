@@ -1,4 +1,5 @@
 ; i dont use this cuz its kinda annoying but yea
+; basically, when idle and on a tab for youtube (i use firefox idk if it uses the same title stuff for other browsers), fullscreen the video
 #NoEnv
 #SingleInstance, Force
 SendMode, Input

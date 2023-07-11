@@ -45,7 +45,7 @@ lightoff()
 {
 	global homeassistantToken
 	lighttemp(6500,100) ; the light should always be reset to this value before turning off, so it turns on as expected when via other means
-	Sleep, 50
+	Sleep, 50 ; sleep so it actually does it first because yes
 	Run, curl -X POST -H "Authorization: Bearer %homeassistantToken%" -H "Content-Type: application/json" -d "{\"entity_id\":\"light.wiz_rgbw_tunable_b0afb2\"}" http://homeassistant.local:8123/api/services/light/turn_off,,hide
 }
 lighttemp(k,brightness)
