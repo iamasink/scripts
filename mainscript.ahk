@@ -1,4 +1,4 @@
-﻿; main script.
+; main script.
 SetTitleMatchMode,2 ;A window's title can contain WinTitle anywhere inside it to be a match.
 #Persistent
 SetCapsLockState, alwaysoff
@@ -12,12 +12,12 @@ SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 ; 	DPI Up / Top left / G8 - F22
 ; 	DPI Down / Top left but down a bit / G7- F23
 ; 	Top middle / G9 - F24
-; Keyboard (Razer Blackwidow v2 chroma - set in razer synapse):
-; 	M1 - F13
-; 	M2 - F14
-; 	M3 - F15
-; 	M4 - F16
-; 	M5 - F17
+; Keyboard: Wooting 2 HE
+;  A1	- F13
+;  A2	- F14
+;  A3	- F15
+;  Mode - F16
+; The original functions for these keys (switching keyboard profile) are available in the FN layer.
 
 ; read secrets
 FileRead, homeassistantToken, secrets\homeassistant.txt ; load the token from file
@@ -77,104 +77,79 @@ lighttemp(k,brightness)
 return
 
 ; Always
+
+; Pause::
+; Send, {Pause}
+; SoundBeep, 600, 150
+; SoundBeep, 300, 100
+; SoundBeep, 200, 100
+; Return
+
 ; todo make a group of all games that stuff might mess up with
-#IfWinNotActive PLAYERUNKNOWN
-	+`::~
-	Shift & CapsLock::Send {Delete}
-	CapsLock::Backspace
-	!+e::Send {Media_Next}
-	!+w::Send {Media_Play_Pause}
-	!+q::Send {Media_Prev}
-	; on lock
-	#L::
-		Send {Media_Stop}
-		Sleep,50
-		Send {Media_Stop}
-		Sleep,500
-		Send {Media_Stop}
-		Sleep,5000
-		Send {Media_Stop}
-	Return
 
-	#InputLevel 1
++`::~
+Shift & CapsLock::Send {Delete}
+; Ctrl & CapsLock::
+CapsLock & e::PostMessage, 0x319,, 0xB0000,, ahk_exe Spotify.exe	 ;Send  Media_Next to spotify
+CapsLock & w::PostMessage, 0x319, 0, 0xE0000, , ahk_exe Spotify.exe	; Send Media_Play_Pause to spotify
+CapsLock & q::PostMessage, 0x319,, 0xC0000,, ahk_exe Spotify.exe	 ;Send  Media_Prev to spotify
+CapsLock::Send {Backspace}
+; CapsLock & Shift::Send {Delete}
+!+e::Send {Media_Next}
+!+w::Send {Media_Play_Pause}
+!+q::Send {Media_Prev}
 
-	; Ctrl & CapsLock::
-	; Send, ​ ; zwsp character #
-	; return
-	; F15::
-	; Send, ​ ; zwsp character
-	; return
-	; RShift::
-	; Send, ​ ; zwsp character
-	; return
+; on lock
+#L::
+	Send {Media_Stop}
+	Sleep,50
+	Send {Media_Stop}
+	Sleep,500
+	Send {Media_Stop}
+	Sleep,5000
+	Send {Media_Stop}
+Return
 
-	return
+#InputLevel 1
 
-	F14:: ; M2
-		; Send  Media_Play_Pause  to spotify.
-		; sending it only to spotify means that discord, firefox, etc won't mess up the thing
-		; it makes the key control specifically spotify so its more useful
-		PostMessage, 0x319, 0, 0xE0000, , ahk_exe Spotify.exe
-		Send, {Volume_Up 1} ; show flyout
-	Return
-	F13:: ; M1
-		; Send {Media_Stop} ; originally i did this multiple times but spotify would complain (it says can't play this right now..? but idk) and it would be slower and stuff so idk
-		; Sleep, 10
-		PostMessage, 0x319,, 0xB0000,, ahk_exe Spotify.exe	 ;Send  Media_Next to spotify
-	Return
-	+F13:: ; Shift + M1
-		PostMessage, 0x319,, 0xC0000,, ahk_exe Spotify.exe	 ;Send  Media_Prev to spotify
-	; Send, {Volume_Up 1}
-	Return
-	F16:: ; M4
-		; stop all media
-		Send {Media_Stop}
-		Sleep, 100
-		Send {Media_Stop}
-		Send {Media_Stop}
-		; if the desktop isn't shown, minimize all windows
-		Send #d
-		; turn on the light
-		lighttemp(6500,75)
-		; await any input
-		Input, SingleKey, L1, {LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}
+; Ctrl & CapsLock::
+; Send, ​ ; zwsp character #
+; return
+; F15::
+; Send, ​ ; zwsp character
+; return
+; RShift::
+; Send, ​ ; zwsp character
+; return
 
-		WinMinimizeAllUndo
-		lightoff()
-	Return
-	F17:: ; M5
-		lighttoggletemp(6500,100)
-	Return
+F13:: ; A1
+	lighttoggletemp(6500,100)
+Return
 
-	; Alt & CapsLock::Send, ⠀ ; braille black character
-	; Alt & F15::Send, ⠀ ; braille black character
+; Alt & CapsLock::Send, ⠀ ; braille black character
+; Alt & F15::Send, ⠀ ; braille black character
 
-	; force turn off capslock when win+space because sometimes its weird?
-	LWin & Space::
-		Send #{space}
-		SetCapsLockState, off
-	RETURN
+; ; force turn off capslock when win+space because sometimes its weird?
+; LWin & Space::
+; 	Send #{space}
+; 	SetCapsLockState, off
+; RETURN
 
-	; used for old controller with volume keys on it
-	; Browser_Home::Send, {vk07sc000} ; guide button
-	; Volume_Up::Send, {vk07sc001}
-	; Volume_Down::Send, {vk07sc002}
+; used for old controller with volume keys on it
+; Browser_Home::Send, {vk07sc000} ; guide button
+; Volume_Up::Send, {vk07sc001}
+; Volume_Down::Send, {vk07sc002}
 
-	; meow
-	ScrollLock::Send, 🎷🐈
-
-	; download from url
-	^#Down::
-		run, %comspec% /c "C:\Users\Lily\Desktop\tools\ytdlp\Download Video.bat",C:\Users\Lily\Desktop\tools\ytdlp\,
-		Sleep, 500
-		send, ^v
-		Sleep, 100
-		send, {Enter}
-		Sleep, 50
-		send, #{Down}
-	Return
-
-	Return
+; download from url
+^#Down::
+	run, %comspec% /c "C:\Users\Lily\Desktop\tools\ytdlp\Download Video.bat",C:\Users\Lily\Desktop\tools\ytdlp\,
+	Sleep, 500
+	send, ^v
+	Sleep, 100
+	send, {Enter}
+	Sleep, 50
+	send, #{Down}
+Return
 
 #IfWinActive ChroMapper
 	;Insert::
@@ -575,6 +550,44 @@ return
 ; SendInput, {Space Up}
 
 ; Return
+
+#IfWinActive Tabletop
+	!+LButton:: ;On/Off with alt ctrl leftmouse
+		SendEactive3 := !SendEactive3
+		If SendEactive3
+			SetTimer SendE3, 10 ;spams every x ms
+		Else
+			SetTimer SendE3, Off
+	Return
+	SendE3: ;spams
+		Send, {LButton}
+	Return
+	!+RButton:: ;On/Off with alt ctrl leftmouse
+		SendRactive3 := !SendRactive3
+		If SendRactive3
+			SetTimer SendR3, 50 ;spams every x ms
+		Else
+			SetTimer SendR3, Off
+	Return
+	SendR3: ;spams
+		Send, {RButton}
+	Return
+	F22::Click
+
+	!+F::
+		SendFactive3 := !SendFactive3
+		If SendFactive3
+			SetTimer Send3, 50 ;spams every x ms
+		Else
+			SetTimer Send3, Off
+	Return
+	Send3: ;spams
+		Sleep, 10
+		Send, e
+		Sleep, 10
+		Send, g
+		Sleep, 10
+	Return
 
 ; reload the script when its saved
 #IfWinActive ahk_exe Code.exe
