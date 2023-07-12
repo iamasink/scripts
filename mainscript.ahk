@@ -24,10 +24,14 @@ SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
 ; read secrets, this runs on script start
 homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
 
-getSpotifyHwnd() {
-	spotifyHwnd := WinGetID("ahk_exe spotify.exe")
-	Return spotifyHwnd
-}
+; functions
+
+
+/**
+ * Send a POST request thing to homeassistant
+ * @param requestJSON a string containing json for the request body
+ * @param url the url suffix, past /api/
+ */
 homeassistantRequest(requestJSON, url)
 {
 	; get token from variable earlier
@@ -37,61 +41,76 @@ homeassistantRequest(requestJSON, url)
 
 lighttoggle(r, g, b, w, brightness)
 {
-	global homeassistantToken
 	; remember that `" is the escape for " within autohotkey, a \ escapes that " for the CMD that runs
 	; so CMD sees (eg) {\"entity_id\":\"light.wiz_rgbw_tunable_b0afb2\"}
 	; which then curls {"entity_id":"light.wiz_rgbw_tunable_b0afb2"}
 	; autohotkey inherently concatenates strings, so within the rgbw_color array, the main "" ends so it can concatenate the variable.
 	; yes its complicated and i'll probably have to relearn everything next time i want to touch this 😭😭
 	; it's possible some of the " are avoidable, but i really do not want to do this any longer
+
+	; this toggle function includes a rgbw and brightness, because it still sets the light to these if turning on
 	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/toggle")
 }
+
 lighttoggletemp(k, brightness)
 {
-	global homeassistantToken
 	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/toggle")
-
 }
+
 lighton(r, g, b, w, brightness)
 {
-	global homeassistantToken
 	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/turn_on")
-
 }
+
 lightoff()
 {
-	global homeassistantToken
 	lighttemp(6500, 100) ; the light should always be reset to this value before turning off, so it turns on as expected when via other means
 	Sleep(50) ; sleep so it actually does it first because yes
 	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`"}", "services/light/turn_off")
 }
+
 lighttemp(k, brightness)
 {
-	global homeassistantToken
 	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on")
 }
+
+
 ^!l:: ;Control-Alt-L
 {
-	time := 0
-	; while not anythings pressed, just wait
-	While !GetKeyState("Numpad0") && !GetKeyState("Numpad1") && !GetKeyState("Numpad2") && !GetKeyState("Numpad3") && time < 5000
-	{
-		Sleep 10
-		time := time + 10
-	}
-	; if a key is pressed do something
-	if GetKeyState("Numpad0") {
+	; Set a timeout duration (in milliseconds)
+	timeoutDuration := 5000 ; 5 seconds
+
+	; Start the input with a timeout
+	SetTimer(CheckTimeout, timeoutDuration)
+
+	; Wait for a key and run a function based on the key
+	; this doesn't work for numpad keys because its literally taking the text so like whatever
+	ihkey := InputHook("L1"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
+
+	; If a key is pressed, execute the corresponding function
+	if (pressedkey = "0") {
 		lightoff()
 	}
-	if GetKeyState("Numpad1") {
+	else if (pressedkey = "1") {
 		lighton(0, 255, 0, 0, 100)
 	}
-	if GetKeyState("Numpad2") {
+	else if (pressedkey = "2") {
 		lighttemp(6500, 100)
 	}
-	if GetKeyState("Numpad3") {
+	else if (pressedkey = "3") {
 		lighton(254, 0, 76, 13, 100)
 	}
+
+	; Clear the timer if a key is pressed before timeout
+	SetTimer(CheckTimeout, 0)
+
+	CheckTimeout()
+	{
+		MsgBox("Timeout occurred. No key was pressed within " timeoutDuration " milliseconds.")
+		; Add your timeout handling code here
+		return
+	}
+
 }
 
 +`::~
