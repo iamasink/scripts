@@ -1,3 +1,7 @@
+;
+MsgBox(A_ScriptDir)
+
+
 ; reload the script when its saved
 
 #HotIf Winactive("Code.exe")
