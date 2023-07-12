@@ -36,5 +36,5 @@ Currently it's just
  - Extract it somewhere you won't delete it
  - Change the path in `csgoscripts\startcsgodontblindme.ps1` 
 
-### todo amd that
-convert it all to ahk v2 but Hoinestly I CANnot BE BOTHERED to do that. cuzs the string changes and ahgadufjkuhllkfgjdhf
+### yt-dlp
+you may have to change the folders for yt-dlp scripts, especially if you don't have a local account because onedrive might mess stuff up :)
