@@ -128,9 +128,15 @@ CapsLock:: Send("{Backspace}") ; when backspace released,, maybe theres a better
 !+w:: Send("{Media_Play_Pause}")
 !+q:: Send("{Media_Prev}")
 
+; Win+Numpad1 is run on SteamVR dashboard open (thanks to OVR advanced settings)
+#Numpad1:: lighttemp(6500, 100)
+; Win+Numpad2 is on dashboard close
+#Numpad2:: lightoff()
+
 ; on lock
 #L::
 {
+	; there might be multiple media trying to play, sometimes theyre being weird so do it 4 times :)
 	Send("{Media_Stop}")
 	Sleep(50)
 	Send("{Media_Stop}")
