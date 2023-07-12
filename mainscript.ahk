@@ -21,7 +21,7 @@ SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
 ;  Mode - F16
 ; The original functions for these keys (switching keyboard profile) are available in the FN layer.
 
-; read secrets
+; read secrets, this runs on script start
 homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
 
 getSpotifyHwnd() {
@@ -30,9 +30,9 @@ getSpotifyHwnd() {
 }
 homeassistantRequest(requestJSON, url)
 {
+	; get token from variable earlier
 	global homeassistantToken
-	Run(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url " & pause", , "hide")
-
+	Run(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, , "hide")
 }
 
 lighttoggle(r, g, b, w, brightness)
