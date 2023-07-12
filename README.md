@@ -35,3 +35,6 @@ Currently it's just
  - Download latest [dev7355608/csgo_dont_blind_me](https://github.com/dev7355608/csgo_dont_blind_me/releases/)
  - Extract it somewhere you won't delete it
  - Change the path in `csgoscripts\startcsgodontblindme.ps1` 
+
+### todo amd that
+convert it all to ahk v2 but Hoinestly I CANnot BE BOTHERED to do that. cuzs the string changes and ahgadufjkuhllkfgjdhf
