@@ -77,37 +77,41 @@ lighttemp(k, brightness)
 
 ^!l:: ;Control-Alt-L
 {
-	; Set a timeout duration (in milliseconds)
-	timeoutDuration := 5000 ; 5 seconds
+	; Timeout duration (in milliseconds)
+	timeoutDuration := 2500
 
 	; Start the input with a timeout
 	SetTimer(CheckTimeout, timeoutDuration)
+	ToolTip("Light switch mode")
 
 	; Wait for a key and run a function based on the key
 	; this doesn't work for numpad keys because its literally taking the text so like whatever
 	ihkey := InputHook("L1"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
 
 	; If a key is pressed, execute the corresponding function
-	if (pressedkey = "0") {
-		lightoff()
-	}
-	else if (pressedkey = "1") {
-		lighton(0, 255, 0, 0, 100)
-	}
-	else if (pressedkey = "2") {
-		lighttemp(6500, 100)
-	}
-	else if (pressedkey = "3") {
-		lighton(254, 0, 76, 13, 100)
+	switch pressedkey {
+		case "0":
+			lightoff()
+		case "1":
+			lighton(0, 255, 0, 0, 100) ; green
+		case "2":
+			lighttemp(6500, 100) ; normal
+		case "3":
+			lighton(254, 0, 76, 13, 100) ; red purple thing
+		default:
+			ToolTip("invalid key")
+			Sleep(1000)
+			ToolTip() ;clear tooltip after 1 second
 	}
 
 	; Clear the timer if a key is pressed before timeout
 	SetTimer(CheckTimeout, 0)
+	ToolTip()
 
 	CheckTimeout()
 	{
-		MsgBox("Timeout occurred. No key was pressed within " timeoutDuration " milliseconds.")
-		; Add your timeout handling code here
+		; no key
+		ToolTip()
 		return
 	}
 
