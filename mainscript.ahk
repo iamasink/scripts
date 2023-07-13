@@ -149,20 +149,20 @@ CapsLock:: Send("{Backspace}") ; when backspace released,, maybe theres a better
 
 #InputLevel 1
 
-; Ctrl & CapsLock::
-; Send, ​ ; zwsp character #
-; return
-; F15::
-; Send, ​ ; zwsp character
-; return
-; RShift::
-; Send, ​ ; zwsp character
-; return
-
 F13:: ; A1
 {
 	lighttoggletemp(6500, 100)
-	Return
+}
+F14:: ; A2
+{
+	static Toggle := false
+	Toggle := !Toggle
+	If Toggle {
+		Run("C:\Windows\System32\DisplaySwitch.exe /internal")
+	} else {
+		Run("C:\Windows\System32\DisplaySwitch.exe /extend")
+
+	}
 }
 
 ; download from url
