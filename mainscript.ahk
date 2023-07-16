@@ -158,10 +158,23 @@ F14:: ; A2
 	static Toggle := false
 	Toggle := !Toggle
 	If Toggle {
+		ToolTip("Switching to only main display")
+		Sleep(250)
 		Run("C:\Windows\System32\DisplaySwitch.exe /internal")
+		Sleep(1000)
+		; tell littlebigmouse to exit
+		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
+		Sleep(5000)
+		ToolTip("")
 	} else {
+		ToolTip("Switching to all displays")
+		Sleep(250)
 		Run("C:\Windows\System32\DisplaySwitch.exe /extend")
-
+		Sleep(500)
+		; tell littlebigmouse to open and start
+		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
+		Sleep(5000)
+		ToolTip("")
 	}
 }
 

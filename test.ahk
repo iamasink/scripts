@@ -1,5 +1,9 @@
 ;
 MsgBox(A_ScriptDir)
+F7::
+{
+    Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
+}
 
 
 ; reload the script when its saved
