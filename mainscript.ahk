@@ -140,9 +140,9 @@ CapsLock:: Send("{Backspace}") ; when backspace released,, maybe theres a better
 	Send("{Media_Stop}")
 	Sleep(50)
 	Send("{Media_Stop}")
-	Sleep(500)
+	Sleep(250)
 	Send("{Media_Stop}")
-	Sleep(5000)
+	Sleep(250)
 	Send("{Media_Stop}")
 	Return
 }
