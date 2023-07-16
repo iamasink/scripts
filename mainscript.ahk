@@ -164,7 +164,7 @@ F14:: ; A2
 		Sleep(1000)
 		; tell littlebigmouse to exit
 		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
-		Sleep(5000)
+		Sleep(3000) ; this delay prevents spamming the button
 		ToolTip("")
 	} else {
 		ToolTip("Switching to all displays")
@@ -173,12 +173,12 @@ F14:: ; A2
 		Sleep(500)
 		; tell littlebigmouse to open and start
 		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
-		Sleep(5000)
+		Sleep(3000) ; this delay prevents spamming the button
 		ToolTip("")
 	}
 }
 
-; download from url
+; yt-dlp download from url
 ^#Down::
 {
 	; theres probably a better way to do this than pasting like this but whatever
@@ -190,6 +190,12 @@ F14:: ; A2
 	Sleep(50)
 	Send("#{Down}")
 	Return
+}
+
+; run scrcpy
+^#Right::
+{
+	Run("C:\Users\Lily\Desktop\tools\scrcpy\scrcpy.bat", "C:\Users\Lily\Desktop\tools\scrcpy\")
 }
 
 #HotIf WinActive("Hammer - ")
