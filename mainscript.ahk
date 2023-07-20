@@ -24,6 +24,13 @@ SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
 ; read secrets, this runs on script start
 homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
 
+; set display on start
+Run("C:\Windows\System32\DisplaySwitch.exe /extend")
+Sleep(2000)
+; tell littlebigmouse to open and start
+Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
+
+
 ; functions
 
 
