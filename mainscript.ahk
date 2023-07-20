@@ -25,10 +25,12 @@ SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
 homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
 
 ; set display on start
-Run("C:\Windows\System32\DisplaySwitch.exe /extend")
-Sleep(2000)
-; tell littlebigmouse to open and start
-Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
+if (MonitorGetCount() = 1) { ; only if only 1 monitor is on
+	Run("C:\Windows\System32\DisplaySwitch.exe /extend")
+	Sleep(2000)
+	; tell littlebigmouse to open and start
+	Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
+}
 
 
 ; functions
@@ -127,9 +129,30 @@ lighttemp(k, brightness)
 +`::~
 Shift & CapsLock:: Send("{Delete}")
 Ctrl & CapsLock:: Send("^{BackSpace}")
-CapsLock & e:: PostMessage(0x319, , 0xB0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Next to spotify
-CapsLock & w:: PostMessage(0x319, , 0xE0000, , "ahk_exe Spotify.exe")	; Send Media_Play_Pause to spotify
-CapsLock & q:: PostMessage(0x319, , 0xC0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Prev to spotify
+CapsLock & e:: {
+	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
+		Run("C:\Users\Lily\AppData\Roaming\Spotify\Spotify.exe")
+		WinWait("ahk_exe Spotify.exe")
+		Sleep(1000)
+	}
+	PostMessage(0x319, , 0xB0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Next to spotify
+}
+CapsLock & w:: {
+	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
+		Run("C:\Users\Lily\AppData\Roaming\Spotify\Spotify.exe")
+		WinWait("ahk_exe Spotify.exe")
+		Sleep(1000)
+	}
+	PostMessage(0x319, , 0xE0000, , "ahk_exe Spotify.exe")	; Send Media_Play_Pause to spotify
+}
+CapsLock & q:: {
+	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
+		Run("C:\Users\Lily\AppData\Roaming\Spotify\Spotify.exe")
+		WinWait("ahk_exe Spotify.exe")
+		Sleep(1000)
+	}
+	PostMessage(0x319, , 0xC0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Prev to spotify
+}
 CapsLock:: Send("{Backspace}") ; when backspace released,, maybe theres a better way to do it but idk.
 !+e:: Send("{Media_Next}")
 !+w:: Send("{Media_Play_Pause}")
