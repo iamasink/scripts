@@ -1,1 +1,0 @@
-powershell -executionPolicy bypass -file "startcsgodontblindme.ps1"
