@@ -12,7 +12,7 @@ Scripts that don't need Administrator or to run before login go here.
 I advise you use shortcuts instead of copying the file, so all scripts are in the same place, if you want to edit them.  
 The following scripts can go here
 
-- csgoscripts\startcsgodontblindme.bat  
+- spotify.ahk
 
 ### Task Scheduler
 some things need to go in Task Scheduler because they run weirdly!
