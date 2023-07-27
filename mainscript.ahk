@@ -158,6 +158,7 @@ CapsLock:: Send("{Backspace}") ; when backspace released,, maybe theres a better
 !+w:: Send("{Media_Play_Pause}")
 !+q:: Send("{Media_Prev}")
 
+
 ; Win+Numpad1 is run on SteamVR dashboard open (thanks to OVR advanced settings)
 #Numpad1:: lighttemp(6500, 100)
 ; Win+Numpad2 is on dashboard close
@@ -177,6 +178,7 @@ CapsLock:: Send("{Backspace}") ; when backspace released,, maybe theres a better
 	Return
 }
 
+
 #InputLevel 1
 
 F13:: ; A1
@@ -188,22 +190,22 @@ F14:: ; A2
 	static Toggle := false
 	Toggle := !Toggle
 	If Toggle {
-		ToolTip("Switching to only main display")
+		ToolTip("Main display")
 		Sleep(250)
 		Run("C:\Windows\System32\DisplaySwitch.exe /internal")
 		Sleep(1000)
 		; tell littlebigmouse to exit
 		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
-		Sleep(3000) ; this delay prevents spamming the button
+		Sleep(1000) ; this delay prevents spamming the button
 		ToolTip("")
 	} else {
-		ToolTip("Switching to all displays")
+		ToolTip("All displays")
 		Sleep(250)
 		Run("C:\Windows\System32\DisplaySwitch.exe /extend")
 		Sleep(500)
 		; tell littlebigmouse to open and start
 		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
-		Sleep(3000) ; this delay prevents spamming the button
+		Sleep(1000) ; this delay prevents spamming the button
 		ToolTip("")
 	}
 }
