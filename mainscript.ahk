@@ -6,20 +6,21 @@ SetCapsLockState("alwaysoff")
 SetDefaultMouseSpeed(0)
 CoordMode("Mouse")
 SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
+#SingleInstance Force
 
 
 ; ----- Current F13-24 Binds -----
-; Mouse (G502 - set in G Hub):
-; 	Side button // DPI shift- F21
-; 	DPI Up / Top left / G8 - F22
-; 	DPI Down / Top left but down a bit / G7- F23
-; 	Top middle / G9 - F24
+; Mouse: G502
+;   - Side  / DPI shift   - F21
+;   - DPI Up  /  G8       - F22
+;   - DPI Down  /  G7     - F23
+;   - Top middle  / G9    - F24
 ; Keyboard: Wooting 2 HE
-;  A1	- F13
-;  A2	- F14
-;  A3	- F15
-;  Mode - F16
-; The original functions for these keys (switching keyboard profile) are available in the FN layer.
+;   - A1	- F13
+;   - A2	- F14
+;   - A3	- F15
+;   - Mode 	- F16
+;   The original functions for these keys (switching keyboard profile) are available in the FN layer.
 
 ; read secrets, this runs on script start
 homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
@@ -32,8 +33,15 @@ if (MonitorGetCount() = 1) { ; only if only 1 monitor is on
 	Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
 }
 
+; if not admin, start as admin
+; taken from https://www.autohotkey.com/boards/viewtopic.php?p=523250#p523250
+If (!A_IsAdmin)
+{
+	Try Run("*RunAs `"" A_ScriptFullPath "`"")
+}
 
-; functions
+
+; ====== functions ======
 
 
 /**
@@ -82,6 +90,8 @@ lighttemp(k, brightness)
 {
 	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on")
 }
+
+; ====== hotkeys ======
 
 
 ^!l:: ;Control-Alt-L
@@ -135,7 +145,7 @@ CapsLock & e:: {
 		WinWait("ahk_exe Spotify.exe")
 		Sleep(1000)
 	}
-	PostMessage(0x319, , 0xB0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Next to spotify
+	PostMessage(0x319, , 0xB0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Next to spotifye
 }
 CapsLock & w:: {
 	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
@@ -155,13 +165,12 @@ CapsLock & q:: {
 }
 CapsLock::
 {
-	SetCapsLockState("off")
 	Send("{Backspace}") ; when backspace released,, maybe theres a better way to do it but idk.
+	SetCapsLockState("alwaysoff") ; sometimes it gets stuck on soo im adding this
 }
 !+e:: Send("{Media_Next}")
 !+w:: Send("{Media_Play_Pause}")
 !+q:: Send("{Media_Prev}")
-
 
 ; Win+Numpad1 is run on SteamVR dashboard open (thanks to OVR advanced settings)
 #Numpad1:: lighttemp(6500, 100)
@@ -231,8 +240,11 @@ F14:: ; A2
 ; run scrcpy
 ^#Right::
 {
-	Run("C:\Users\Lily\Desktop\tools\scrcpy\scrcpy.bat", "C:\Users\Lily\Desktop\tools\scrcpy\")
+	Run(A_ScriptDir "\scrcpy\scrcpy.bat", A_ScriptDir "\scrcpy\")
 }
+
+; ====== per app hotkeys ======
+
 
 #HotIf WinActive("Hammer - ")
 F21::z
