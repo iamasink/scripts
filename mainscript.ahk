@@ -22,7 +22,7 @@ SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
 ;   - Mode 	- F16
 ;   The original functions for these keys (switching keyboard profile) are available in the FN layer.
 
-; read secrets, this runs on script start
+; read secrets, this runs on script start so the script must be restarted to update the toke
 homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
 
 ; set display on start
@@ -37,7 +37,12 @@ if (MonitorGetCount() = 1) { ; only if only 1 monitor is on
 ; taken from https://www.autohotkey.com/boards/viewtopic.php?p=523250#p523250
 If (!A_IsAdmin)
 {
-	Try Run("*RunAs `"" A_ScriptFullPath "`"")
+	Try {
+		Run("*RunAs `"" A_ScriptFullPath "`"")
+	}
+	catch {
+		MsgBox("Couldn't run as admin! Some things may not work")
+	}
 }
 
 
@@ -104,7 +109,7 @@ lighttemp(k, brightness)
 	ToolTip("Light switch mode")
 
 	; Wait for a key and run a function based on the key
-	; this doesn't work for numpad keys because its literally taking the text so like whatever
+	; this doesn't differentiate numpad keys and the others because its literally taking the text so like whatever
 	ihkey := InputHook("L1"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
 
 	; If a key is pressed, execute the corresponding function
@@ -141,7 +146,7 @@ Shift & CapsLock:: Send("{Delete}")
 Ctrl & CapsLock:: Send("^{BackSpace}")
 CapsLock & e:: {
 	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
-		Run("C:\Users\Lily\AppData\Roaming\Spotify\Spotify.exe")
+		Run(A_AppData "\Spotify\Spotify.exe")
 		WinWait("ahk_exe Spotify.exe")
 		Sleep(1000)
 	}
@@ -149,7 +154,7 @@ CapsLock & e:: {
 }
 CapsLock & w:: {
 	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
-		Run("C:\Users\Lily\AppData\Roaming\Spotify\Spotify.exe")
+		Run(A_AppData "\Spotify\Spotify.exe")
 		WinWait("ahk_exe Spotify.exe")
 		Sleep(1000)
 	}
@@ -157,7 +162,7 @@ CapsLock & w:: {
 }
 CapsLock & q:: {
 	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
-		Run("C:\Users\Lily\AppData\Roaming\Spotify\Spotify.exe")
+		Run(A_AppData "\Spotify\Spotify.exe")
 		WinWait("ahk_exe Spotify.exe")
 		Sleep(1000)
 	}

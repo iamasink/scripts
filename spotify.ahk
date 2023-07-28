@@ -40,18 +40,26 @@ test()
     else {
         inactivetime += timerperiod
         ; ToolTip inactivetime "\n" done
-        if (inactivetime > 60000) {
-            if (done = 0) {
-                spotifyKey("{Escape}")
-                Sleep(100)
-                spotifyKey("t")
-                inactivetime := 0
-                done := 1
+        if (WinExist("ahk_exe Spotify.exe")) {
+            ; ToolTip inactivetime " " done
+            if (inactivetime > 1000) {
+                if (done = 0) {
+                    spotifyKey("{Escape}")
+                    Sleep(100)
+                    spotifyKey("t")
+                    inactivetime := 0
+                    done := 1
+                }
             }
         }
     }
     return
 }
+
+; f7::
+; {
+;     MsgBox(getSpotifyHwnd())
+; }
 
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName "ahk_exe Code.exe")
