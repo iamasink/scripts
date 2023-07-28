@@ -8,16 +8,16 @@ Mostly for myself like if windows breaks and i have to reset it (again) but mayb
 ### shell:startup
 
 Visit `shell:startup` or `%appdata%\Microsoft\Windows\Start Menu\Programs\Startup`  
-Scripts that don't need Administrator or to run before login go here.
-I advise you use shortcuts instead of copying the file, so all scripts are in the same place, if you want to edit them.  
-The following scripts can go here
+Scripts that don't need Administrator or to run before login go here.  
+I advise you use shortcuts instead of copying the file, so all scripts are in the same place, if you want to edit them.    
+The following scripts can go here  
 
 - spotify.ahk
 
 ### Task Scheduler
-some things need to go in Task Scheduler because they run weirdly!
-run startobs.bat on workstation unlock of any user
-run main script at log on of any user, needs highest privileges 
+some things need to go in Task Scheduler because they run weirdly!  
+run startobs.bat on workstation unlock of any user  
+run main script at log on of any user, needs highest privileges   
 
 ## Change this stuff!!!
 
