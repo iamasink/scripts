@@ -4,21 +4,21 @@ random scripts and AHK stuff i use because windows sucks
 Mostly for myself like if windows breaks and i have to reset it (again) but maybe my awful ahk stuff is useful for someone ¯\\\_(ツ)\_/¯
 
 ## my setup
-Mouse: G502
-  - Side    / DPI shift - F21
-  - DPI Up  /  G8       - F22
-  - DPI Down  /  G7     - F23
-  - Top middle  / G9    - F24
-Keyboard: Wooting 2 HE
-  - A1	 - F13
-  - A2	 - F14
-  - A3	 - F15
-  - Mode - F16
-  The original functions for these keys (switching keyboard profile) are available in the FN layer.
+### Mouse: G502
+  - Side    / DPI shift - F21  
+  - DPI Up  /  G8       - F22  
+  - DPI Down  /  G7     - F23  
+  - Top middle  / G9    - F24  
+### Keyboard: Wooting 2 HE  
+  - A1	 - F13  
+  - A2	 - F14  
+  - A3	 - F15  
+  - Mode - F16  
+The original functions for these keys (switching keyboard profile) are available in the FN layer.
 
 
 
-## auto start up stuffs
+## auto start up stuff
 
 ### shell:startup
 
