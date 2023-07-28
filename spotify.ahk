@@ -1,12 +1,14 @@
 ﻿#Requires AutoHotkey v2.0
 
-; this script pressed the "t" key in spotify when the spotify window becomes inactive, and the "escape" key when it becomes active
-; this fullscreens spotify with spicetifys fullscreen plugin, and unfullscreens when you switch to spotify
+; this script presses the "t" key in spotify when the spotify window becomes inactive
+; this fullscreens spotify with spicetifys fullscreen plugin
 
 Persistent
-last := 1
+done := 0
+inactivetime := 0
+timerperiod := 250
 DetectHiddenWindows(True)
-SetTimer(test, 250)
+SetTimer(test, timerperiod)
 return
 
 
@@ -28,27 +30,28 @@ spotifyKey(key) {
 
 test()
 {
-    global last
+    global done
+    global inactivetime
     if WinActive("ahk_exe Spotify.exe")
     {
-        if (last = 1) {
-            ; Send("{Escape}")
-            ToolTip "unfullscreening"
-        }
-        last := 0
+        inactivetime := 0
+        done := 0
     }
     else {
-        if (last = 0) {
-            spotifyKey("{Escape}")
-            Sleep(100)
-            spotifyKey("t")
-            ToolTip "fullscreening"
+        inactivetime += timerperiod
+        ; ToolTip inactivetime "\n" done
+        if (inactivetime > 60000) {
+            if (done = 0) {
+                spotifyKey("{Escape}")
+                Sleep(100)
+                spotifyKey("t")
+                inactivetime := 0
+                done := 1
+            }
         }
-        last := 1
     }
     return
 }
-
 
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName "ahk_exe Code.exe")
