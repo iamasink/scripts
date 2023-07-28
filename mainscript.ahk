@@ -153,7 +153,11 @@ CapsLock & q:: {
 	}
 	PostMessage(0x319, , 0xC0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Prev to spotify
 }
-CapsLock:: Send("{Backspace}") ; when backspace released,, maybe theres a better way to do it but idk.
+CapsLock::
+{
+	SetCapsLockState("off")
+	Send("{Backspace}") ; when backspace released,, maybe theres a better way to do it but idk.
+}
 !+e:: Send("{Media_Next}")
 !+w:: Send("{Media_Play_Pause}")
 !+q:: Send("{Media_Prev}")
@@ -274,8 +278,88 @@ F22::
 	Click()
 }
 
+#HotIf WinActive("ahk_exe firefox.exe")
+; inspired by/stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
+F23::
+{
+
+
+	moveval := 0
+
+	pixeldist := 5
+	largepixeldist := 1000
+
+
+	If GetKeyState("F23", "p") {
+		MouseGetPos(&x1, &y1)
+		KeyWait("F23")
+	}
+
+	MouseGetPos(&x2, &y2)
+
+	XDif := (x2 - x1)
+	YDif := (y2 - y1)
+
+	If (abs(XDif) >= abs(YDif)) {
+
+		If (abs(XDif) >= largepixeldist) {
+
+
+			If (XDif >= (largepixeldist * 2))
+				moveval := 1
+			If (XDif <= -largepixeldist)
+				moveval := 2
+		}
+		else {
+
+			If (XDif >= pixeldist)
+				moveval := 5
+			If (XDif <= -pixeldist)
+				moveval := 6
+		}
+	}
+	else {
+
+		If (abs(YDif) >= largepixeldist) {
+
+			If (YDif >= largepixeldist)
+				moveval := 3
+			If (YDif <= -largepixeldist)
+				moveval := 4
+		}
+		else {
+
+			If (YDif >= pixeldist)
+				moveval := 7
+			If (YDif <= -pixeldist)
+				moveval := 8
+		}
+	}
+
+	{
+		if (moveval = 0) ; no movement
+			Send("^{LButton}")
+		if (moveval = 1) ; Big Right
+			Send("!{right}")
+		if (moveval = 2) ; Big Left
+			Send("!{left}")
+		if (moveval = 3) ; Big Down
+			Send("^l")
+		if (moveval = 4) ; Big Up
+			Send("+^t")
+		if (moveval = 5) ; Right
+			Send("^{tab}")
+		if (moveval = 6) ; Left
+			Send("^+{tab}")
+		if (moveval = 7) ; Down
+			Send("^w")
+		if (moveval = 8) ; Up
+			Send("^t")
+	}
+}
+
 ; reload the script when its saved
-#HotIf WinActive("ahk_exe Code.exe",)
+#HotIf WinActive(A_ScriptName "ahk_exe Code.exe")
 ^s::
 {
 	Send("^s")

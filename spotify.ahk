@@ -21,8 +21,8 @@ spotifyKey(key) {
     spotifyHwnd := getSpotifyHwnd()
     ; Chromium ignores keys when it isn't focused.
     ; Focus the document window without bringing the app to the foreground.
-    ControlFocus "Chrome_RenderWidgetHostHWND1", "ahk_id " . spotifyHwnd
-    ControlSend key, , "ahk_id " . spotifyHwnd
+    ControlFocus("Chrome_RenderWidgetHostHWND1", "ahk_id " spotifyHwnd)
+    ControlSend(key, , "ahk_id " spotifyHwnd)
     Return
 }
 
@@ -32,15 +32,17 @@ test()
     if WinActive("ahk_exe Spotify.exe")
     {
         if (last = 1) {
-            Send("{Escape}")
-            ; ToolTip "unfullscreening"
+            ; Send("{Escape}")
+            ToolTip "unfullscreening"
         }
         last := 0
     }
     else {
         if (last = 0) {
+            spotifyKey("{Escape}")
+            Sleep(100)
             spotifyKey("t")
-            ; ToolTip "fullscreening"
+            ToolTip "fullscreening"
         }
         last := 1
     }
@@ -49,7 +51,7 @@ test()
 
 
 ; reload the script when its saved
-#HotIf WinActive("ahk_exe Code.exe",)
+#HotIf WinActive(A_ScriptName "ahk_exe Code.exe")
 ^s::
 {
     Send("^s")

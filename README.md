@@ -31,10 +31,15 @@ Currently it's just
   - Create a token
   - Copy the token it gives you and put it, and only it, into `secrets\homeassistant.txt`
 
-### csgodontblindme
+### other scripts
+
+#### csgodontblindme 
+(i no longer use because it doesn't work with multiple monitors)  
  - Download latest [dev7355608/csgo_dont_blind_me](https://github.com/dev7355608/csgo_dont_blind_me/releases/)
  - Extract it somewhere you won't delete it
- - Change the path in `csgoscripts\startcsgodontblindme.ps1` 
+ - Change the path in `csgoscripts\startcsgodontblindme.ps1`
+#### Uninstall-Spotify.bat
+[amd64fox/Uninstall-Spotify](https://github.com/amd64fox/Uninstall-Spotify)
 
 ### yt-dlp
 you may have to change the folders for yt-dlp scripts, especially if you don't have a local account because onedrive might mess stuff up :)
