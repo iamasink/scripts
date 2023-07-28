@@ -18,6 +18,7 @@ The following scripts can go here
 some things need to go in Task Scheduler because they run weirdly!  
 run startobs.bat on workstation unlock of any user  
 run main script at log on of any user, needs highest privileges   
+there are exported xml schedules you can import, but they may need changing if usernames and stuff are different
 
 ## Change this stuff!!!
 
