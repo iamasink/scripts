@@ -23,7 +23,7 @@ spotifyKey(key) {
     spotifyHwnd := getSpotifyHwnd()
     ; Chromium ignores keys when it isn't focused.
     ; Focus the document window without bringing the app to the foreground.
-    ControlFocus("Chrome_RenderWidgetHostHWND1", "ahk_id " spotifyHwnd)
+    try ControlFocus("Chrome_RenderWidgetHostHWND0", "ahk_id " spotifyHwnd)
     ControlSend(key, , "ahk_id " spotifyHwnd)
     Return
 }
@@ -42,7 +42,7 @@ test()
         ; ToolTip inactivetime "\n" done
         if (WinExist("ahk_exe Spotify.exe")) {
             ; ToolTip inactivetime " " done
-            if (inactivetime > 1000) {
+            if (inactivetime > 60000) {
                 if (done = 0) {
                     spotifyKey("{Escape}")
                     Sleep(100)

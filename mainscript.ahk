@@ -2,7 +2,9 @@
 #Requires AutoHotkey v2.0
 SetTitleMatchMode(2) ;A window's title can contain WinTitle anywhere inside it to be a match.
 Persistent(true)
-SetCapsLockState("alwaysoff")
+;keeps num and caps off permanently
+SetCapsLockState("AlwaysOff")
+SetNumlockState "AlwaysOff"
 SetDefaultMouseSpeed(0)
 CoordMode("Mouse")
 SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
@@ -98,7 +100,6 @@ lighttemp(k, brightness)
 
 ; ====== hotkeys ======
 
-
 ^!l:: ;Control-Alt-L
 {
 	; Timeout duration (in milliseconds)
@@ -168,6 +169,31 @@ CapsLock & q:: {
 	}
 	PostMessage(0x319, , 0xC0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Prev to spotify
 }
+CapsLock & Space:: {
+	if (!WinExist("ahk_exe Everything.exe")) {
+		Run("C:\Program Files\Everything\Everything.exe")
+	} else if (WinActive("ahk_exe Everything.exe")) {
+		WinKill("ahk_exe Everything.exe")
+	}
+	else {
+		WinActivate("ahk_exe Everything.exe")
+	}
+}
+CapsLock & d:: {
+	if (!WinExist("ahk_exe Discord.exe")) {
+		SoundBeep(500, 150)
+		Run(A_AppData "\..\Local\Discord\Update.exe")
+		WinWait("ahk_exe Discord.exe")
+		try WinActivate("ahk_exe Discord.exe")
+	} else if (WinActive("ahk_exe Discord.exe")) {
+		Send "!{Esc}" ; activate last active window
+	}
+	else {
+		WinActivate("ahk_exe Discord.exe")
+		SoundPlay("C:\Windows\Media\Speech Misrecognition.wav")
+	}
+}
+
 CapsLock::
 {
 	Send("{Backspace}") ; when backspace released,, maybe theres a better way to do it but idk.
@@ -176,6 +202,22 @@ CapsLock::
 !+e:: Send("{Media_Next}")
 !+w:: Send("{Media_Play_Pause}")
 !+q:: Send("{Media_Prev}")
+
+
+;set num pad with num off
+SC04F::Numpad1
+SC050::Numpad2
+SC051::Numpad3
+SC04B::Numpad4
+SC04C::Numpad5
+SC04D::Numpad6
+SC047::Numpad7
+SC048::Numpad8
+SC049::Numpad9
+SC052::Numpad0
+SC053::NumpadDot
+NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap :3
+
 
 ; Win+Numpad1 is run on SteamVR dashboard open (thanks to OVR advanced settings)
 #Numpad1:: lighttemp(6500, 100)
@@ -248,6 +290,29 @@ F14:: ; A2
 	Run(A_ScriptDir "\scrcpy\scrcpy.bat", A_ScriptDir "\scrcpy\")
 }
 
+#d::
+{
+	KeyWait("LWin") ; wait for windows to be released, so it doesnt get picked up by the inputhook
+	WinMinimizeAll() ; minimize all windows (like pressing win+d)
+	; await any input or modifier key
+	ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
+	WinMinimizeAllUndo() ; undo minimize all
+
+	; ensure spotify and discord are restored, as they are on second monitor
+	If (WinGetMinMax("ahk_exe Spotify.exe") = -1) {
+		WinRestore("ahk_exe Spotify.exe")
+	}
+	If (WinGetMinMax("ahk_exe Discord.exe") = -1) {
+		WinRestore("ahk_exe Discord.exe")
+	}
+	return
+}
+!#d::
+{
+	WinMinimizeAll()
+}
+
+
 ; ====== per app hotkeys ======
 
 
@@ -296,16 +361,13 @@ F22::
 }
 
 #HotIf WinActive("ahk_exe firefox.exe")
-; inspired by/stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
+; stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
 F23::
 {
-
-
 	moveval := 0
 
 	pixeldist := 5
 	largepixeldist := 1000
-
 
 	If GetKeyState("F23", "p") {
 		MouseGetPos(&x1, &y1)
