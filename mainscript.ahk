@@ -198,16 +198,24 @@ CapsLock & d:: {
 		SoundPlay("C:\Windows\Media\Speech Misrecognition.wav")
 	}
 }
+CapsLock & i::Up
+CapsLock & j::Left
+CapsLock & k::Down
+CapsLock & l::Right
+CapsLock & u::Home
+CapsLock & o::End
+; CapsLock & v:: {
+; 	Send("^!+{v}")
+; }
 
 CapsLock::
 {
-	Send("{Backspace}") ; when backspace released,, maybe theres a better way to do it but idk.
+	Send("{Backspace}") ; when CapsLock released,, maybe theres a better way to do it but idk.
 	SetCapsLockState("alwaysoff") ; sometimes it gets stuck on soo im adding this
 }
 !+e:: Send("{Media_Next}")
 !+w:: Send("{Media_Play_Pause}")
 !+q:: Send("{Media_Prev}")
-
 
 ;set num pad with num lock off
 SC04F::Numpad1
