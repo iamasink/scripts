@@ -145,6 +145,11 @@ lighttemp(k, brightness)
 +`::~
 Shift & CapsLock:: Send("{Delete}")
 Ctrl & CapsLock:: Send("^{BackSpace}")
+Alt & CapsLock::
+{
+	; backspace entire line
+	Send("{Home}{Home}{Shift Down}{End}{Shift Up}{Delete}")
+}
 CapsLock & e:: {
 	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
 		Run(A_AppData "\Spotify\Spotify.exe")
@@ -204,7 +209,7 @@ CapsLock::
 !+q:: Send("{Media_Prev}")
 
 
-;set num pad with num off
+;set num pad with num lock off
 SC04F::Numpad1
 SC050::Numpad2
 SC051::Numpad3
@@ -306,6 +311,7 @@ F14:: ; A2
 		WinRestore("ahk_exe Discord.exe")
 	}
 	return
+
 }
 !#d::
 {
@@ -435,6 +441,13 @@ F23::
 		if (moveval = 8) ; Up
 			Send("^t")
 	}
+}
+
+#HotIf WinActive("ahk_exe Code.exe")
+Alt & CapsLock::
+{
+	; delete line (ctrl + shift + k)
+	Send("^+k")
 }
 
 ; reload the script when its saved
