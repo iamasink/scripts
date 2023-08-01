@@ -47,23 +47,56 @@ If (!A_IsAdmin)
 	}
 }
 
+ProcessSetPriority("H") ; set priority to high
+; Low (or L)
+; BelowNormal (or B)
+; Normal (or N)
+; AboveNormal (or A)
+; High (or H)
+; Realtime (or R)
+; this chooses the script itself- https://www.autohotkey.com/docs/v2/lib/ProcessSetPriority.htm "If unset or omitted, the script's own process is used"
+
 
 ; ====== functions ======
-
 
 /**
  * Send a POST request thing to homeassistant
  * @param requestJSON a string containing json for the request body
  * @param url the url suffix, past /api/
  */
-homeassistantRequest(requestJSON, url)
+homeassistantRequest(requestJSON, url, wait := false)
 {
 	; get token from variable earlier
 	global homeassistantToken
-	Run(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, , "hide")
+	if (wait) {
+		RunWait(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, , "hide")
+	} else {
+		Run(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, , "hide")
+	}
+}
+homeassistantGet(url, wait := false) {
+	global homeassistantToken
+	if (wait) {
+		return ComObject("WScript.Shell").Exec("curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url).StdOut.ReadAll()
+	} else {
+		return Run(A_ComSpec " /C " "curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url, , "hide")
+	}
+
 }
 
-lighttoggle(r, g, b, w, brightness)
+homeassistantGetLightState() ; returns on or off
+{
+	str := homeassistantGet("states/light.wiz_rgbw_tunable_b0afb2", true) ; returns a json string
+	index := InStr(str, "`"state`":`"") ; find the index of the state
+	state := SubStr(str, index + 9, 2) ; get the state (on or of)
+	if (state = "on") {
+		return 1 ; on
+	} else {
+		return 0 ; off or unknown or something fucked up
+	}
+}
+
+lighttoggle(r, g, b, w, brightness, wait := false)
 {
 	; remember that `" is the escape for " within autohotkey, a \ escapes that " for the CMD that runs
 	; so CMD sees (eg) {\"entity_id\":\"light.wiz_rgbw_tunable_b0afb2\"}
@@ -73,29 +106,33 @@ lighttoggle(r, g, b, w, brightness)
 	; it's possible some of the " are avoidable, but i really do not want to do this any longer
 
 	; this toggle function includes a rgbw and brightness, because it still sets the light to these if turning on
-	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/toggle")
+	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
 }
 
-lighttoggletemp(k, brightness)
+lighttoggletemp(k, brightness, wait := false)
 {
-	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/toggle")
+	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
 }
 
-lighton(r, g, b, w, brightness)
+lighton(r, g, b, w, brightness, wait := false)
 {
-	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/turn_on")
+	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
 }
 
-lightoff()
+lightoff(wait := false)
 {
-	lighttemp(6500, 100) ; the light should always be reset to this value before turning off, so it turns on as expected when via other means
-	Sleep(50) ; sleep so it actually does it first because yes
-	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`"}", "services/light/turn_off")
+	if (homeassistantGetLightState() = 0) {
+		; already off
+	} else {
+		lighttemp(6500, 100, false) ; the light should always be reset to this value before turning off, so it turns on as expected when via other means
+		Sleep(100) ; sleep so it actually does it first because yes
+		homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`"}", "services/light/turn_off", wait)
+	}
 }
 
-lighttemp(k, brightness)
+lighttemp(k, brightness, wait := false)
 {
-	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on")
+	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
 }
 
 ; ====== hotkeys ======
@@ -143,14 +180,32 @@ lighttemp(k, brightness)
 }
 
 +`::~
-Shift & CapsLock:: Send("{Delete}")
+Shift & CapsLock:: {
+	; KeyWait("Shift")
+	; https://www.autohotkey.com/docs/v2/lib/Send.htm#Blind
+	;"Modifier keys are restored differently to allow a Send to turn off a hotkey's modifiers even if the user is still physically holding them down."
+	; this ensures that the shift key is (logically) released before the delete key is pressed, even if the user is still holding shift
+	Send("{Blind}{Shift Up}")
+	Send("{Delete}")
+}
 Ctrl & CapsLock:: Send("^{BackSpace}")
-Alt & CapsLock::
+^+CapsLock:: Send("!{Delete}")
+
+
+Alt & CapsLock:: ; this could cause some issues on other applications, like explorer where it deletes everything in the folder
 {
+	; if the window is explorer (note only file explorer, but also alt tab menu i think?, and desktop), don't do anything
+	if (WinActive("ahk_exe explorer.exe")) {
+		ToolTip("explorer")
+		Sleep(1000)
+		ToolTip()
+		return
+	}
 	; backspace entire line
 	Send("{Home}{Home}{Shift Down}{End}{Shift Up}{Delete}")
 }
 CapsLock & e:: {
+
 	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
 		Run(A_AppData "\Spotify\Spotify.exe")
 		WinWait("ahk_exe Spotify.exe")
@@ -303,29 +358,69 @@ F14:: ; A2
 	Run(A_ScriptDir "\scrcpy\scrcpy.bat", A_ScriptDir "\scrcpy\")
 }
 
-#d::
-{
-	KeyWait("LWin") ; wait for windows to be released, so it doesnt get picked up by the inputhook
-	WinMinimizeAll() ; minimize all windows (like pressing win+d)
-	; await any input or modifier key
-	ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
-	WinMinimizeAllUndo() ; undo minimize all
 
-	; ensure spotify and discord are restored, as they are on second monitor
+showdesktop() {
+	lastactivewindow := WinExist("A") ; get last active window
+	KeyWait("LWin") ; wait for windows key to be released, so it doesnt get picked up by the inputhook
+	WinMinimizeAll() ; minimize all windows (like pressing win+d)
+	; move rainmeter clock to center of second monitor
+	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
+	Sleep(500)
+	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"50%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]")
+	Sleep(500)
+	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
+
+
+	; await any input or other key
+	ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
+
+	showdesktopundo(lastactivewindow)
+
+}
+
+showdesktopundo(lastactivewindow) {
+	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
+	WinMinimizeAllUndo() ; undo minimize all
+	lightoff()
+	Sleep(100)
+	try WinActivate("ahk_id " lastactivewindow) ; activate last active window
+	WinSetAlwaysOnTop(0) ; what the fuck why does it make it alwaysontop??? are they stupid?
+
+	; ensure spotify and discord are restored, as they are always open on second monitor
 	If (WinGetMinMax("ahk_exe Spotify.exe") = -1) {
-		WinRestore("ahk_exe Spotify.exe")
+		try WinRestore("ahk_exe Spotify.exe")
 	}
 	If (WinGetMinMax("ahk_exe Discord.exe") = -1) {
-		WinRestore("ahk_exe Discord.exe")
+		try WinRestore("ahk_exe Discord.exe")
 	}
-	return
+	Sleep(500)
+	; MsgBox("hello world")
+	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"75%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]")
+	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
+}
 
+~LButton:: ; ~ means dont block the original key.
+; this replaces the show desktop button in the bottom right corner of the screen, so it should be disabled in the taskbar settings
+{
+	; get mouse position
+	MouseGetPos(&xpos, &ypos)
+	; ToolTip("x: " xpos "`ny: " ypos)
+	; 2559, 1439 -> 2560, 1440
+	if (xpos >= A_ScreenWidth - 2 && ypos >= A_ScreenHeight - 2 && xpos <= A_ScreenWidth && ypos <= A_ScreenHeight) {
+		; if mouse is in the bottom right corner, show desktop
+		; MsgBox("hello world")
+		showdesktop()
+	}
+}
+
+#d::
+{
+	showdesktop()
 }
 !#d::
 {
 	WinMinimizeAll()
 }
-
 
 ; ====== per app hotkeys ======
 
@@ -373,6 +468,8 @@ F22::
 	Send("k")
 	Click()
 }
+!WheelUp::]
+!WheelDown::[
 
 #HotIf WinActive("ahk_exe firefox.exe")
 ; stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
@@ -451,12 +548,14 @@ F23::
 	}
 }
 
-#HotIf WinActive("ahk_exe Code.exe")
-Alt & CapsLock::
-{
-	; delete line (ctrl + shift + k)
-	Send("^+k")
-}
+; #HotIf WinActive("ahk_exe Code.exe")
+; Alt & CapsLock::
+; {
+; 	; delete line (ctrl + shift + k)
+; 	Send("^+k")
+; 	; insert a new line above (ctrl + shift + enter)
+; 	Send("^+{Enter}")
+; }
 
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName "ahk_exe Code.exe")
