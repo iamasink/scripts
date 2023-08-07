@@ -7,3 +7,4 @@ spotify/Uninstall-Spotify.bat
 scrcpy/scrcpy
 autoupdate.ahk
 includes/*
+!includes/README.md
