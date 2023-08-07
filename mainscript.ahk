@@ -22,6 +22,9 @@ CoordMode("Mouse")
 SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
 #SingleInstance Force
 
+#WinActivateForce
+; https://www.autohotkey.com/docs/v2/lib/_WinActivateForce.htm
+; "it might prevent task bar buttons from flashing when different windows are activated quickly one after the other.""
 
 ; ----- Current F13-24 Binds -----
 ; Mouse: G502
@@ -68,6 +71,9 @@ ProcessSetPriority("H") ; set priority to high
 ; High (or H)
 ; Realtime (or R)
 ; this chooses the script itself- https://www.autohotkey.com/docs/v2/lib/ProcessSetPriority.htm "If unset or omitted, the script's own process is used"
+
+; run with an argument (1) to skip the warning
+Run(A_ComSpec " /C " A_ScriptDir "\synctime.bat 1", A_ScriptDir, "Hide") ; run sync time script
 
 
 ; ====== functions ======
@@ -203,7 +209,7 @@ lightoff(wait := false)
 {
 	if (homeassistantGetLightState("wiz_rgbw_tunable_b0afb2") = 0) {
 		; already off
-		ToolTip("Already off")
+		; ToolTip("Already off")
 	} else {
 		lighttemp(6500, 100, false) ; the light should always be reset to this value before turning off, so it turns on as expected when via other means
 		Sleep(100) ; sleep so it actually does it first because yes
@@ -525,8 +531,8 @@ F14:: ; A2
 
 F15:: ; A3
 {
-	; MsgBox("current window: " WinGetProcessName(WinActive("A")))
-	MsgBox(homeassistantGetLightTemp("wiz_rgbw_tunable_b0afb2"))
+	MsgBox("current window: " WinGetProcessName(WinActive("A")))
+	; MsgBox(homeassistantGetLightTemp("wiz_rgbw_tunable_b0afb2"))
 }
 
 ; yt-dlp download from url
@@ -550,7 +556,7 @@ F15:: ; A3
 }
 
 
-showdesktop() {
+showdesktop(undo := true) {
 	lastactivewindow := WinExist("A") ; get last active window
 	; KeyWait("LWin") ; wait for windows key to be released, so it doesnt get picked up by the inputhook
 	WinMinimizeAll() ; minimize all windows (like pressing win+d)
@@ -559,11 +565,16 @@ showdesktop() {
 
 	moveclockmiddle()
 
-	; await any input or other key
-	ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
-	; ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
+	if (undo) {
 
-	showdesktopundo(lastactivewindow)
+		; await any input or other key
+		ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
+		; ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
+
+		showdesktopundo(lastactivewindow)
+	} else {
+		return lastactivewindow
+	}
 }
 
 moveclockmiddle() {
@@ -579,9 +590,7 @@ showdesktopundo(lastactivewindow) {
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
 	WinMinimizeAllUndo() ; undo minimize all
 	lightoff()
-	Sleep(100)
-	try WinActivate("ahk_id " lastactivewindow) ; activate last active window
-	try WinSetAlwaysOnTop(0) ; what the fuck why does it make it alwaysontop??? are they stupid?
+
 
 	; ensure spotify and discord are restored, as they are always open on second monitor
 
@@ -592,7 +601,8 @@ showdesktopundo(lastactivewindow) {
 	If (WinExist("ahk_exe Discord.exe") && WinGetMinMax() = -1) {
 		try WinRestore("ahk_exe Discord.exe")
 	}
-	Sleep(500)
+	Sleep(250)
+	try WinActivate("ahk_id " lastactivewindow) ; activate last active window
 	; MsgBox("hello world")
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"75%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]")
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
@@ -611,6 +621,7 @@ showdesktopundo(lastactivewindow) {
 		showdesktop()
 	}
 }
+
 
 #d::
 {
