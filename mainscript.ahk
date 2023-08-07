@@ -1,4 +1,5 @@
 ; main script.
+; what an awfully long and complex script but weird things happen if i split it into littler ones and idk how to fix that so there we go
 #Requires AutoHotkey v2.0
 SetTitleMatchMode(2) ;A window's title can contain WinTitle anywhere inside it to be a match.
 Persistent(true)
@@ -37,9 +38,9 @@ if (MonitorGetCount() = 1) { ; only if only 1 monitor is on
 
 ; if not admin, start as admin
 ; taken from https://www.autohotkey.com/boards/viewtopic.php?p=523250#p523250
-If (!A_IsAdmin)
+if (!A_IsAdmin)
 {
-	Try {
+	try {
 		Run("*RunAs `"" A_ScriptFullPath "`"")
 	}
 	catch {
@@ -59,6 +60,25 @@ ProcessSetPriority("H") ; set priority to high
 
 ; ====== functions ======
 
+JEE_RunGetStdOut(vTarget, vSize := "")
+{
+	DetectHiddenWindows(true)
+	vComSpec := A_ComSpec ? A_ComSpec : A_ComSpec
+	Run(vComSpec, , "Hide", &vPID)
+	WinWait("ahk_pid " vPID)
+	DllCall("kernel32\AttachConsole", "UInt", vPID)
+	oShell := ComObject("WScript.Shell")
+	oExec := oShell.Exec(vTarget)
+	vStdOut := ""
+	if !(vSize = "")
+		VarSetStrCapacity(&vStdOut, vSize) ; V1toV2: if 'vStdOut' is NOT a UTF-16 string, use 'vStdOut := Buffer(vSize)'
+	while !oExec.StdOut.AtEndOfStream
+		vStdOut := oExec.StdOut.ReadAll()
+	DllCall("kernel32\FreeConsole")
+	ProcessClose(vPID)
+	return vStdOut
+}
+
 /**
  * Send a POST request thing to homeassistant
  * @param requestJSON a string containing json for the request body
@@ -74,25 +94,80 @@ homeassistantRequest(requestJSON, url, wait := false)
 		Run(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, , "hide")
 	}
 }
-homeassistantGet(url, wait := false) {
+homeassistantGet(url) {
 	global homeassistantToken
-	if (wait) {
-		return ComObject("WScript.Shell").Exec("curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url).StdOut.ReadAll()
-	} else {
-		return Run(A_ComSpec " /C " "curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url, , "hide")
-	}
-
+	return JEE_RunGetStdOut(A_ComSpec " /c curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url)
+	; return ComObject("WScript.Shell").Exec("curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url).StdOut.ReadAll()
 }
 
-homeassistantGetLightState() ; returns on or off
+homeassistantGetLightState(light, request := homeassistantGet("states/light." light))
 {
-	str := homeassistantGet("states/light.wiz_rgbw_tunable_b0afb2", true) ; returns a json string
+	str := request
 	index := InStr(str, "`"state`":`"") ; find the index of the state
 	state := SubStr(str, index + 9, 2) ; get the state (on or of)
 	if (state = "on") {
 		return 1 ; on
 	} else {
 		return 0 ; off or unknown or something fucked up
+	}
+}
+
+homeassistantGetLightTemp(light, request := homeassistantGet("states/light." light))
+{
+	str := request
+	index := InStr(str, "`"state`":`"") ; find the index of the state
+	state := SubStr(str, index + 9, 2) ; get the state (on or of)
+	if (state = "on") {
+		if (homeassistantGetLightColorMode(light, request) = "color_temp") {
+			; normal logic
+			index := InStr(str, "`"color_temp_kelvin`":") ; find the index of the state
+			state := SubStr(str, index + 20, 4) ; get the state (on or of)
+			; ; hopefully theres no lights with a colour temp lower than 1000 or higher than 9999?
+			; ToolTip(state)
+			return Number(state)
+		} else {
+			; theres no colour temps in rgbw or other modes
+			return -1
+		}
+	} else {
+		; the light is off and doesn't have a colour temp
+		ToolTip("-1")
+		return -1
+	}
+}
+
+homeassistantGetLightColorMode(light, request := homeassistantGet("states/light." light))
+{
+	if (homeassistantGetLightState(light, request))
+	{
+		; if on
+		str := request
+		index := InStr(str, "`"color_mode`":`"")
+		state4 := SubStr(str, index + 13, 4)
+		if (state4 = "colo") { ; color_temp
+			return "color_temp"
+		} else if state4 = "rgbw" {
+			return "rgbw"
+		} else {
+			return "unknown"
+		}
+	} else {
+		return "off"
+	}
+
+}
+
+; sometimes setting the light temp isn't exact, and getting it returns a slightly different value, so use this.
+homeassistantGetLightTempIfApprox(light, temp, request := homeassistantGetLightTemp(light)) {
+	state := homeassistantGetLightTemp(light)
+	if (state = -1) {
+		return
+	} else {
+		if (state > temp - 50 && state < temp + 50) {
+			return true
+		} else {
+			return false
+		}
 	}
 }
 
@@ -114,6 +189,11 @@ lighttoggletemp(k, brightness, wait := false)
 	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
 }
 
+lightontemp(k, brightness, wait := false)
+{
+	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
+}
+
 lighton(r, g, b, w, brightness, wait := false)
 {
 	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
@@ -121,8 +201,9 @@ lighton(r, g, b, w, brightness, wait := false)
 
 lightoff(wait := false)
 {
-	if (homeassistantGetLightState() = 0) {
+	if (homeassistantGetLightState("wiz_rgbw_tunable_b0afb2") = 0) {
 		; already off
+		ToolTip("Already off")
 	} else {
 		lighttemp(6500, 100, false) ; the light should always be reset to this value before turning off, so it turns on as expected when via other means
 		Sleep(100) ; sleep so it actually does it first because yes
@@ -130,9 +211,68 @@ lightoff(wait := false)
 	}
 }
 
+lightoff2() {
+	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`"}", "services/light/turn_off", false)
+}
+
 lighttemp(k, brightness, wait := false)
 {
 	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
+}
+
+; explorer stuff
+
+; Get the WebBrowser object of the active Explorer tab for the given window,
+; or the window itself if it doesn't have tabs.  Supports IE and File Explorer.
+GetActiveExplorerTab(hwnd := WinExist("A")) { ; from https://www.autohotkey.com/boards/viewtopic.php?f=83&t=109907
+	activeTab := 0
+	try activeTab := ControlGetHwnd("ShellTabWindowClass1", hwnd) ; File Explorer (Windows 11)
+	catch
+		try activeTab := ControlGetHwnd("TabWindowClass1", hwnd) ; IE
+	for w in ComObject("Shell.Application").Windows {
+		if w.hwnd != hwnd
+			continue
+		if activeTab { ; The window has tabs, so make sure this is the right one.
+			static IID_IShellBrowser := "{000214E2-0000-0000-C000-000000000046}"
+			shellBrowser := ComObjQuery(w, IID_IShellBrowser, IID_IShellBrowser)
+			ComCall(3, shellBrowser, "uint*", &thisTab := 0)
+			if thisTab != activeTab
+				continue
+		}
+		return w
+	}
+}
+;
+GetParentFolder(path) {
+	splitpath := StrSplit(path, "\")
+	splitpath.Pop() ; remove the last element (filename)
+	Str := ""
+	For Index, Value In splitpath
+		Str .= Value . "\"
+	; Str := RTrim(Str, "\") ; remove the last slash
+	return Str
+}
+GetFileName(pathOrFile) { ; get name without extension
+	filename := GetFileNameAndExtension(pathOrFile)
+	splitname := StrSplit(filename, ".")
+	; combine all elements except the last one
+	Str := ""
+	For Index, Value In splitname
+		if (Index != splitname.Length)
+			Str .= Value . "."
+	Str := RTrim(Str, ".") ; remove the last dot
+	return Str
+}
+GetFileExtension(pathOrFile) {
+	filename := GetFileNameAndExtension(pathOrFile)
+	splitname := StrSplit(filename, ".")
+	extension := splitname[splitname.Length]
+	return extension
+}
+GetFileNameAndExtension(pathOrFile) {
+	splitpath := StrSplit(pathOrFile, "\")
+	filename := splitpath[splitpath.Length]
+	return filename
 }
 
 ; ====== hotkeys ======
@@ -290,7 +430,7 @@ NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap 
 ; Win+Numpad1 is run on SteamVR dashboard open (thanks to OVR advanced settings)
 #Numpad1:: lighttemp(6500, 100)
 ; Win+Numpad2 is on dashboard close
-#Numpad2:: lightoff()
+#Numpad2:: lightoff2()
 
 ; on lock
 #L::
@@ -311,7 +451,52 @@ NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap 
 
 F13:: ; A1
 {
-	lighttoggletemp(6500, 100)
+	static presses := 0
+	if presses > 0 ; SetTimer already started, so we log the keypress instead.
+	{
+		presses += 1
+		ToolTip(presses)
+		return
+	}
+	; Otherwise, this is the first press of a new series. Set count to 1 and start
+	; the timer:
+	presses := 1
+	SetTimer aftertime, -400 ; Wait for more presses within a 400 millisecond window.
+
+	aftertime()
+	{
+		request := homeassistantGet("states/light.wiz_rgbw_tunable_b0afb2")
+		; MsgBox(request)
+
+		if presses = 1 ; The key was pressed once. this turns the light to 6500, 100% if the light is not at that already, otherwise it turns it off
+		{
+			; if light on already, just turn it off
+			if (homeassistantGetLightState("wiz_rgbw_tunable_b0afb2", request)) {
+				lightoff2()
+			} else {
+				; MsgBox("light is not at 6500")
+				lightontemp(6500, 100)
+			}
+		}
+		else if presses = 2 ; The key was pressed twice.
+		{
+			if (homeassistantGetLightTempIfApprox("wiz_rgbw_tunable_b0afb2", 2700, request)) {
+				lightoff()
+			} else {
+				lightontemp(2700, 25)
+			}
+		}
+		else if presses > 2
+		{
+			lighton(255, 0, 0, 0, 100)
+		}
+		; Regardless of which action above was triggered, reset the count to
+		; prepare for the next series of presses:
+
+		presses := 0
+		ToolTip
+	}
+
 }
 F14:: ; A2
 {
@@ -338,6 +523,11 @@ F14:: ; A2
 	}
 }
 
+F15:: ; A3
+{
+	MsgBox(homeassistantGet("states/light.wiz_rgbw_tunable_b0afb2"))
+}
+
 ; yt-dlp download from url
 ^#Down::
 {
@@ -361,22 +551,28 @@ F14:: ; A2
 
 showdesktop() {
 	lastactivewindow := WinExist("A") ; get last active window
-	KeyWait("LWin") ; wait for windows key to be released, so it doesnt get picked up by the inputhook
+	; KeyWait("LWin") ; wait for windows key to be released, so it doesnt get picked up by the inputhook
 	WinMinimizeAll() ; minimize all windows (like pressing win+d)
 	; move rainmeter clock to center of second monitor
+	; but first fade it out, move it, then fade it back in so its pretty
+
+	moveclockmiddle()
+
+	; await any input or other key
+	ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
+	; ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
+
+	showdesktopundo(lastactivewindow)
+}
+
+moveclockmiddle() {
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
 	Sleep(500)
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"50%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]")
 	Sleep(500)
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
-
-
-	; await any input or other key
-	ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
-
-	showdesktopundo(lastactivewindow)
-
 }
+
 
 showdesktopundo(lastactivewindow) {
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
@@ -384,13 +580,15 @@ showdesktopundo(lastactivewindow) {
 	lightoff()
 	Sleep(100)
 	try WinActivate("ahk_id " lastactivewindow) ; activate last active window
-	WinSetAlwaysOnTop(0) ; what the fuck why does it make it alwaysontop??? are they stupid?
+	try WinSetAlwaysOnTop(0) ; what the fuck why does it make it alwaysontop??? are they stupid?
 
 	; ensure spotify and discord are restored, as they are always open on second monitor
-	If (WinGetMinMax("ahk_exe Spotify.exe") = -1) {
+
+
+	If (WinExist("ahk_exe Spotify.exe") && WinGetMinMax() = -1) {
 		try WinRestore("ahk_exe Spotify.exe")
 	}
-	If (WinGetMinMax("ahk_exe Discord.exe") = -1) {
+	If (WinExist("ahk_exe Discord.exe") && WinGetMinMax() = -1) {
 		try WinRestore("ahk_exe Discord.exe")
 	}
 	Sleep(500)
@@ -421,6 +619,35 @@ showdesktopundo(lastactivewindow) {
 {
 	WinMinimizeAll()
 }
+#f::
+{
+	; if either spotify or discord are visible, ensure both are minimized
+	if ((WinExist("ahk_exe Spotify.exe") && WinGetMinMax() != -1) || (WinExist("ahk_exe Discord.exe") && WinGetMinMax() != -1)) {
+		try WinMinimize("ahk_exe Spotify.exe")
+		try WinMinimize("ahk_exe Discord.exe")
+		moveclockmiddle()
+	} else {
+		; otherwise, ensure both are restored
+		Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
+		try WinRestore("ahk_exe Spotify.exe")
+		try WinRestore("ahk_exe Discord.exe")
+		Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"75%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]")
+		Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
+	}
+}
+
+
+; If (WinExist("ahk_exe Spotify.exe") && WinGetMinMax() != -1) {
+; 	try WinMinimize("ahk_exe Spotify.exe")
+; } else {
+; 	try WinRestore("ahk_exe Spotify.exe")
+; }
+; If (WinExist("ahk_exe Discord.exe") && WinGetMinMax() != -1) {
+; 	try WinMinimize("ahk_exe Discord.exe")
+; } else {
+; 	try WinRestore("ahk_exe Discord.exe")
+; }
+; }
 
 ; ====== per app hotkeys ======
 
@@ -473,12 +700,13 @@ F22::
 
 #HotIf WinActive("ahk_exe firefox.exe")
 ; stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
-F23::
+F23:: ; DPI Down / G7
 {
 	moveval := 0
 
 	pixeldist := 5
-	largepixeldist := 1000
+	largepixeldist := 500
+
 
 	If GetKeyState("F23", "p") {
 		MouseGetPos(&x1, &y1)
@@ -529,12 +757,14 @@ F23::
 	{
 		if (moveval = 0) ; no movement
 			Send("^{LButton}")
+		; close tabs shortcuts https://addons.mozilla.org/en-GB/firefox/addon/close-tabs-shortcuts/
 		if (moveval = 1) ; Big Right
-			Send("!{right}")
+			Send("!+{F2}") ; close tabs to the right
 		if (moveval = 2) ; Big Left
-			Send("!{left}")
+			Send("!+{F1}") ; close tabs to the left
+		;
 		if (moveval = 3) ; Big Down
-			Send("^l")
+			Send("^w")
 		if (moveval = 4) ; Big Up
 			Send("+^t")
 		if (moveval = 5) ; Right
@@ -544,7 +774,115 @@ F23::
 		if (moveval = 7) ; Down
 			Send("^w")
 		if (moveval = 8) ; Up
-			Send("^t")
+			Send("^l") ; select address bar
+	}
+}
+
+
+#HotIf WinActive("ahk_class CabinetWClass ahk_exe explorer.exe") ; Only run if Explorer is active
+CapsLock & .:: { ; unzip selected archive(s)
+	tab := GetActiveExplorerTab() ; get the active windows 11 explorer tab
+	switch type(tab.Document) {
+		case "ShellFolderView":
+			{
+				SelectedItems := tab.Document.SelectedItems ; get selected items
+				; MsgBox ; debug info
+				; (
+				;     "Variant type:`t" ComObjType(d) "
+				;     Interface name:`t" ComObjType(d, "Name") "
+				;     Interface ID:`t" ComObjType(d, "IID") "
+				;     Class name:`t" ComObjType(d, "Class") "
+				;     Class ID (CLSID):`t" ComObjType(d, "CLSID")
+				; )
+				numberofselecteditems := 0
+				for folderItem, b in SelectedItems {
+					numberofselecteditems++
+				}
+
+				for folderItem, b in SelectedItems { ; https://learn.microsoft.com/en-us/windows/win32/shell/folderitem
+					; MsgBox folderItem.Path ;
+					path := folderItem.Path
+					parentfolder := GetParentFolder(path)
+					filename := GetFileName(path)
+					newfoldername := filename
+					fileextension := GetFileExtension(path)
+
+					; test if file can be extracted
+					testOutput := ComObject("WScript.Shell").Exec("7z t `"" path "`"").StdOut.ReadAll()
+					; if testoutput contains "Everything is Ok"
+					if (InStr(testOutput, "Everything is Ok")) {
+						; MsgBox("File can be extracted: " path)
+					} else {
+						MsgBox("File cannot be extracted: " path "`nIt may be corrupt or this archive format is not supported.", , "0x30")
+						continue
+					}
+
+					newpath := parentfolder "" newfoldername "\"
+
+					if (FileExist(newpath)) {
+						; MsgBox("Folder already exists: " newpath)
+						; rename the folder to something else, make sure it doesn't already exist
+						i := 1
+						loop {
+							newpath := parentfolder "" filename " (" i ")\"
+							if (!FileExist(newpath)) {
+								break
+							}
+							i++
+						}
+						newfoldername := filename " (" i ")"
+						newpath := parentfolder "" newfoldername "\"
+					}
+					DirCreate(newpath)
+
+					if (numberofselecteditems > 1) {
+						ToolTip("Extracting " numberofselecteditems " archives to " parentfolder)
+					} else {
+						ToolTip("Extracting " filename " to " newpath)
+						tab.Navigate(newpath) ; navigate to the extracted folder in the current tab
+					}
+					command := A_ComSpec " /C " " 7z x `"" path "`" -aou -o`"" newpath "`""
+					; MsgBox(command)
+					RunWait(command, , "Hide")
+					; ClipWait
+					; MsgBox(A_Clipboard)
+
+
+					; -aou renames extracting file if it already exists https://7-zip.opensource.jp/chm/cmdline/switches/overwrite.htm
+					; https://superuser.com/questions/95902/7-zip-and-unzipping-from-command-line
+
+					; Run(A_ComSpec " /c `"" "7z x " path " -aou -o" parentfolder "\" filename)
+
+				}
+
+				SoundPlay(A_WinDir "\Media\ding.wav")
+				Sleep(1000)
+				ToolTip()
+				; success sound
+
+			}
+		default:
+			{
+				ToolTip("Not a folder view")
+				Sleep(1000)
+				ToolTip()
+			}
+	}
+}
+CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead of Documents
+{
+	tab := GetActiveExplorerTab() ; get the active windows 11 explorer tab
+	switch type(tab.Document) {
+		case "ShellFolderView":
+			{
+				tab.Navigate(tab.Document.Folder.Self.Path) ; navigate, in current tab, to the current folder
+			}
+		default:
+			{
+				ToolTip("Not a folder view")
+				Sleep(1000)
+				ToolTip()
+			}
 	}
 }
 

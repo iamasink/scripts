@@ -1,5 +1,5 @@
 @REM This is a comment
-@REM Download yt-dlp.exe from https://github.com/yt-dlp/yt-dlp/releases, and put it in the same folder as this .bat file. (or add it to Path)
+@REM Download yt-dlp.exe from https://github.com/yt-dlp/yt-dlp/releases, and put it in the same folder as this .bat file.
 
 @REM Hide the location and stuff, it makes it prettier
 @echo off
@@ -15,10 +15,11 @@ yt-dlp -U
 
 @REM download the file
 @REM "-P" is Path %DownloadLocation% is the variable from above, 
-@REM "-f" is format (best audio)
-@REM "--no-mtime" makes the modified time the current time, instead of the time the video was uploaded
-@REM "--extract-audio" extracts only the audio and ignores video
+@REM Creator-subs are automatically preferred over auto-subs if available.
+@REM --write-sub downloads the subtitles
+@REM --sub-lang "en.*" downloads only english subtitles (its a regex thing)
+@REM --skip-download skips downloading the video, only downloads the subtitles
 @REM %url% is the url the user enters when the script is ran
 @REM "|| pause" pauses the script if theres any issue (to show the error), else it will just close
-yt-dlp -P %DownloadLocation% -f bestaudio --no-mtime --extract-audio %url% || pause
+yt-dlp -P %DownloadLocation% --write-sub --sub-lang "en.*" --skip-download  %url% || pause
 timeout /t 5
