@@ -47,6 +47,7 @@ if (!A_IsAdmin)
 		MsgBox("Couldn't run as admin! Some things may not work")
 	}
 }
+; MsgBox(A_AhkVersion)
 
 ProcessSetPriority("H") ; set priority to high
 ; Low (or L)
