@@ -1,6 +1,17 @@
 ; main script.
 ; what an awfully long and complex script but weird things happen if i split it into littler ones and idk how to fix that so there we go
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2.0.4
+
+
+; include librarys
+; Include jsongo to use it
+#Include includes\jsongo.v2.ahk
+
+; Peep() is a function that allows you to view the contents of any object
+; https://github.com/GroggyOtter/PeepAHK
+#Include includes\Peep.v2.ahk
+
+
 SetTitleMatchMode(2) ;A window's title can contain WinTitle anywhere inside it to be a match.
 Persistent(true)
 ;keeps num and caps off permanently
@@ -97,34 +108,30 @@ homeassistantRequest(requestJSON, url, wait := false)
 }
 homeassistantGet(url) {
 	global homeassistantToken
-	return JEE_RunGetStdOut(A_ComSpec " /c curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url)
+	return jsongo.Parse(JEE_RunGetStdOut(A_ComSpec " /c curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url))
 	; return ComObject("WScript.Shell").Exec("curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url).StdOut.ReadAll()
 }
 
 homeassistantGetLightState(light, request := homeassistantGet("states/light." light))
 {
-	str := request
-	index := InStr(str, "`"state`":`"") ; find the index of the state
-	state := SubStr(str, index + 9, 2) ; get the state (on or of)
+	; Peep(object)
+	state := request['state']
+	; MsgBox(state)
 	if (state = "on") {
-		return 1 ; on
+		return 1
 	} else {
-		return 0 ; off or unknown or something fucked up
+		return 0
 	}
+
 }
 
+; returns a temp in kelvin, or -1 if the light is off or doesn't have a colour temp
 homeassistantGetLightTemp(light, request := homeassistantGet("states/light." light))
 {
-	str := request
-	index := InStr(str, "`"state`":`"") ; find the index of the state
-	state := SubStr(str, index + 9, 2) ; get the state (on or of)
-	if (state = "on") {
+	if (homeassistantGetLightState(light, request)) {
 		if (homeassistantGetLightColorMode(light, request) = "color_temp") {
-			; normal logic
-			index := InStr(str, "`"color_temp_kelvin`":") ; find the index of the state
-			state := SubStr(str, index + 20, 4) ; get the state (on or of)
-			; ; hopefully theres no lights with a colour temp lower than 1000 or higher than 9999?
-			; ToolTip(state)
+			state := request['attributes']['color_temp_kelvin']
+			; Peep(state)
 			return Number(state)
 		} else {
 			; theres no colour temps in rgbw or other modes
@@ -135,6 +142,7 @@ homeassistantGetLightTemp(light, request := homeassistantGet("states/light." lig
 		ToolTip("-1")
 		return -1
 	}
+	return 0
 }
 
 homeassistantGetLightColorMode(light, request := homeassistantGet("states/light." light))
@@ -142,16 +150,7 @@ homeassistantGetLightColorMode(light, request := homeassistantGet("states/light.
 	if (homeassistantGetLightState(light, request))
 	{
 		; if on
-		str := request
-		index := InStr(str, "`"color_mode`":`"")
-		state4 := SubStr(str, index + 13, 4)
-		if (state4 = "colo") { ; color_temp
-			return "color_temp"
-		} else if state4 = "rgbw" {
-			return "rgbw"
-		} else {
-			return "unknown"
-		}
+		return request['attributes']['color_mode']
 	} else {
 		return "off"
 	}
@@ -159,10 +158,10 @@ homeassistantGetLightColorMode(light, request := homeassistantGet("states/light.
 }
 
 ; sometimes setting the light temp isn't exact, and getting it returns a slightly different value, so use this.
-homeassistantGetLightTempIfApprox(light, temp, request := homeassistantGetLightTemp(light)) {
-	state := homeassistantGetLightTemp(light)
+homeassistantGetLightTempIfApprox(light, temp, request := homeassistantGet("states/light." light)) {
+	state := homeassistantGetLightTemp(light, request)
 	if (state = -1) {
-		return
+		return false
 	} else {
 		if (state > temp - 50 && state < temp + 50) {
 			return true
@@ -526,7 +525,8 @@ F14:: ; A2
 
 F15:: ; A3
 {
-	MsgBox(homeassistantGet("states/light.wiz_rgbw_tunable_b0afb2"))
+	; MsgBox("current window: " WinGetProcessName(WinActive("A")))
+	MsgBox(homeassistantGetLightTemp("wiz_rgbw_tunable_b0afb2"))
 }
 
 ; yt-dlp download from url
@@ -781,95 +781,97 @@ F23:: ; DPI Down / G7
 
 
 #HotIf WinActive("ahk_class CabinetWClass ahk_exe explorer.exe") ; Only run if Explorer is active
-CapsLock & .:: { ; unzip selected archive(s)
-	tab := GetActiveExplorerTab() ; get the active windows 11 explorer tab
-	switch type(tab.Document) {
-		case "ShellFolderView":
-			{
-				SelectedItems := tab.Document.SelectedItems ; get selected items
-				; MsgBox ; debug info
-				; (
-				;     "Variant type:`t" ComObjType(d) "
-				;     Interface name:`t" ComObjType(d, "Name") "
-				;     Interface ID:`t" ComObjType(d, "IID") "
-				;     Class name:`t" ComObjType(d, "Class") "
-				;     Class ID (CLSID):`t" ComObjType(d, "CLSID")
-				; )
-				numberofselecteditems := 0
-				for folderItem, b in SelectedItems {
-					numberofselecteditems++
-				}
+; CapsLock & .:: { ; unzip selected archive(s) (buggy and laggy so commented out :)
+; 	tab := GetActiveExplorerTab() ; get the active windows 11 explorer tab
+; 	switch type(tab.Document) {
+; 		case "ShellFolderView":
+; 			{
+; 				SelectedItems := tab.Document.SelectedItems ; get selected items
+; 				; MsgBox ; debug info
+; 				; (
+; 				;     "Variant type:`t" ComObjType(d) "
+; 				;     Interface name:`t" ComObjType(d, "Name") "
+; 				;     Interface ID:`t" ComObjType(d, "IID") "
+; 				;     Class name:`t" ComObjType(d, "Class") "
+; 				;     Class ID (CLSID):`t" ComObjType(d, "CLSID")
+; 				; )
+; 				numberofselecteditems := 0
+; 				for folderItem, b in SelectedItems {
+; 					numberofselecteditems++
+; 				}
 
-				for folderItem, b in SelectedItems { ; https://learn.microsoft.com/en-us/windows/win32/shell/folderitem
-					; MsgBox folderItem.Path ;
-					path := folderItem.Path
-					parentfolder := GetParentFolder(path)
-					filename := GetFileName(path)
-					newfoldername := filename
-					fileextension := GetFileExtension(path)
+; 				for folderItem, b in SelectedItems { ; https://learn.microsoft.com/en-us/windows/win32/shell/folderitem
+; 					; MsgBox folderItem.Path ;
+; 					path := folderItem.Path
+; 					parentfolder := GetParentFolder(path)
+; 					filename := GetFileName(path)
+; 					newfoldername := filename
+; 					fileextension := GetFileExtension(path)
 
-					; test if file can be extracted
-					testOutput := ComObject("WScript.Shell").Exec("7z t `"" path "`"").StdOut.ReadAll()
-					; if testoutput contains "Everything is Ok"
-					if (InStr(testOutput, "Everything is Ok")) {
-						; MsgBox("File can be extracted: " path)
-					} else {
-						MsgBox("File cannot be extracted: " path "`nIt may be corrupt or this archive format is not supported.", , "0x30")
-						continue
-					}
+; 					; test if file can be extracted
+; 					; testOutput := ComObject("WScript.Shell").Exec("7z t `"" path "`"").StdOut.ReadAll()
+; 					testOutput := JEE_RunGetStdOut(A_ComSpec " /c 7z t `"" path "`"")
+; 					Peep(testOutput)
+; 					; if testoutput contains "Everything is Ok"
+; 					if (InStr(testOutput, "Everything is Ok")) {
+; 						; MsgBox("File can be extracted: " path)
+; 					} else {
+; 						MsgBox("File cannot be extracted: " path "`nIt may be corrupt or this archive format is not supported.", , "0x30")
+; 						continue
+; 					}
 
-					newpath := parentfolder "" newfoldername "\"
+; 					newpath := parentfolder "" newfoldername "\"
 
-					if (FileExist(newpath)) {
-						; MsgBox("Folder already exists: " newpath)
-						; rename the folder to something else, make sure it doesn't already exist
-						i := 1
-						loop {
-							newpath := parentfolder "" filename " (" i ")\"
-							if (!FileExist(newpath)) {
-								break
-							}
-							i++
-						}
-						newfoldername := filename " (" i ")"
-						newpath := parentfolder "" newfoldername "\"
-					}
-					DirCreate(newpath)
+; 					if (FileExist(newpath)) {
+; 						; MsgBox("Folder already exists: " newpath)
+; 						; rename the folder to something else, make sure it doesn't already exist
+; 						i := 1
+; 						loop {
+; 							newpath := parentfolder "" filename " (" i ")\"
+; 							if (!FileExist(newpath)) {
+; 								break
+; 							}
+; 							i++
+; 						}
+; 						newfoldername := filename " (" i ")"
+; 						newpath := parentfolder "" newfoldername "\"
+; 					}
+; 					DirCreate(newpath)
 
-					if (numberofselecteditems > 1) {
-						ToolTip("Extracting " numberofselecteditems " archives to " parentfolder)
-					} else {
-						ToolTip("Extracting " filename " to " newpath)
-						tab.Navigate(newpath) ; navigate to the extracted folder in the current tab
-					}
-					command := A_ComSpec " /C " " 7z x `"" path "`" -aou -o`"" newpath "`""
-					; MsgBox(command)
-					RunWait(command, , "Hide")
-					; ClipWait
-					; MsgBox(A_Clipboard)
+; 					if (numberofselecteditems > 1) {
+; 						ToolTip("Extracting " numberofselecteditems " archives to " parentfolder)
+; 					} else {
+; 						ToolTip("Extracting " filename " to " newpath)
+; 						tab.Navigate(newpath) ; navigate to the extracted folder in the current tab
+; 					}
+; 					command := A_ComSpec " /C " " 7z x `"" path "`" -aou -o`"" newpath "`""
+; 					; MsgBox(command)
+; 					RunWait(command, , "Hide")
+; 					; ClipWait
+; 					; MsgBox(A_Clipboard)
 
 
-					; -aou renames extracting file if it already exists https://7-zip.opensource.jp/chm/cmdline/switches/overwrite.htm
-					; https://superuser.com/questions/95902/7-zip-and-unzipping-from-command-line
+; 					; -aou renames extracting file if it already exists https://7-zip.opensource.jp/chm/cmdline/switches/overwrite.htm
+; 					; https://superuser.com/questions/95902/7-zip-and-unzipping-from-command-line
 
-					; Run(A_ComSpec " /c `"" "7z x " path " -aou -o" parentfolder "\" filename)
+; 					; Run(A_ComSpec " /c `"" "7z x " path " -aou -o" parentfolder "\" filename)
 
-				}
+; 				}
 
-				SoundPlay(A_WinDir "\Media\ding.wav")
-				Sleep(1000)
-				ToolTip()
-				; success sound
+; 				SoundPlay(A_WinDir "\Media\ding.wav")
+; 				Sleep(1000)
+; 				ToolTip()
+; 				; success sound
 
-			}
-		default:
-			{
-				ToolTip("Not a folder view")
-				Sleep(1000)
-				ToolTip()
-			}
-	}
-}
+; 			}
+; 		default:
+; 			{
+; 				ToolTip("Not a folder view")
+; 				Sleep(1000)
+; 				ToolTip()
+; 			}
+; 	}
+; }
 CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead of Documents
 {
 	tab := GetActiveExplorerTab() ; get the active windows 11 explorer tab
@@ -897,7 +899,7 @@ CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead o
 ; }
 
 ; reload the script when its saved
-#HotIf WinActive(A_ScriptName "ahk_exe Code.exe")
+#HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
 ^s::
 {
 	Send("^s")
