@@ -22,7 +22,7 @@ CoordMode("Mouse")
 SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
 #SingleInstance Force
 
-#WinActivateForce
+; #WinActivateForce
 ; https://www.autohotkey.com/docs/v2/lib/_WinActivateForce.htm
 ; "it might prevent task bar buttons from flashing when different windows are activated quickly one after the other.""
 
@@ -94,6 +94,7 @@ JEE_RunGetStdOut(vTarget, vSize := "")
 		vStdOut := oExec.StdOut.ReadAll()
 	DllCall("kernel32\FreeConsole")
 	ProcessClose(vPID)
+	DetectHiddenWindows(false)
 	return vStdOut
 }
 
@@ -376,14 +377,15 @@ CapsLock & q:: {
 	PostMessage(0x319, , 0xC0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Prev to spotify
 }
 CapsLock & Space:: {
-	if (!WinExist("ahk_exe Everything.exe")) {
-		Run("C:\Program Files\Everything\Everything.exe")
-	} else if (WinActive("ahk_exe Everything.exe")) {
-		WinKill("ahk_exe Everything.exe")
-	}
-	else {
-		WinActivate("ahk_exe Everything.exe")
-	}
+	; if (!WinExist("ahk_exe Everything.exe")) {
+	; 	Run("C:\Program Files\Everything\Everything.exe")
+	; } else if (WinActive("ahk_exe Everything.exe")) {
+	; 	WinKill("ahk_exe Everything.exe")
+	; }
+	; else {
+	; 	WinActivate("ahk_exe Everything.exe")
+	; }
+	Send("{Alt Down}{P Down}{Alt Up}{P Up}")
 }
 CapsLock & d:: {
 	if (!WinExist("ahk_exe Discord.exe")) {
@@ -589,23 +591,13 @@ moveclockmiddle() {
 showdesktopundo(lastactivewindow) {
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
 	WinMinimizeAllUndo() ; undo minimize all
-	lightoff()
 
 
-	; ensure spotify and discord are restored, as they are always open on second monitor
-
-
-	If (WinExist("ahk_exe Spotify.exe") && WinGetMinMax() = -1) {
-		try WinRestore("ahk_exe Spotify.exe")
-	}
-	If (WinExist("ahk_exe Discord.exe") && WinGetMinMax() = -1) {
-		try WinRestore("ahk_exe Discord.exe")
-	}
-	Sleep(250)
 	try WinActivate("ahk_id " lastactivewindow) ; activate last active window
 	; MsgBox("hello world")
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"75%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]")
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
+	; lightoff()
 }
 
 ~LButton:: ; ~ means dont block the original key.
@@ -654,7 +646,7 @@ showdesktopundo(lastactivewindow) {
 ; } else {
 ; 	try WinRestore("ahk_exe Spotify.exe")
 ; }
-; If (WinExist("ahk_exe Discord.exe") && WinGetMinMax() != -1) {
+; If (WinExist("ahk_exe Discord.exe") && WinGetMinMax() != -1) {f
 ; 	try WinMinimize("ahk_exe Discord.exe")
 ; } else {
 ; 	try WinRestore("ahk_exe Discord.exe")
