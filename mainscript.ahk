@@ -640,6 +640,46 @@ showdesktopundo(lastactivewindow) {
 	}
 }
 
+<^>!3::
+{
+	Send("¥")
+}
+<!>!5::
+{
+	Send("§")
+}
+<^>!8:: ; alt-gr + 8
+{
+	Send("°")
+}
+<^>!Space:: {
+	Send("　")
+}
+<^>!Right:: {
+	Send("→")
+}
+<^>!Left:: {
+	Send("←")
+}
+<^>!Up:: {
+	Send("↑")
+}
+<^>!Down:: {
+	Send("↓")
+}
+<^>!y:: {
+	Send("✓")
+}
+<^>!x:: {
+	Send("✗")
+}
+<^>!\:: {
+	Send("＼")
+}
+<^>!/:: {
+	Send("／")
+}
+
 
 ; If (WinExist("ahk_exe Spotify.exe") && WinGetMinMax() != -1) {
 ; 	try WinMinimize("ahk_exe Spotify.exe")
@@ -903,9 +943,9 @@ CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead o
 
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
-^s::
+~^s::
 {
-	Send("^s")
+	; Send("^s")
 	Reload()
 	MsgBox("reloading !")
 	Return
