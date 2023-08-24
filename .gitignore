@@ -8,3 +8,4 @@ scrcpy/scrcpy
 autoupdate.ahk
 includes/*
 !includes/README.md
+*.lnk
