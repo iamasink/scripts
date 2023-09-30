@@ -227,6 +227,7 @@ lighttemp(k, brightness, wait := false)
 	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
 }
 
+
 ; explorer stuff
 
 ; Get the WebBrowser object of the active Explorer tab for the given window,
@@ -281,6 +282,7 @@ GetFileNameAndExtension(pathOrFile) {
 	filename := splitpath[splitpath.Length]
 	return filename
 }
+
 
 ; ====== hotkeys ======
 
@@ -410,12 +412,16 @@ CapsLock & o::End
 ; CapsLock & v:: {
 ; 	Send("^!+{v}")
 ; }
+CapsLock & Tab::Enter
+
 
 CapsLock::
 {
 	Send("{Backspace}") ; when CapsLock released,, maybe theres a better way to do it but idk.
 	SetCapsLockState("alwaysoff") ; sometimes it gets stuck on soo im adding this
 }
+
+
 !+e:: Send("{Media_Next}")
 !+w:: Send("{Media_Play_Pause}")
 !+q:: Send("{Media_Prev}")
@@ -454,9 +460,26 @@ NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap 
 	Return
 }
 
+; keyboard switching
+; in "Text Services and Input Languages", English is LAlt + Shift + 1
+; Japanese is LAlt + Shift + 2
+; ~ means dont block from system
+CapsLock & z:: { ; english layout
+	KeyWait("CapsLock")
+	Send("!+1")
+}
+CapsLock & x:: { ; japanese hiragana layout
+	KeyWait("CapsLock")
+	Send("!+2")
+	Send("^{CapsLock}")
+}
+CapsLock & c:: { ; japanese katakana layout
+	KeyWait("CapsLock")
+	Send("!+2")
+	Send("!{CapsLock}")
+}
 
 #InputLevel 1
-
 F13:: ; A1
 {
 	static presses := 0
@@ -470,12 +493,10 @@ F13:: ; A1
 	; the timer:
 	presses := 1
 	SetTimer aftertime, -400 ; Wait for more presses within a 400 millisecond window.
-
 	aftertime()
 	{
 		request := homeassistantGet("states/light.wiz_rgbw_tunable_b0afb2")
 		; MsgBox(request)
-
 		if presses = 1 ; The key was pressed once. this turns the light to 6500, 100% if the light is not at that already, otherwise it turns it off
 		{
 			; if light on already, just turn it off
@@ -500,11 +521,9 @@ F13:: ; A1
 		}
 		; Regardless of which action above was triggered, reset the count to
 		; prepare for the next series of presses:
-
 		presses := 0
 		ToolTip
 	}
-
 }
 F14:: ; A2
 {
@@ -530,55 +549,46 @@ F14:: ; A2
 		ToolTip("")
 	}
 }
-
 F15:: ; A3
 {
 	MsgBox("current window: " WinGetProcessName(WinActive("A")))
 	; MsgBox(homeassistantGetLightTemp("wiz_rgbw_tunable_b0afb2"))
 }
-
 ; yt-dlp download from url
 ^#Down::
 {
+	KeyWait("Down") ; wait for the key to be released so it doesnt mess stuff up
 	; theres probably a better way to do this than pasting like this but whatever
 	Run(A_ComSpec " /c `"" A_ScriptDir "\ytdlp\Download Video.bat`"", A_ScriptDir "\ytdlp\")
 	Sleep(1000)
 	Send("^v")
 	Sleep(100)
 	Send("{Enter}")
-	Sleep(50)
+	Sleep(100)
 	Send("#{Down}")
 	Return
 }
-
 ; run scrcpy
 ^#Right::
 {
 	Run(A_ScriptDir "\scrcpy\scrcpy.bat", A_ScriptDir "\scrcpy\")
 }
-
-
 showdesktop(undo := true) {
 	lastactivewindow := WinExist("A") ; get last active window
 	; KeyWait("LWin") ; wait for windows key to be released, so it doesnt get picked up by the inputhook
 	WinMinimizeAll() ; minimize all windows (like pressing win+d)
 	; move rainmeter clock to center of second monitor
 	; but first fade it out, move it, then fade it back in so its pretty
-
 	moveclockmiddle()
-
 	if (undo) {
-
 		; await any input or other key
 		ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
 		; ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
-
 		showdesktopundo(lastactivewindow)
 	} else {
 		return lastactivewindow
 	}
 }
-
 moveclockmiddle() {
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
 	Sleep(500)
@@ -586,20 +596,15 @@ moveclockmiddle() {
 	Sleep(500)
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
 }
-
-
 showdesktopundo(lastactivewindow) {
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
 	WinMinimizeAllUndo() ; undo minimize all
-
-
 	try WinActivate("ahk_id " lastactivewindow) ; activate last active window
 	; MsgBox("hello world")
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"75%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]")
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
 	; lightoff()
 }
-
 ~LButton:: ; ~ means dont block the original key.
 ; this replaces the show desktop button in the bottom right corner of the screen, so it should be disabled in the taskbar settings
 {
@@ -613,8 +618,6 @@ showdesktopundo(lastactivewindow) {
 		showdesktop()
 	}
 }
-
-
 #d::
 {
 	showdesktop()
@@ -639,7 +642,6 @@ showdesktopundo(lastactivewindow) {
 		Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
 	}
 }
-
 <^>!3::
 {
 	Send("¥")
@@ -679,8 +681,6 @@ showdesktopundo(lastactivewindow) {
 <^>!/:: {
 	Send("／")
 }
-
-
 ; If (WinExist("ahk_exe Spotify.exe") && WinGetMinMax() != -1) {
 ; 	try WinMinimize("ahk_exe Spotify.exe")
 ; } else {
@@ -692,34 +692,27 @@ showdesktopundo(lastactivewindow) {
 ; 	try WinRestore("ahk_exe Discord.exe")
 ; }
 ; }
-
 ; ====== per app hotkeys ======
-
-
-#HotIf WinActive("Hammer - ")
-F21::z
-
+#HotIf WinActive("Hammer - ahk_exe cs2.exe")
+F22::]
+F23::[
 #HotIf WinActive("Counter-Strike: Global Offensive",)
 F24:: MouseClick("left")
-
 #HotIf WinActive("Grand Theft Auto V",)
 F24::Tab
 F23::Insert
 F22::End
 F21::#
-
 #HotIf WinActive("PLAYERUNKNOWN",)
 F24::Home
 F23::Insert
 F22::End
 F21::#
-
 #HotIf WinActive("Rainbow Six",)
 F24::Home
 F23::Insert
 F22::End
 F21::]
-
 #HotIf WinActive("Lunar Client",)
 F24::Tab
 F23::Insert
@@ -727,10 +720,8 @@ F22::End
 F21::#
 XButton1::[
 XButton2::]
-
 #HotIf WinActive("VALORANT",)
 CapsLock::#
-
 #HotIf WinActive("paint.net",)
 XButton2::]
 XButton1::[
@@ -741,39 +732,28 @@ F22::
 }
 !WheelUp::]
 !WheelDown::[
-
 #HotIf WinActive("ahk_exe firefox.exe")
 ; stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
 F23:: ; DPI Down / G7
 {
 	moveval := 0
-
 	pixeldist := 5
 	largepixeldist := 500
-
-
 	If GetKeyState("F23", "p") {
 		MouseGetPos(&x1, &y1)
 		KeyWait("F23")
 	}
-
 	MouseGetPos(&x2, &y2)
-
 	XDif := (x2 - x1)
 	YDif := (y2 - y1)
-
 	If (abs(XDif) >= abs(YDif)) {
-
 		If (abs(XDif) >= largepixeldist) {
-
-
 			If (XDif >= (largepixeldist * 2))
 				moveval := 1
 			If (XDif <= -largepixeldist)
 				moveval := 2
 		}
 		else {
-
 			If (XDif >= pixeldist)
 				moveval := 5
 			If (XDif <= -pixeldist)
@@ -781,23 +761,19 @@ F23:: ; DPI Down / G7
 		}
 	}
 	else {
-
 		If (abs(YDif) >= largepixeldist) {
-
 			If (YDif >= largepixeldist)
 				moveval := 3
 			If (YDif <= -largepixeldist)
 				moveval := 4
 		}
 		else {
-
 			If (YDif >= pixeldist)
 				moveval := 7
 			If (YDif <= -pixeldist)
 				moveval := 8
 		}
 	}
-
 	{
 		if (moveval = 0) ; no movement
 			Send("^{LButton}")
@@ -821,8 +797,6 @@ F23:: ; DPI Down / G7
 			Send("^l") ; select address bar
 	}
 }
-
-
 #HotIf WinActive("ahk_class CabinetWClass ahk_exe explorer.exe") ; Only run if Explorer is active
 ; CapsLock & .:: { ; unzip selected archive(s) (buggy and laggy so commented out :)
 ; 	tab := GetActiveExplorerTab() ; get the active windows 11 explorer tab
@@ -842,7 +816,6 @@ F23:: ; DPI Down / G7
 ; 				for folderItem, b in SelectedItems {
 ; 					numberofselecteditems++
 ; 				}
-
 ; 				for folderItem, b in SelectedItems { ; https://learn.microsoft.com/en-us/windows/win32/shell/folderitem
 ; 					; MsgBox folderItem.Path ;
 ; 					path := folderItem.Path
@@ -850,7 +823,6 @@ F23:: ; DPI Down / G7
 ; 					filename := GetFileName(path)
 ; 					newfoldername := filename
 ; 					fileextension := GetFileExtension(path)
-
 ; 					; test if file can be extracted
 ; 					; testOutput := ComObject("WScript.Shell").Exec("7z t `"" path "`"").StdOut.ReadAll()
 ; 					testOutput := JEE_RunGetStdOut(A_ComSpec " /c 7z t `"" path "`"")
@@ -862,9 +834,7 @@ F23:: ; DPI Down / G7
 ; 						MsgBox("File cannot be extracted: " path "`nIt may be corrupt or this archive format is not supported.", , "0x30")
 ; 						continue
 ; 					}
-
 ; 					newpath := parentfolder "" newfoldername "\"
-
 ; 					if (FileExist(newpath)) {
 ; 						; MsgBox("Folder already exists: " newpath)
 ; 						; rename the folder to something else, make sure it doesn't already exist
@@ -880,7 +850,6 @@ F23:: ; DPI Down / G7
 ; 						newpath := parentfolder "" newfoldername "\"
 ; 					}
 ; 					DirCreate(newpath)
-
 ; 					if (numberofselecteditems > 1) {
 ; 						ToolTip("Extracting " numberofselecteditems " archives to " parentfolder)
 ; 					} else {
@@ -892,20 +861,14 @@ F23:: ; DPI Down / G7
 ; 					RunWait(command, , "Hide")
 ; 					; ClipWait
 ; 					; MsgBox(A_Clipboard)
-
-
 ; 					; -aou renames extracting file if it already exists https://7-zip.opensource.jp/chm/cmdline/switches/overwrite.htm
 ; 					; https://superuser.com/questions/95902/7-zip-and-unzipping-from-command-line
-
 ; 					; Run(A_ComSpec " /c `"" "7z x " path " -aou -o" parentfolder "\" filename)
-
 ; 				}
-
 ; 				SoundPlay(A_WinDir "\Media\ding.wav")
 ; 				Sleep(1000)
 ; 				ToolTip()
 ; 				; success sound
-
 ; 			}
 ; 		default:
 ; 			{
@@ -932,6 +895,15 @@ CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead o
 	}
 }
 
+
+#HotIf WinActive("ahk_exe anki.exe")
+SC053::
+{
+	Send("1")
+}
+SC052:: Send("^z")
+
+
 ; #HotIf WinActive("ahk_exe Code.exe")
 ; Alt & CapsLock::
 ; {
@@ -940,7 +912,6 @@ CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead o
 ; 	; insert a new line above (ctrl + shift + enter)
 ; 	Send("^+{Enter}")
 ; }
-
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
 ~^s::
