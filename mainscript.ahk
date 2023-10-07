@@ -39,7 +39,7 @@ SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
 ;   - Mode 	- F16
 ;   The original functions for these keys (switching keyboard profile) are available in the FN layer.
 
-; read secrets, this runs on script start so the script must be restarted to update the toke
+; read secrets, this runs on script start so the script must be restarted to update the token
 homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
 
 ; set display on start
@@ -78,6 +78,7 @@ Run(A_ComSpec " /C " A_ScriptDir "\synctime.bat 1", A_ScriptDir, "Hide") ; run s
 
 ; ====== functions ======
 
+; runs a command and gets the stdout
 JEE_RunGetStdOut(vTarget, vSize := "")
 {
 	DetectHiddenWindows(true)
@@ -902,6 +903,68 @@ SC053::
 	Send("1")
 }
 SC052:: Send("^z")
+
+
+; current app loop
+; this doesn't stop the other hotkeys because they're like a seperate thread.
+win := 0
+openapps := Map("osu", false, "bs", false)
+while true {
+	prev := win
+	win := WinWaitActive("A")
+	; SoundBeep
+	if (win != prev) {
+		; ToolTip("Switched to " WinGetProcessName(win))
+	}
+
+	if WinExist("osu! ahk_exe osu!.exe") {
+		if (openapps["osu"] != true) {
+			; when this app is launched
+			; run some code
+			RunWait("taskkill /im obs64.exe", , "Hide")
+			ToolTip("Closed obs!")
+			Sleep(3000)
+			ToolTip()
+		}
+		openapps["osu"] := true
+	} else {
+		if (openapps["osu"] != false) {
+			; when this app is closed
+			; run some code
+			Run("`"C:\Program Files\obs-studio\bin\64bit\obs64.exe`" --startreplaybuffer --scene default", "C:\Program Files\obs-studio\bin\64bit", "Hide")
+			ToolTip("Re-launched obs!")
+			Sleep(3000)
+			ToolTip()
+
+		}
+		openapps["osu"] := false
+	}
+
+	if WinExist("ahk_exe Beat Saber.exe") {
+		if (openapps["bs"] != true) {
+			; when this app is launched
+			; run some code
+			RunWait("taskkill /im obs64.exe", , "Hide")
+			ToolTip("Closed obs!")
+			Sleep(3000)
+			ToolTip()
+		}
+		openapps["bs"] := true
+	} else {
+		if (openapps["bs"] != false) {
+			; when this app is closed
+			; run some code
+			Run("`"C:\Program Files\obs-studio\bin\64bit\obs64.exe`" --startreplaybuffer --scene default", "C:\Program Files\obs-studio\bin\64bit", "Hide")
+			ToolTip("Re-launched obs!")
+			Sleep(3000)
+			ToolTip()
+
+		}
+		openapps["bs"] := false
+	}
+
+	Sleep(2500) ; this should be fine considering obs takes a bit to launch obs
+}
 
 
 ; #HotIf WinActive("ahk_exe Code.exe")
