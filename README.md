@@ -14,6 +14,7 @@ Mostly for myself like if windows breaks and i have to reset it (again) but mayb
   - A2	 - F14  
   - A3	 - F15  
   - Mode - F16  
+
 The original functions for these keys (switching keyboard profile) are available in the FN layer.
 
 
