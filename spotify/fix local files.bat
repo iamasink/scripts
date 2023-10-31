@@ -1,5 +1,6 @@
 @echo off
-@REM this deletes the config for local files. this was originally meant to fix something with a spicetify plugin, but I don't think it does anymore
+@REM this deletes the config for local files. this will make spotify re-do the metadata if you fucked it up
+@REM actually, you can just toggle the location in spotify settings.
 echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 echo You should run this as administrator!
 echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

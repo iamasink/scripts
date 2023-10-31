@@ -415,6 +415,25 @@ CapsLock & o::End
 ; }
 CapsLock & Tab::Enter
 
+; keyboard switching
+; in "Text Services and Input Languages", English is LAlt + Shift + 1
+; Japanese is LAlt + Shift + 2
+; ~ means dont block from system
+CapsLock & z:: { ; english layout
+	KeyWait("CapsLock")
+	Send("!+1")
+}
+CapsLock & x:: { ; japanese hiragana layout
+	KeyWait("CapsLock")
+	Send("!+2")
+	Send("^{CapsLock}")
+}
+CapsLock & c:: { ; japanese katakana layout
+	KeyWait("CapsLock")
+	Send("!+2")
+	Send("!{CapsLock}")
+}
+;
 
 CapsLock::
 {
@@ -461,24 +480,6 @@ NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap 
 	Return
 }
 
-; keyboard switching
-; in "Text Services and Input Languages", English is LAlt + Shift + 1
-; Japanese is LAlt + Shift + 2
-; ~ means dont block from system
-CapsLock & z:: { ; english layout
-	KeyWait("CapsLock")
-	Send("!+1")
-}
-CapsLock & x:: { ; japanese hiragana layout
-	KeyWait("CapsLock")
-	Send("!+2")
-	Send("^{CapsLock}")
-}
-CapsLock & c:: { ; japanese katakana layout
-	KeyWait("CapsLock")
-	Send("!+2")
-	Send("!{CapsLock}")
-}
 
 #InputLevel 1
 F13:: ; A1
@@ -592,19 +593,20 @@ showdesktop(undo := true) {
 }
 moveclockmiddle() {
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
-	Sleep(500)
+	Sleep(250)
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"50%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]")
-	Sleep(500)
+	Sleep(250)
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
 }
 showdesktopundo(lastactivewindow) {
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
 	WinMinimizeAllUndo() ; undo minimize all
+	Sleep(100)
 	try WinActivate("ahk_id " lastactivewindow) ; activate last active window
 	; MsgBox("hello world")
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"75%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]")
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
-	; lightoff()
+	lightoff()
 }
 ~LButton:: ; ~ means dont block the original key.
 ; this replaces the show desktop button in the bottom right corner of the screen, so it should be disabled in the taskbar settings
@@ -625,7 +627,7 @@ showdesktopundo(lastactivewindow) {
 }
 !#d::
 {
-	WinMinimizeAll()
+	Send("#d")
 }
 #f::
 {
@@ -643,6 +645,12 @@ showdesktopundo(lastactivewindow) {
 		Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
 	}
 }
+#s::
+{
+	Send("#d")
+}
+
+
 <^>!3::
 {
 	Send("¥")
@@ -898,12 +906,15 @@ CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead o
 
 
 #HotIf WinActive("ahk_exe anki.exe")
-SC053::
+SC053:: ; numpad period
 {
 	Send("1")
 }
-SC052:: Send("^z")
+SC052:: Send("^z") ; numpad zero
 
+RShift:: Send("1")
+RCtrl:: Send("^z")
+#HotIf
 
 ; current app loop
 ; this doesn't stop the other hotkeys because they're like a seperate thread.
