@@ -68,5 +68,7 @@ In `secrets`, text files are needed for some stuff
 ### yt-dlp
 you may have to change the download location for yt-dlp .bat scripts, especially if you don't have a local account because onedrive might mess stuff up :)
 
-### key
+---
+
+# keyboard keys
 https://www.youtube.com/watch?v=kB2kIAEhjpE
