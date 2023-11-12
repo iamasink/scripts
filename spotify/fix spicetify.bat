@@ -11,8 +11,8 @@ taskkill /f /im spotify.exe
 @REM spicetify's backup sometimes messes it up for me, maybe I'm stupid, but this should help incase it breaks again
 
 @REM delete old backup
-if exist C:\spicetifybackup\roamingspicetify.old rmdir /s /q C:\spicetifybackup\roamingspicetify.old
-if exist C:\spicetifybackup\localspicetify.old rmdir /s /q C:\spicetifybackup\localspicetify.old
+if exist "C:\spicetifybackup\roamingspicetify.old" rmdir /s /q C:\spicetifybackup\roamingspicetify.old
+if exist "C:\spicetifybackup\localspicetify.old" rmdir /s /q C:\spicetifybackup\localspicetify.old
 @REM rename current backup to old backup
 if exist "C:\spicetifybackup\roamingspicetify" rename "C:\spicetifybackup\roamingspicetify" "roamingspicetify.old"
 if exist "C:\spicetifybackup\localspicetify" rename "C:\spicetifybackup\localspicetify" "localspicetify.old"

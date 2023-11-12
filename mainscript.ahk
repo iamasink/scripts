@@ -806,6 +806,70 @@ F23:: ; DPI Down / G7
 			Send("^l") ; select address bar
 	}
 }
+#HotIf WinActive("ahk_exe Code.exe")
+F23:: ; DPI Down / G7
+{
+	moveval := 0
+	pixeldist := 5
+	largepixeldist := 500
+	If GetKeyState("F23", "p") {
+		MouseGetPos(&x1, &y1)
+		KeyWait("F23")
+	}
+	MouseGetPos(&x2, &y2)
+	XDif := (x2 - x1)
+	YDif := (y2 - y1)
+	If (abs(XDif) >= abs(YDif)) {
+		If (abs(XDif) >= largepixeldist) {
+			If (XDif >= (largepixeldist * 2))
+				moveval := 1
+			If (XDif <= -largepixeldist)
+				moveval := 2
+		}
+		else {
+			If (XDif >= pixeldist)
+				moveval := 5
+			If (XDif <= -pixeldist)
+				moveval := 6
+		}
+	}
+	else {
+		If (abs(YDif) >= largepixeldist) {
+			If (YDif >= largepixeldist)
+				moveval := 3
+			If (YDif <= -largepixeldist)
+				moveval := 4
+		}
+		else {
+			If (YDif >= pixeldist)
+				moveval := 7
+			If (YDif <= -pixeldist)
+				moveval := 8
+		}
+	}
+	{
+		if (moveval = 0) ; no movement
+			Send("^{LButton}")
+		; close tabs shortcuts https://addons.mozilla.org/en-GB/firefox/addon/close-tabs-shortcuts/
+		if (moveval = 1) ; Big Right
+			Send("!+{F2}") ; close tabs to the right
+		if (moveval = 2) ; Big Left
+			Send("!+{F1}") ; close tabs to the left
+		;
+		if (moveval = 3) ; Big Down
+			Send("^w")
+		if (moveval = 4) ; Big Up
+			Send("+^t")
+		if (moveval = 5) ; Right
+			Send("^{PgDn}")
+		if (moveval = 6) ; Left
+			Send("^{PgUp}")
+		if (moveval = 7) ; Down
+			Send("^w")
+		if (moveval = 8) ; Up
+			Send("^+p") ; select address bar
+	}
+}
 #HotIf WinActive("ahk_class CabinetWClass ahk_exe explorer.exe") ; Only run if Explorer is active
 ; CapsLock & .:: { ; unzip selected archive(s) (buggy and laggy so commented out :)
 ; 	tab := GetActiveExplorerTab() ; get the active windows 11 explorer tab
