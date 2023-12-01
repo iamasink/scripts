@@ -11,12 +11,11 @@
 ; https://github.com/GroggyOtter/PeepAHK
 #Include includes\Peep.v2.ahk
 
-
 SetTitleMatchMode(2) ;A window's title can contain WinTitle anywhere inside it to be a match.
-Persistent(true)
+Persistent(true) ; dont close the script even if no threads are running
 ;keeps num and caps off permanently
 SetCapsLockState("AlwaysOff")
-SetNumlockState "AlwaysOff"
+SetNumlockState("AlwaysOff")
 SetDefaultMouseSpeed(0)
 CoordMode("Mouse")
 SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
@@ -63,7 +62,7 @@ if (!A_IsAdmin)
 }
 ; MsgBox(A_AhkVersion)
 
-ProcessSetPriority("H") ; set priority to high
+ProcessSetPriority("H") ; set priority to high.
 ; Low (or L)
 ; BelowNormal (or B)
 ; Normal (or N)
@@ -72,13 +71,13 @@ ProcessSetPriority("H") ; set priority to high
 ; Realtime (or R)
 ; this chooses the script itself- https://www.autohotkey.com/docs/v2/lib/ProcessSetPriority.htm "If unset or omitted, the script's own process is used"
 
-; run with an argument (1) to skip the warning
+; run with an argument (1) to skip my "run as admin" warning in the bat script. (it is ran with admin if this script is.)
 Run(A_ComSpec " /C " A_ScriptDir "\synctime.bat 1", A_ScriptDir, "Hide") ; run sync time script
 
 
 ; ====== functions ======
 
-; runs a command and gets the stdout
+; runs a command and returns the stdout
 JEE_RunGetStdOut(vTarget, vSize := "")
 {
 	DetectHiddenWindows(true)
@@ -342,18 +341,18 @@ Ctrl & CapsLock:: Send("^{BackSpace}")
 ^+CapsLock:: Send("!{Delete}")
 
 
-Alt & CapsLock:: ; this could cause some issues on other applications, like explorer where it deletes everything in the folder
-{
-	; if the window is explorer (note only file explorer, but also alt tab menu i think?, and desktop), don't do anything
-	if (WinActive("ahk_exe explorer.exe")) {
-		ToolTip("explorer")
-		Sleep(1000)
-		ToolTip()
-		return
-	}
-	; backspace entire line
-	Send("{Home}{Home}{Shift Down}{End}{Shift Up}{Delete}")
-}
+; Alt & CapsLock:: ; this could cause some issues on other applications, like explorer where it deletes everything in the folder
+; {
+; 	; if the window is explorer (note only file explorer, but also alt tab menu i think?, and desktop), don't do anything
+; 	if (WinActive("ahk_exe explorer.exe")) {
+; 		ToolTip("explorer")
+; 		Sleep(1000)
+; 		ToolTip()
+; 		return
+; 	}
+; 	; backspace entire line
+; 	Send("{Home}{Home}{Shift Down}{End}{Shift Up}{Delete}")
+; }
 CapsLock & e:: {
 
 	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
@@ -363,14 +362,6 @@ CapsLock & e:: {
 	}
 	PostMessage(0x319, , 0xB0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Next to spotifye
 }
-CapsLock & w:: {
-	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
-		Run(A_AppData "\Spotify\Spotify.exe")
-		WinWait("ahk_exe Spotify.exe")
-		Sleep(1000)
-	}
-	PostMessage(0x319, , 0xE0000, , "ahk_exe Spotify.exe")	; Send Media_Play_Pause to spotify
-}
 CapsLock & q:: {
 	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
 		Run(A_AppData "\Spotify\Spotify.exe")
@@ -379,6 +370,7 @@ CapsLock & q:: {
 	}
 	PostMessage(0x319, , 0xC0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Prev to spotify
 }
+
 CapsLock & Space:: {
 	; if (!WinExist("ahk_exe Everything.exe")) {
 	; 	Run("C:\Program Files\Everything\Everything.exe")
@@ -389,20 +381,6 @@ CapsLock & Space:: {
 	; 	WinActivate("ahk_exe Everything.exe")
 	; }
 	Send("{Alt Down}{P Down}{Alt Up}{P Up}")
-}
-CapsLock & d:: {
-	if (!WinExist("ahk_exe Discord.exe")) {
-		SoundBeep(500, 150)
-		Run(A_AppData "\..\Local\Discord\Update.exe")
-		WinWait("ahk_exe Discord.exe")
-		try WinActivate("ahk_exe Discord.exe")
-	} else if (WinActive("ahk_exe Discord.exe")) {
-		Send "!{Esc}" ; activate last active window
-	}
-	else {
-		WinActivate("ahk_exe Discord.exe")
-		SoundPlay("C:\Windows\Media\Speech Misrecognition.wav")
-	}
 }
 CapsLock & i::Up
 CapsLock & j::Left
@@ -420,25 +398,69 @@ CapsLock & Tab::Enter
 ; Japanese is LAlt + Shift + 2
 ; ~ means dont block from system
 CapsLock & z:: { ; english layout
+	SetCapsLockState("Off")
 	KeyWait("CapsLock")
 	Send("!+1")
+	SetCapsLockState("AlwaysOff")
 }
+
 CapsLock & x:: { ; japanese hiragana layout
+	SetCapsLockState("Off")
 	KeyWait("CapsLock")
 	Send("!+2")
 	Send("^{CapsLock}")
+	SetCapsLockState("AlwaysOff")
+
 }
 CapsLock & c:: { ; japanese katakana layout
+	SetCapsLockState("Off")
 	KeyWait("CapsLock")
 	Send("!+2")
 	Send("!{CapsLock}")
+	SetCapsLockState("AlwaysOff")
+
 }
 ;
 
-CapsLock::
-{
-	Send("{Backspace}") ; when CapsLock released,, maybe theres a better way to do it but idk.
-	SetCapsLockState("alwaysoff") ; sometimes it gets stuck on soo im adding this
+; komorebi
+; #HotIf (GetKeyState("CapsLock", "P") AND GetKeyState("Space", "P") AND !GetKeyState("Alt", "P"))
+; a:: Focus("left")
+; s:: Focus("down")
+; w:: Focus("up")
+; d:: Focus("right")
+
+#HotIf (GetKeyState("CapsLock", "P") AND !GetKeyState("Alt", "P"))
+d:: {
+	if (!WinExist("ahk_exe Discord.exe")) {
+		SoundBeep(500, 150)
+		Run(A_AppData "\..\Local\Discord\Update.exe")
+		WinWait("ahk_exe Discord.exe")
+		try WinActivate("ahk_exe Discord.exe")
+	} else if (WinActive("ahk_exe Discord.exe")) {
+		Send "!{Esc}" ; activate last active window
+	}
+	else {
+		WinActivate("ahk_exe Discord.exe")
+		SoundPlay("C:\Windows\Media\Speech Misrecognition.wav")
+	}
+}
+w:: {
+	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
+		Run(A_AppData "\Spotify\Spotify.exe")
+		WinWait("ahk_exe Spotify.exe")
+		Sleep(1000)
+	}
+	PostMessage(0x319, , 0xE0000, , "ahk_exe Spotify.exe")	; Send Media_Play_Pause to spotify
+}
+#HotIf
+
+*CapsLock:: {
+	KeyWait("CapsLock")
+	if (A_ThisHotkey = "*CapsLock")
+		Send("{BackSpace}")
+	SetCapsLockState("Off")
+	SetCapsLockState("AlwaysOff")
+	Return
 }
 
 
@@ -615,7 +637,7 @@ showdesktopundo(lastactivewindow) {
 	MouseGetPos(&xpos, &ypos)
 	; ToolTip("x: " xpos "`ny: " ypos)
 	; 2559, 1439 -> 2560, 1440
-	if (xpos >= A_ScreenWidth - 2 && ypos >= A_ScreenHeight - 2 && xpos <= A_ScreenWidth && ypos <= A_ScreenHeight) {
+	if (xpos >= A_ScreenWidth - 2 && ypos >= A_ScreenHeight - 2 && xpos <= A_ScreenWidth && ypos <= A_ScreenHeight && !WinExist("ahk_exe FortniteClient-Win64-Shipping.exe")) {
 		; if mouse is in the bottom right corner, show desktop
 		; MsgBox("hello world")
 		showdesktop()
@@ -741,6 +763,8 @@ F22::
 }
 !WheelUp::]
 !WheelDown::[
+#HotIf WinActive("Risk of Rain 2",)
+F21::Ctrl
 #HotIf WinActive("ahk_exe firefox.exe")
 ; stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
 F23:: ; DPI Down / G7
@@ -976,14 +1000,14 @@ SC053:: ; numpad period
 }
 SC052:: Send("^z") ; numpad zero
 
-RShift:: Send("1")
+RShift:: Send("{Shift Up}1")
 RCtrl:: Send("^z")
 #HotIf
 
 ; current app loop
 ; this doesn't stop the other hotkeys because they're like a seperate thread.
 win := 0
-openapps := Map("osu", false, "bs", false)
+openapps := Map("osu", false, "bs", false, "fn", false)
 while true {
 	prev := win
 	win := WinWaitActive("A")
@@ -1037,6 +1061,31 @@ while true {
 		}
 		openapps["bs"] := false
 	}
+
+	if WinExist("ahk_exe FortniteClient-Win64-Shipping.exe") {
+		if (openapps["fn"] != true) {
+			; when this app is launched
+			; run some code
+			Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
+
+			ToolTip("Closed lbm!")
+			Sleep(3000)
+			ToolTip()
+		}
+		openapps["fn"] := true
+	} else {
+		if (openapps["fn"] != false) {
+			; when this app is closed
+			; run some code
+			Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
+			ToolTip("Re-launched lbm!")
+			Sleep(3000)
+			ToolTip()
+
+		}
+		openapps["fn"] := false
+	}
+
 
 	Sleep(2500) ; this should be fine considering obs takes a bit to launch obs
 }

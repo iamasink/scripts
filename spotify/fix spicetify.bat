@@ -21,6 +21,7 @@ robocopy "%appdata%\spicetify" "C:\spicetifybackup\roamingspicetify" /E
 robocopy "%localappdata%\spicetify" "C:\spicetifybackup\localspicetify" /E
 
 spicetify
+spicetify update
 spicetify backup
 spicetify upgrade
 spicetify restore backup apply

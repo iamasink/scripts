@@ -7,4 +7,4 @@ taskkill /f /im obs64.exe
 cd "C:\Program Files\obs-studio\bin\64bit\"
 timeout 3
 @REM Run OBS, start replay buffer and set the scene to one named "default".
-start "" "C:\Program Files\obs-studio\bin\64bit\obs64.exe" --startreplaybuffer --scene default 
+start "" "C:\Program Files\obs-studio\bin\64bit\obs64.exe" --startreplaybuffer --scene default --disable-shutdown-check
