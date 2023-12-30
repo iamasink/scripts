@@ -26,5 +26,5 @@ timeout /t 1 /nobreak
 @REM stay-awake keeps the device awake
 @REM power-off-on-close turns off the device when scrcpy is closed or unplugg
 @REM show-touches shows touches on the screen
-cmd /c scrcpy.exe --stay-awake --power-off-on-close --show-touches --select-usb --max-fps=60 --window-width=540 --window-height=1200
+cmd /c scrcpy.exe --turn-screen-off --stay-awake --power-off-on-close --show-touches --select-usb --max-fps=120 --window-width=540 --window-height=1200
 timeout /t 5

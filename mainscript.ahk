@@ -581,15 +581,16 @@ F15:: ; A3
 ; yt-dlp download from url
 ^#Down::
 {
-	KeyWait("Down") ; wait for the key to be released so it doesnt mess stuff up
-	; theres probably a better way to do this than pasting like this but whatever
+	; KeyWait("Down") ; wait for the key to be released so it doesnt mess stuff up
+	; ; theres probably a better way to do this than pasting like this but whatever
+	; nvm just launch it cause yea :3
 	Run(A_ComSpec " /c `"" A_ScriptDir "\ytdlp\Download Video.bat`"", A_ScriptDir "\ytdlp\")
-	Sleep(1000)
-	Send("^v")
-	Sleep(100)
-	Send("{Enter}")
-	Sleep(100)
-	Send("#{Down}")
+	; Sleep(1000)
+	; Send("^v")
+	; Sleep(100)
+	; Send("{Enter}")
+	; Sleep(100)
+	; Send("#{Down}")
 	Return
 }
 ; run scrcpy
