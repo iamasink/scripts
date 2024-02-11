@@ -1,6 +1,6 @@
 # [scripts](https://github.com/iamasink/scripts)
 
-random scripts and AHK stuff i use because windows sucks  
+random scripts and AutoHotkey v2 stuff i use because windows sucks  
 
 ## my setup
 ### Mouse: G502
@@ -14,7 +14,7 @@ random scripts and AHK stuff i use because windows sucks
   - A3	 - F15  
   - Mode - F16  
 
-The original functions for these keys (switching keyboard profile) are available in the FN layer.
+The original functions for these keys (switching keyboard profile) are in the FN layer.
 
 
 
@@ -62,6 +62,52 @@ In `\secrets`, text files are needed for some stuff
  - Belongs at `ytdlp\yt-dlp.exe`
 
 You may have to change the download location in the yt-dlp .bat scripts. It uses `%userprofile%\Downloads` by default.
+
+# useful things for ahk
+
+## restart ahk script on save
+put this in a script to reload it when you press ctrl+s, so its easier to test  
+nothing has to be changed per script, but you have to manually reload if you change the filename or stuff like that  
+ahk_exe can be changed to any other exe name  
+the tooltip flashes briefly when it reloads, so you know it worked  
+```
+; reload the script when its saved
+#HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
+~^s::
+{
+	; Send("^s")
+	ToolTip("Reloading " A_ScriptName ".", A_ScreenWidth / 2, A_ScreenHeight / 2)
+	Sleep(250)
+	Reload()
+	; MsgBox("reloading !")
+	Return
+}
+```
+
+## run a command and return the stdout
+ from https://www.autohotkey.com/boards/viewtopic.php?f=7&t=33596
+```
+; runs a command and returns the stdout  
+JEE_RunGetStdOut(vTarget, vSize := "")
+{
+	DetectHiddenWindows(true)
+	vComSpec := A_ComSpec ? A_ComSpec : A_ComSpec
+	Run(vComSpec, , "Hide", &vPID)
+	WinWait("ahk_pid " vPID)
+	DllCall("kernel32\AttachConsole", "UInt", vPID)
+	oShell := ComObject("WScript.Shell")
+	oExec := oShell.Exec(vTarget)
+	vStdOut := ""
+	if !(vSize = "")
+		VarSetStrCapacity(&vStdOut, vSize)
+	while !oExec.StdOut.AtEndOfStream
+		vStdOut := oExec.StdOut.ReadAll()
+	DllCall("kernel32\FreeConsole")
+	ProcessClose(vPID)
+	DetectHiddenWindows(false)
+	return vStdOut
+}
+```
 
 ---
 

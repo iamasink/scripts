@@ -3,29 +3,7 @@
 #Requires AutoHotkey v2.0.4
 
 
-; include librarys
-; Include jsongo to use it
-#Include includes\jsongo.v2.ahk
-
-; Peep() is a function that allows you to view the contents of any object
-; https://github.com/GroggyOtter/PeepAHK
-#Include includes\Peep.v2.ahk
-
-SetTitleMatchMode(2) ;A window's title can contain WinTitle anywhere inside it to be a match.
-Persistent(true) ; dont close the script even if no threads are running
-;keeps num and caps off permanently
-SetCapsLockState("AlwaysOff")
-SetNumlockState("AlwaysOff")
-SetDefaultMouseSpeed(0)
-CoordMode("Mouse")
-SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
-#SingleInstance Force
-
-; #WinActivateForce
-; https://www.autohotkey.com/docs/v2/lib/_WinActivateForce.htm
-; "it might prevent task bar buttons from flashing when different windows are activated quickly one after the other.""
-
-; ----- Current F13-24 Binds -----
+; ----- Current F13-24 Binds ----- (also in readme.md)
 ; Mouse: G502
 ;   - Side  / DPI shift   - F21
 ;   - DPI Up  /  G8       - F22
@@ -38,16 +16,28 @@ SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
 ;   - Mode 	- F16
 ;   The original functions for these keys (switching keyboard profile) are available in the FN layer.
 
-; read secrets, this runs on script start so the script must be restarted to update the token
-homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
 
-; set display on start
-if (MonitorGetCount() = 1) { ; only if only 1 monitor is on
-	Run("C:\Windows\System32\DisplaySwitch.exe /extend")
-	Sleep(2000)
-	; tell littlebigmouse to open and start
-	Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
-}
+; include librarys
+; Include jsongo to use it
+#Include includes\jsongo.v2.ahk
+
+; Peep() is a function that allows you to view the contents of any object
+; https://github.com/GroggyOtter/PeepAHK
+#Include includes\Peep.v2.ahk
+
+
+; ===== this all runs when script is started:
+
+SetTitleMatchMode(2) ;A window's title can contain WinTitle anywhere inside it to be a match.
+Persistent(true) ; dont close the script even if no threads are running
+;keeps num and caps off permanently
+SetCapsLockState("AlwaysOff")
+SetNumlockState("AlwaysOff")
+SetDefaultMouseSpeed(0)
+CoordMode("Mouse")
+SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
+#SingleInstance Force
+
 
 ; if not admin, start as admin
 ; taken from https://www.autohotkey.com/boards/viewtopic.php?p=523250#p523250
@@ -57,9 +47,27 @@ if (!A_IsAdmin)
 		Run("*RunAs `"" A_ScriptFullPath "`"")
 	}
 	catch {
-		MsgBox("Couldn't run as admin! Some things may not work")
+		MsgBox("Couldn't run " A_ScriptName " as admin! Some things may not work")
 	}
 }
+
+; #WinActivateForce
+; https://www.autohotkey.com/docs/v2/lib/_WinActivateForce.htm
+; "it might prevent task bar buttons from flashing when different windows are activated quickly one after the other.""
+
+
+; read secrets, this runs on script start so the script must be restarted to update the token
+homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
+
+; set display on start
+if (MonitorGetCount() = 1) { ; if only 1 monitor is on
+	Run("C:\Windows\System32\DisplaySwitch.exe /extend") ; set windows display to "extend"
+	Sleep(2000)
+	; tell littlebigmouse to open and start
+	Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
+}
+
+
 ; MsgBox(A_AhkVersion)
 
 ProcessSetPriority("H") ; set priority to high.
@@ -75,7 +83,7 @@ ProcessSetPriority("H") ; set priority to high.
 Run(A_ComSpec " /C " A_ScriptDir "\synctime.bat 1", A_ScriptDir, "Hide") ; run sync time script
 
 
-; ====== functions ======
+; =========== functions ===========
 
 ; runs a command and returns the stdout
 JEE_RunGetStdOut(vTarget, vSize := "")
@@ -98,6 +106,8 @@ JEE_RunGetStdOut(vTarget, vSize := "")
 	return vStdOut
 }
 
+
+; ===== home assistant functions
 /**
  * Send a POST request thing to homeassistant
  * @param requestJSON a string containing json for the request body
@@ -115,19 +125,33 @@ homeassistantRequest(requestJSON, url, wait := false)
 }
 homeassistantGet(url) {
 	global homeassistantToken
-	return jsongo.Parse(JEE_RunGetStdOut(A_ComSpec " /c curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url))
+	try {
+		output := jsongo.Parse(JEE_RunGetStdOut(A_ComSpec " /c curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url))
+	} catch as e {
+		ToolTip("could not connect to home assistant!")
+		SetTimer () => ToolTip(), -5000
+		output := -1
+	}
+	return output
 	; return ComObject("WScript.Shell").Exec("curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url).StdOut.ReadAll()
 }
 
 homeassistantGetLightState(light, request := homeassistantGet("states/light." light))
 {
+	if (request = -1) {
+		return 0
+	}
+
 	; Peep(object)
 	state := request['state']
 	; MsgBox(state)
 	if (state = "on") {
 		return 1
-	} else {
+	} else if (state = "off") {
 		return 0
+	}
+	else {
+		return -1
 	}
 
 }
@@ -165,7 +189,7 @@ homeassistantGetLightColorMode(light, request := homeassistantGet("states/light.
 }
 
 ; sometimes setting the light temp isn't exact, and getting it returns a slightly different value, so use this.
-homeassistantGetLightTempIfApprox(light, temp, request := homeassistantGet("states/light." light)) {
+homeassistantGetLightTempApprox(light, temp, request := homeassistantGet("states/light." light)) {
 	state := homeassistantGetLightTemp(light, request)
 	if (state = -1) {
 		return false
@@ -228,7 +252,7 @@ lighttemp(k, brightness, wait := false)
 }
 
 
-; explorer stuff
+; ===== explorer stuff
 
 ; Get the WebBrowser object of the active Explorer tab for the given window,
 ; or the window itself if it doesn't have tabs.  Supports IE and File Explorer.
@@ -284,7 +308,7 @@ GetFileNameAndExtension(pathOrFile) {
 }
 
 
-; ====== hotkeys ======
+; =========== hotkeys ===========
 
 ^!l:: ;Control-Alt-L
 {
@@ -397,7 +421,7 @@ CapsLock & Tab::Enter
 ; in "Text Services and Input Languages", English is LAlt + Shift + 1
 ; Japanese is LAlt + Shift + 2
 ; ~ means dont block from system
-CapsLock & z:: { ; english layout
+CapsLock & z:: { ; english layou
 	SetCapsLockState("Off")
 	KeyWait("CapsLock")
 	Send("!+1")
@@ -454,15 +478,20 @@ w:: {
 }
 #HotIf
 
-*CapsLock:: {
-	KeyWait("CapsLock")
-	if (A_ThisHotkey = "*CapsLock")
-		Send("{BackSpace}")
-	SetCapsLockState("Off")
-	SetCapsLockState("AlwaysOff")
-	Return
-}
+; *CapsLock:: { ; why do this over CapsLock::Backspace? am i dumb??? ok i think it was for koroebi which i dont use anymore so ya
 
+; 	KeyWait("CapsLock")
+; 	if (A_ThisHotkey = "*CapsLock")
+; 		Send("{BackSpace}")
+; 	SetCapsLockState("Off")
+; 	SetCapsLockState("AlwaysOff")
+; 	Return
+; }
+
+CapsLock:: {
+	Send("{BackSpace}")
+	SetCapsLockState("AlwaysOff")
+}
 
 !+e:: Send("{Media_Next}")
 !+w:: Send("{Media_Play_Pause}")
@@ -480,6 +509,9 @@ SC048::Numpad8
 SC049::Numpad9
 SC052::Numpad0
 SC053::NumpadDot
+NumLock & SC049:: {
+	send("hi")
+}
 NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap :3
 
 
@@ -489,8 +521,10 @@ NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap 
 #Numpad2:: lightoff2()
 
 ; on lock
-#L::
+#l::
 {
+	Run("taskkill /im obs64.exe", , "Hide")
+
 	; there might be multiple media trying to play, sometimes theyre being weird so do it 4 times :)
 	Send("{Media_Stop}")
 	Sleep(50)
@@ -500,6 +534,27 @@ NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap 
 	Sleep(250)
 	Send("{Media_Stop}")
 	Return
+}
+#!L::
+{
+
+	; there might be multiple media trying to play, sometimes theyre being weird so do it 4 times :)
+	Send("{Media_Stop}")
+	Sleep(50)
+	Send("{Media_Stop}")
+	Sleep(250)
+	Send("{Media_Stop}")
+	Sleep(250)
+	Send("{Media_Stop}")
+	KeyWait "LWin"
+	KeyWait "L"
+	KeyWait "LShift"
+	DllCall("LockWorkStation")
+	Return
+}
+
+F1::
+{
 }
 
 
@@ -511,6 +566,7 @@ F13:: ; A1
 	{
 		presses += 1
 		ToolTip(presses)
+		SetTimer aftertime ; reset the timer after each press
 		return
 	}
 	; Otherwise, this is the first press of a new series. Set count to 1 and start
@@ -533,7 +589,7 @@ F13:: ; A1
 		}
 		else if presses = 2 ; The key was pressed twice.
 		{
-			if (homeassistantGetLightTempIfApprox("wiz_rgbw_tunable_b0afb2", 2700, request)) {
+			if (homeassistantGetLightTempApprox("wiz_rgbw_tunable_b0afb2", 2700, request)) {
 				lightoff()
 			} else {
 				lightontemp(2700, 25)
@@ -673,7 +729,7 @@ showdesktopundo(lastactivewindow) {
 	Send("#d")
 }
 
-
+; these are alt-gr + hotkeys
 <^>!3::
 {
 	Send("¥")
@@ -713,6 +769,8 @@ showdesktopundo(lastactivewindow) {
 <^>!/:: {
 	Send("／")
 }
+;
+
 ; If (WinExist("ahk_exe Spotify.exe") && WinGetMinMax() != -1) {
 ; 	try WinMinimize("ahk_exe Spotify.exe")
 ; } else {
@@ -881,7 +939,7 @@ F23:: ; DPI Down / G7
 	{
 		if (moveval = 0) ; no movement
 			Send("^{LButton}")
-		; close tabs shortcuts https://addons.mozilla.org/en-GB/firefox/addon/close-tabs-shortcuts/
+		; close tabs shortcuts set in settings
 		if (moveval = 1) ; Big Right
 			Send("!+{F2}") ; close tabs to the right
 		if (moveval = 2) ; Big Left
@@ -1069,7 +1127,11 @@ while true {
 		openapps["bs"] := false
 	}
 
-	if (WinExist("ahk_exe FortniteClient-Win64-Shipping.exe") || WinExist("ahk_exe Palworld-Win64-Shipping.exe")) {
+	; these break with littlebigmouse
+	if (WinExist("ahk_exe FortniteClient-Win64-Shipping.exe")
+		|| WinExist("ahk_exe Palworld-Win64-Shipping.exe")
+		|| WinExist("ahk_exe League of Legends.exe")
+	) {
 		if (openapps["fn"] != true) {
 			; when this app is launched
 			; run some code
@@ -1111,7 +1173,9 @@ while true {
 ~^s::
 {
 	; Send("^s")
+	ToolTip("Reloading " A_ScriptName ".", A_ScreenWidth / 2, A_ScreenHeight / 2)
+	Sleep(250)
 	Reload()
-	MsgBox("reloading !")
+	; MsgBox("reloading !")
 	Return
 }
