@@ -3,6 +3,7 @@
 ; nothing has to be changed per script, but you have to manually reload if you change the filename or stuff like that
 ; ahk_exe can be changed to any other exe name
 ; the msgbox flashes briefly when it reloads, so you know it worked
+; reload the script when its saved
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
 ^s::
 {

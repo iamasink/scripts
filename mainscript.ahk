@@ -484,7 +484,7 @@ NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap 
 
 
 ; Win+Numpad1 is run on SteamVR dashboard open (thanks to OVR advanced settings)
-#Numpad1:: lighttemp(6500, 100)
+#Numpad1:: lighttemp(6500, 25)
 ; Win+Numpad2 is on dashboard close
 #Numpad2:: lightoff2()
 
@@ -638,7 +638,7 @@ showdesktopundo(lastactivewindow) {
 	MouseGetPos(&xpos, &ypos)
 	; ToolTip("x: " xpos "`ny: " ypos)
 	; 2559, 1439 -> 2560, 1440
-	if (xpos >= A_ScreenWidth - 2 && ypos >= A_ScreenHeight - 2 && xpos <= A_ScreenWidth && ypos <= A_ScreenHeight && !WinExist("ahk_exe FortniteClient-Win64-Shipping.exe")) {
+	if (xpos >= A_ScreenWidth - 2 && ypos >= A_ScreenHeight - 2 && xpos <= A_ScreenWidth && ypos <= A_ScreenHeight && !WinExist("ahk_exe FortniteClient-Win64-Shipping.exe") && !WinExist("ahk_exe Palworld-Win64-Shipping.exe")) {
 		; if mouse is in the bottom right corner, show desktop
 		; MsgBox("hello world")
 		showdesktop()
@@ -767,6 +767,12 @@ F22::
 #HotIf WinActive("Risk of Rain 2",)
 F21::Ctrl
 #HotIf WinActive("ahk_exe firefox.exe")
+^+8::
+{
+	Send("@lillliieieiee.anonaddy.me")
+}
+
+
 ; stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
 F23:: ; DPI Down / G7
 {
@@ -1063,7 +1069,7 @@ while true {
 		openapps["bs"] := false
 	}
 
-	if WinExist("ahk_exe FortniteClient-Win64-Shipping.exe") {
+	if (WinExist("ahk_exe FortniteClient-Win64-Shipping.exe") || WinExist("ahk_exe Palworld-Win64-Shipping.exe")) {
 		if (openapps["fn"] != true) {
 			; when this app is launched
 			; run some code
