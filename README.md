@@ -1,22 +1,30 @@
 # [scripts](https://github.com/iamasink/scripts)
 
-random scripts and AutoHotkey v2 stuff i use because windows sucks  
+random scripts and AutoHotkey v2 stuff i use because im weird :)
 
-## my setup
+## My setup
 ### Mouse: G502
   - Side    / DPI shift - F21  
   - DPI Up  /  G8       - F22  
   - DPI Down  /  G7     - F23  
-  - Top middle  / G9    - F24  
+  - Top middle  / G9    - F24
+    
 ### Keyboard: Wooting 2 HE  
   - A1	 - F13  
   - A2	 - F14  
   - A3	 - F15  
-  - Mode - F16  
-
+  - Mode - F16
+    
 The original functions for these keys (switching keyboard profile) are in the FN layer.
 
+### Tablet: XP-Pen Star G640
+Using [OpenTabletDriver](https://github.com/OpenTabletDriver/OpenTabletDriver)
+  - Pen 1 - F17
+  - Pen 2 - E
+<details><summary>Plugins</summary>
 
+[WindowsInk](https://github.com/X9VoiD/VoiDPlugins/wiki/WindowsInk)
+</details>
 
 ## Auto startup
 
@@ -49,7 +57,7 @@ In `\secrets`, text files are needed for some stuff
   - Multiple devices can be used, just make a new file for each one
   - Make sure device is authorised and "always allow" is ticked
 
-### other scripts
+### Other scripts
 
 #### Uninstall-Spotify.bat
 [amd64fox/Uninstall-Spotify](https://github.com/amd64fox/Uninstall-Spotify) can go in `.\spotify\`
@@ -63,7 +71,7 @@ In `\secrets`, text files are needed for some stuff
 
 You may have to change the download location in the yt-dlp .bat scripts. It uses `%userprofile%\Downloads` by default.
 
-# useful things for ahk
+# Useful things for ahk
 
 ## restart ahk script on save
 put this in a script to reload it when you press ctrl+s, so its easier to test  
@@ -75,11 +83,9 @@ the tooltip flashes briefly when it reloads, so you know it worked
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
 ~^s::
 {
-	; Send("^s")
 	ToolTip("Reloading " A_ScriptName ".", A_ScreenWidth / 2, A_ScreenHeight / 2)
 	Sleep(250)
 	Reload()
-	; MsgBox("reloading !")
 	Return
 }
 ```
