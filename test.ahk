@@ -1,6 +1,43 @@
 ;
 ; MsgBox(A_ScriptDir)
+f12:: {
+    ExitApp()
+}
 
+q::
+w::
+e::
+r::
+a::
+s::
+d::
+f::
+{
+    onKeypress()
+}
+
+onKeypress()
+{
+    qPressed := GetKeyState("q", "P")
+    wPressed := GetKeyState("w", "P")
+    ePressed := GetKeyState("e", "P")
+    rPressed := GetKeyState("r", "P")
+    aPressed := GetKeyState("a", "P")
+    sPressed := GetKeyState("s", "P")
+    dPressed := GetKeyState("d", "P")
+    fPressed := GetKeyState("f", "P")
+    ToolTip(
+        "Held keys:"
+        "`nq: " qPressed
+        "`nw: " wPressed
+        "`ne: " ePressed
+        "`nr: " rPressed
+        "`na: " aPressed
+        "`ns: " sPressed
+        "`nd: " dPressed
+        "`nf: " fPressed
+    )
+}
 
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
