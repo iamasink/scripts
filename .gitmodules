@@ -1,0 +1,3 @@
+[submodule "iamasink"]
+	path = iamasink
+	url = https://github.com/iamasink/iamasink
