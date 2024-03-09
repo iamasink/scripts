@@ -595,9 +595,16 @@ F13:: ; A1
 				lightontemp(2700, 25)
 			}
 		}
-		else if presses > 2
+		else if presses = 3
 		{
 			lighton(255, 0, 0, 0, 100)
+		}
+		else if presses = 4
+		{
+			lighton(50, 25, 255, 0, 100)
+		}
+		else {
+			lightoff()
 		}
 		; Regardless of which action above was triggered, reset the count to
 		; prepare for the next series of presses:
