@@ -5,6 +5,16 @@ f12:: {
 }
 
 
+/:: {
+    MsgBox("hi")
+    
+}
+
+/ Up:: {
+    MsgBox("hi2")
+}
+
+
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
 ^s::

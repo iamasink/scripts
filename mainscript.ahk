@@ -362,7 +362,7 @@ Shift & CapsLock:: {
 	Send("{Delete}")
 }
 Ctrl & CapsLock:: Send("^{BackSpace}")
-^+CapsLock:: Send("!{Delete}")
+; ^+CapsLock:: Send("!{Delete}")
 
 
 ; Alt & CapsLock:: ; this could cause some issues on other applications, like explorer where it deletes everything in the folder
@@ -446,12 +446,6 @@ CapsLock & c:: { ; japanese katakana layout
 }
 ;
 
-; komorebi
-; #HotIf (GetKeyState("CapsLock", "P") AND GetKeyState("Space", "P") AND !GetKeyState("Alt", "P"))
-; a:: Focus("left")
-; s:: Focus("down")
-; w:: Focus("up")
-; d:: Focus("right")
 
 #HotIf (GetKeyState("CapsLock", "P") AND !GetKeyState("Alt", "P"))
 d:: {
@@ -478,7 +472,7 @@ w:: {
 }
 #HotIf
 
-; *CapsLock:: { ; why do this over CapsLock::Backspace? am i dumb??? ok i think it was for koroebi which i dont use anymore so ya
+; *CapsLock:: { ; why do this over CapsLock::Backspace? am i dumb??? ok i think it was for koroebi which i dont use anymore so idk
 
 ; 	KeyWait("CapsLock")
 ; 	if (A_ThisHotkey = "*CapsLock")
