@@ -3,17 +3,16 @@
 f12:: {
     ExitApp()
 }
+TraySetIcon(A_ScriptDir "\icon\ahkblue16.ico")
 
+; a::return
+; loop{
+;     while (GetKeyState("a", "P")) {
+;         ToolTip("a down")
+;     }
+; }
 
-/:: {
-    MsgBox("hi")
-    
-}
-
-/ Up:: {
-    MsgBox("hi2")
-}
-
+SetNumLockState("On")
 
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")

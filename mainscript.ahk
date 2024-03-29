@@ -2,6 +2,7 @@
 ; what an awfully long and complex script but weird things happen if i split it into littler ones and idk how to fix that so there we go
 #Requires AutoHotkey v2.0.4
 
+TraySetIcon(A_ScriptDir "\icon\ahkpurple16.ico")
 
 ; ----- Current F13-24 Binds ----- (also in readme.md)
 ; Mouse: G502
@@ -24,6 +25,9 @@
 ; Peep() is a function that allows you to view the contents of any object
 ; https://github.com/GroggyOtter/PeepAHK
 #Include includes\Peep.v2.ahk
+
+; run other script (this could be #Include, but i dont want it to clog the log for this one!)
+Run(".\apploop.ahk")
 
 
 ; ===== this all runs when script is started:
@@ -50,6 +54,7 @@ if (!A_IsAdmin)
 		MsgBox("Couldn't run " A_ScriptName " as admin! Some things may not work")
 	}
 }
+
 
 ; #WinActivateForce
 ; https://www.autohotkey.com/docs/v2/lib/_WinActivateForce.htm
@@ -205,50 +210,50 @@ homeassistantGetLightTempApprox(light, temp, request := homeassistantGet("states
 lighttoggle(r, g, b, w, brightness, wait := false)
 {
 	; remember that `" is the escape for " within autohotkey, a \ escapes that " for the CMD that runs
-	; so CMD sees (eg) {\"entity_id\":\"light.wiz_rgbw_tunable_b0afb2\"}
-	; which then curls {"entity_id":"light.wiz_rgbw_tunable_b0afb2"}
+	; so CMD sees (eg) {\"entity_id\":\"light.hue_color_lamp_2\"}
+	; which then curls {"entity_id":"light.hue_color_lamp_2"}
 	; autohotkey inherently concatenates strings, so within the rgbw_color array, the main "" ends so it can concatenate the variable.
 	; yes its complicated and i'll probably have to relearn everything next time i want to touch this 😭😭
 	; it's possible some of the " are avoidable, but i really do not want to do this any longer
 
 	; this toggle function includes a rgbw and brightness, because it still sets the light to these if turning on
-	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
+	homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
 }
 
 lighttoggletemp(k, brightness, wait := false)
 {
-	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
+	homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
 }
 
 lightontemp(k, brightness, wait := false)
 {
-	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
+	homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
 }
 
 lighton(r, g, b, w, brightness, wait := false)
 {
-	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
+	homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
 }
 
 lightoff(wait := false)
 {
-	if (homeassistantGetLightState("wiz_rgbw_tunable_b0afb2") = 0) {
+	if (homeassistantGetLightState("hue_color_lamp_2") = 0) {
 		; already off
 		; ToolTip("Already off")
 	} else {
 		lighttemp(6500, 100, false) ; the light should always be reset to this value before turning off, so it turns on as expected when via other means
 		Sleep(100) ; sleep so it actually does it first because yes
-		homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`"}", "services/light/turn_off", wait)
+		homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`"}", "services/light/turn_off", wait)
 	}
 }
 
 lightoff2() {
-	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`"}", "services/light/turn_off", false)
+	homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`"}", "services/light/turn_off", false)
 }
 
 lighttemp(k, brightness, wait := false)
 {
-	homeassistantRequest("{\`"entity_id\`":\`"light.wiz_rgbw_tunable_b0afb2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
+	homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
 }
 
 
@@ -361,7 +366,7 @@ Shift & CapsLock:: {
 	Send("{Blind}{Shift Up}")
 	Send("{Delete}")
 }
-Ctrl & CapsLock:: Send("^{BackSpace}")
+
 ; ^+CapsLock:: Send("!{Delete}")
 
 
@@ -482,16 +487,17 @@ w:: {
 ; 	Return
 ; }
 
-CapsLock:: {
-	Send("{BackSpace}")
-	SetCapsLockState("AlwaysOff")
-}
+; omg this used to be :: send backspace
+; but this seems to work much better, ctrl + capslock works and doesnt have to be specifically defined
+; that got stuck a lot, so hopefully this is better
+CapsLock::BackSpace
+
 
 !+e:: Send("{Media_Next}")
 !+w:: Send("{Media_Play_Pause}")
 !+q:: Send("{Media_Prev}")
 
-;set num pad with num lock off
+;set num pad with num lock off (so the numlock light is disabled)
 SC04F::Numpad1
 SC050::Numpad2
 SC051::Numpad3
@@ -505,6 +511,10 @@ SC052::Numpad0
 SC053::NumpadDot
 NumLock & SC049:: {
 	send("hi")
+}
+NumLock & NumpadEnter:: {
+	; msgbox("Hi")
+	run(A_ScriptDir "\startobs.ahk")
 }
 NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap :3
 
@@ -569,36 +579,48 @@ F13:: ; A1
 	SetTimer aftertime, -400 ; Wait for more presses within a 400 millisecond window.
 	aftertime()
 	{
-		request := homeassistantGet("states/light.wiz_rgbw_tunable_b0afb2")
+		request := homeassistantGet("states/light.hue_color_lamp_2")
 		; MsgBox(request)
-		if presses = 1 ; The key was pressed once. this turns the light to 6500, 100% if the light is not at that already, otherwise it turns it off
-		{
-			; if light on already, just turn it off
-			if (homeassistantGetLightState("wiz_rgbw_tunable_b0afb2", request)) {
-				lightoff2()
-			} else {
-				; MsgBox("light is not at 6500")
-				lightontemp(6500, 100)
+		switch presses {
+			case 1: ; The key was pressed once. this turns the light to 6500, 100% if the light is not at that already, otherwise it turns it off
+				{
+					; if light on already, just turn it off
+					if (homeassistantGetLightState("hue_color_lamp_2", request)) {
+						lightoff2()
+					} else {
+						; MsgBox("light is not at 6500")
+						lightontemp(6500, 100)
+					}
+				}
+			case 2: ; The key was pressed twice.
+				{
+					if (homeassistantGetLightTempApprox("hue_color_lamp_2", 2700, request)) {
+						lightoff()
+					} else {
+						lightontemp(2700, 25)
+					}
+				}
+			case 3:
+			{
+				; if (homeassistantGetLightState("hue_color_lamp_1", request)) {
+				; 	lightoff2()
+				; } else {
+				; 	; MsgBox("light is not at 6500")
+				; 	lightontemp(6500, 100)
+				; }
 			}
-		}
-		else if presses = 2 ; The key was pressed twice.
-		{
-			if (homeassistantGetLightTempApprox("wiz_rgbw_tunable_b0afb2", 2700, request)) {
+			case 5:
+			{
+				lighton(255, 0, 0, 0, 100)
+			}
+			case 6:
+			{
+				lighton(50, 25, 255, 0, 100)
+			}
+			default:
+			{
 				lightoff()
-			} else {
-				lightontemp(2700, 25)
 			}
-		}
-		else if presses = 3
-		{
-			lighton(255, 0, 0, 0, 100)
-		}
-		else if presses = 4
-		{
-			lighton(50, 25, 255, 0, 100)
-		}
-		else {
-			lightoff()
 		}
 		; Regardless of which action above was triggered, reset the count to
 		; prepare for the next series of presses:
@@ -633,7 +655,7 @@ F14:: ; A2
 F15:: ; A3
 {
 	MsgBox("current window: " WinGetProcessName(WinActive("A")))
-	; MsgBox(homeassistantGetLightTemp("wiz_rgbw_tunable_b0afb2"))
+	; MsgBox(homeassistantGetLightTemp("hue_color_lamp_2"))
 }
 ; yt-dlp download from url
 ^#Down::
@@ -1069,96 +1091,6 @@ SC052:: Send("^z") ; numpad zero
 RShift:: Send("{Shift Up}1")
 RCtrl:: Send("^z")
 #HotIf
-
-; current app loop
-; this doesn't stop the other hotkeys because they're like a seperate thread.
-win := 0
-openapps := Map("osu", false, "bs", false, "fn", false)
-while true {
-	prev := win
-	win := WinWaitActive("A")
-	; SoundBeep
-	if (win != prev) {
-		; ToolTip("Switched to " WinGetProcessName(win))
-	}
-
-	if WinExist("osu! ahk_exe osu!.exe") {
-		if (openapps["osu"] != true) {
-			; when this app is launched
-			; run some code
-			RunWait("taskkill /im obs64.exe", , "Hide")
-			ToolTip("Closed obs!")
-			Sleep(3000)
-			ToolTip()
-		}
-		openapps["osu"] := true
-	} else {
-		if (openapps["osu"] != false) {
-			; when this app is closed
-			; run some code
-			Run("`"C:\Program Files\obs-studio\bin\64bit\obs64.exe`" --startreplaybuffer --scene default", "C:\Program Files\obs-studio\bin\64bit", "Hide")
-			ToolTip("Re-launched obs!")
-			Sleep(3000)
-			ToolTip()
-
-		}
-		openapps["osu"] := false
-	}
-
-	if WinExist("ahk_exe Beat Saber.exe") {
-		if (openapps["bs"] != true) {
-			; when this app is launched
-			; run some code
-			RunWait("taskkill /im obs64.exe", , "Hide")
-			ToolTip("Closed obs!")
-			Sleep(3000)
-			ToolTip()
-		}
-		openapps["bs"] := true
-	} else {
-		if (openapps["bs"] != false) {
-			; when this app is closed
-			; run some code
-			Run("`"C:\Program Files\obs-studio\bin\64bit\obs64.exe`" --startreplaybuffer --scene default", "C:\Program Files\obs-studio\bin\64bit", "Hide")
-			ToolTip("Re-launched obs!")
-			Sleep(3000)
-			ToolTip()
-
-		}
-		openapps["bs"] := false
-	}
-
-	; these break with littlebigmouse
-	if (WinExist("ahk_exe FortniteClient-Win64-Shipping.exe")
-		|| WinExist("ahk_exe Palworld-Win64-Shipping.exe")
-		|| WinExist("ahk_exe League of Legends.exe")
-	) {
-		if (openapps["fn"] != true) {
-			; when this app is launched
-			; run some code
-			Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
-
-			ToolTip("Closed lbm!")
-			Sleep(3000)
-			ToolTip()
-		}
-		openapps["fn"] := true
-	} else {
-		if (openapps["fn"] != false) {
-			; when this app is closed
-			; run some code
-			Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
-			ToolTip("Re-launched lbm!")
-			Sleep(3000)
-			ToolTip()
-
-		}
-		openapps["fn"] := false
-	}
-
-
-	Sleep(2500) ; this should be fine considering obs takes a bit to launch obs
-}
 
 
 ; #HotIf WinActive("ahk_exe Code.exe")
