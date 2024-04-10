@@ -44,5 +44,5 @@ Next tab - Y + RB
 Prev tab - Y + LB + RB  
 Alt tab next - X + RB  
 Alt tab prev - X + LB + RB  
-X + DPad Left = Navigate Back (like mouse 5)  
-X + DPad Left = Navigate Forward (like mouse 4)  
+X + DPad Left - Navigate Back (like mouse 5)  
+X + DPad Left - Navigate Forward (like mouse 4)  
