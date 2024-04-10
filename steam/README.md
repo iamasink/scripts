@@ -3,19 +3,19 @@ this is my desktop controller configuration for steam input
 it goes in `[steam directory]\steamapps\common\Steam Controller Configs\[AccountID]\config\413080`
 An AccountID can be found by searching your profile url in SteamDB
 
-Button reference
+## Xbox Button reference
 View = two squares, left of Guide
 Menu = Three lines ≡
 Guide = Xbox button
 Share = below guide, middle
 
-Current layout:
+## Button Layout:
 
-(When Disabled)
+### When Disabled
 View + Menu - Switch to Enabled layout
 All other controls are Disabled on this layout, intented for when a game that doesn't use steam input is open or whatever
 
-(When Enabled)
+### When Enabled
 A - Enter
 B - Escape
     (Hold) Ctrl+W / Close tab
@@ -39,7 +39,7 @@ Right Stick Click
 Left Stick - Scroll wheel, spin clockwise to scroll down
 Left Stick Click - Middle mouse click
 
-Some chords for apps
+### Some chords for apps
 Next tab - Y + RB
 Prev tab - Y + LB + RB
 Alt tab next - X + RB
