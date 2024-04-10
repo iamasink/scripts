@@ -2,6 +2,15 @@
 ; what an awfully long and complex script but weird things happen if i split it into littler ones and idk how to fix that so there we go
 #Requires AutoHotkey v2.0.4
 
+; something because of weird dpi scaling issues
+; see https://www.autohotkey.com/boards/viewtopic.php?t=73780
+; https://www.autohotkey.com/boards/viewtopic.php?f=14&t=13810
+; DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
+; nvm
+; Directly moving the mouse across monitors can be an issue with littlebigmouse,
+; either move the mouse across monitor then exact position (move twice or to 0,0 then the correct position)
+; or disable littlebigmouse temporarily (but its probably better and easier to do the first option)
+
 TraySetIcon(A_ScriptDir "\icon\ahkpurple16.ico")
 
 ; ----- Current F13-24 Binds ----- (also in readme.md)
@@ -39,6 +48,7 @@ SetCapsLockState("AlwaysOff")
 SetNumlockState("AlwaysOff")
 SetDefaultMouseSpeed(0)
 CoordMode("Mouse")
+CoordMode("ToolTip")
 SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
 #SingleInstance Force
 
@@ -111,6 +121,21 @@ JEE_RunGetStdOut(vTarget, vSize := "")
 	return vStdOut
 }
 
+switchFancyZonesLayout(monitor := 0, layout := 1)
+{
+	; MsgBox(layout)
+	CoordMode("Mouse")
+	MouseGetPos &xpos, &ypos
+	Sleep 10
+	MouseMove(monitor * A_ScreenWidth + 100, 100)
+	Sleep 100
+	; two := 2
+	Send("{Ctrl Down}{LWin Down}{LAlt Down}" layout "{Ctrl Up}{LWin Up}{LAlt Up}")
+	Sleep 100
+	; MouseMove(0, 0)
+	MouseMove(xpos, ypos)
+	MouseMove(xpos, ypos)
+}
 
 ; ===== home assistant functions
 /**
@@ -630,33 +655,64 @@ F13:: ; A1
 }
 F14:: ; A2
 {
-	static Toggle := false
-	Toggle := !Toggle
-	If Toggle {
-		ToolTip("Main display")
-		Sleep(250)
-		Run("C:\Windows\System32\DisplaySwitch.exe /internal")
-		Sleep(1000)
-		; tell littlebigmouse to exit
-		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
-		Sleep(1000) ; this delay prevents spamming the button
-		ToolTip("")
-	} else {
-		ToolTip("All displays")
-		Sleep(250)
-		Run("C:\Windows\System32\DisplaySwitch.exe /extend")
-		Sleep(500)
-		; tell littlebigmouse to open and start
-		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
-		Sleep(1000) ; this delay prevents spamming the button
-		ToolTip("")
-	}
+	; static Toggle := false
+	; Toggle := !Toggle
+	; If Toggle {
+	; 	ToolTip("Main display")
+	; 	Sleep(250)
+	; 	Run("C:\Windows\System32\DisplaySwitch.exe /internal")
+	; 	Sleep(1000)
+	; 	; tell littlebigmouse to exit
+	; 	Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
+	; 	Sleep(1000) ; this delay prevents spamming the button
+	; 	ToolTip("")
+	; } else {
+	; 	ToolTip("All displays")
+	; 	Sleep(250)
+	; 	Run("C:\Windows\System32\DisplaySwitch.exe /extend")
+	; 	Sleep(500)
+	; 	; tell littlebigmouse to open and start
+	; 	Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
+	; 	Sleep(1000) ; this delay prevents spamming the button
+	; 	ToolTip("")
+	; }
+	; maybe use ? http://www.nirsoft.net/utils/multi_monitor_tool.html
+	SendMessage(0x112, 0xF170, 2, , "Program Manager")
 }
 F15:: ; A3
 {
-	MsgBox("current window: " WinGetProcessName(WinActive("A")))
+	MouseGetPos &xpos, &ypos
+	MsgBox("current window: " WinGetProcessName(WinActive("A")) "`nMouse Position (Screen) " xpos ", " ypos "at dpi " A_ScreenDPI " ")
 	; MsgBox(homeassistantGetLightTemp("hue_color_lamp_2"))
 }
+F16:: ;"Mode" key
+{ ; adjust FancyZones zones on second monitor
+	static presses := 0
+	if presses > 0 ; SetTimer already started, so we log the keypress instead.
+	{
+		presses += 1
+		ToolTip(presses)
+		SetTimer aftertime ; reset the timer after each press
+		return
+	}
+	; Otherwise, this is the first press of a new series. Set count to 1 and start
+	; the timer:
+	presses := 1
+	SetTimer aftertime, -400 ; Wait for more presses within a 400 millisecond window.
+	aftertime()
+	{
+		; request := homeassistantGet("states/light.hue_color_lamp_2")
+		; MsgBox(request)
+		; MsgBox(presses)
+		switchFancyZonesLayout(1, presses)
+		; Regardless of which action above was triggered, reset the count to
+		; prepare for the next series of presses:
+		presses := 0
+		ToolTip
+	}
+}
+
+
 ; yt-dlp download from url
 ^#Down::
 {
@@ -853,69 +909,77 @@ F21::Ctrl
 	Send("@lillliieieiee.anonaddy.me")
 }
 
+f1::
+{
+	switchFancyZonesLayout(1, 2)
+	Send("!{F1}") ; detach tab using tabdetach https://addons.mozilla.org/en-GB/firefox/addon/tabdetach/
+
+}
 
 ; stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
 F23:: ; DPI Down / G7
 {
-	moveval := 0
-	pixeldist := 5
-	largepixeldist := 500
-	If GetKeyState("F23", "p") {
-		MouseGetPos(&x1, &y1)
-		KeyWait("F23")
-	}
-	MouseGetPos(&x2, &y2)
-	XDif := (x2 - x1)
-	YDif := (y2 - y1)
-	If (abs(XDif) >= abs(YDif)) {
-		If (abs(XDif) >= largepixeldist) {
-			If (XDif >= (largepixeldist * 2))
-				moveval := 1
-			If (XDif <= -largepixeldist)
-				moveval := 2
+	try {
+		moveval := 0
+		pixeldist := 5
+		largepixeldist := 500
+		If GetKeyState("F23", "p") {
+			MouseGetPos(&x1, &y1)
+			KeyWait("F23")
+		}
+		MouseGetPos(&x2, &y2)
+		XDif := (x2 - x1)
+		YDif := (y2 - y1)
+		If (abs(XDif) >= abs(YDif)) {
+			If (abs(XDif) >= largepixeldist) {
+				If (XDif >= (largepixeldist * 2))
+					moveval := 1
+				If (XDif <= -largepixeldist)
+					moveval := 2
+			}
+			else {
+				If (XDif >= pixeldist)
+					moveval := 5
+				If (XDif <= -pixeldist)
+					moveval := 6
+			}
 		}
 		else {
-			If (XDif >= pixeldist)
-				moveval := 5
-			If (XDif <= -pixeldist)
-				moveval := 6
+			If (abs(YDif) >= largepixeldist) {
+				If (YDif >= largepixeldist)
+					moveval := 3
+				If (YDif <= -largepixeldist)
+					moveval := 4
+			}
+			else {
+				If (YDif >= pixeldist)
+					moveval := 7
+				If (YDif <= -pixeldist)
+					moveval := 8
+			}
 		}
-	}
-	else {
-		If (abs(YDif) >= largepixeldist) {
-			If (YDif >= largepixeldist)
-				moveval := 3
-			If (YDif <= -largepixeldist)
-				moveval := 4
+		{
+			if (moveval = 0) ; no movement
+				Send("^{LButton}")
+			; close tabs shortcuts https://addons.mozilla.org/en-GB/firefox/addon/close-tabs-shortcuts/
+			if (moveval = 1) ; Big Right
+				Send("!+{F2}") ; close tabs to the right
+			if (moveval = 2) ; Big Left
+				Send("!+{F1}") ; close tabs to the left
+			;
+			if (moveval = 3) ; Big Down
+				Send("^w")
+			if (moveval = 4) ; Big Up
+				Send("+^t")
+			if (moveval = 5) ; Right
+				Send("^{tab}")
+			if (moveval = 6) ; Left
+				Send("^+{tab}")
+			if (moveval = 7) ; Down
+				Send("^w")
+			if (moveval = 8) ; Up
+				Send("^l") ; select address bar
 		}
-		else {
-			If (YDif >= pixeldist)
-				moveval := 7
-			If (YDif <= -pixeldist)
-				moveval := 8
-		}
-	}
-	{
-		if (moveval = 0) ; no movement
-			Send("^{LButton}")
-		; close tabs shortcuts https://addons.mozilla.org/en-GB/firefox/addon/close-tabs-shortcuts/
-		if (moveval = 1) ; Big Right
-			Send("!+{F2}") ; close tabs to the right
-		if (moveval = 2) ; Big Left
-			Send("!+{F1}") ; close tabs to the left
-		;
-		if (moveval = 3) ; Big Down
-			Send("^w")
-		if (moveval = 4) ; Big Up
-			Send("+^t")
-		if (moveval = 5) ; Right
-			Send("^{tab}")
-		if (moveval = 6) ; Left
-			Send("^+{tab}")
-		if (moveval = 7) ; Down
-			Send("^w")
-		if (moveval = 8) ; Up
-			Send("^l") ; select address bar
 	}
 }
 #HotIf WinActive("ahk_exe Code.exe")
@@ -1092,6 +1156,13 @@ RShift:: Send("{Shift Up}1")
 RCtrl:: Send("^z")
 #HotIf
 
+#HotIf WinActive('Enigmatica 6 Expert - Minecraft 1.16.5')
+~F23:: {
+	Sleep(200)
+	Send("{Tab}")
+	Sleep(15)
+	Send("^a")
+}
 
 ; #HotIf WinActive("ahk_exe Code.exe")
 ; Alt & CapsLock::

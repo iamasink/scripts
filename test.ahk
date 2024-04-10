@@ -1,26 +1,44 @@
 #Requires AutoHotkey v2.0
+#SingleInstance Force
+
+CoordMode("Mouse")
+SetDefaultMouseSpeed(0)
+
+if (!A_IsAdmin)
+{
+    try {
+        Run("*RunAs `"" A_ScriptFullPath "`"")
+    }
+    catch {
+        MsgBox("Couldn't run " A_ScriptName " as admin! Some things may not work")
+    }
+}
+
+
 ; MsgBox(A_ScriptDir)
 f12:: {
     ExitApp()
 }
 TraySetIcon(A_ScriptDir "\icon\ahkblue16.ico")
 
-; a::return
-; loop{
-;     while (GetKeyState("a", "P")) {
-;         ToolTip("a down")
-;     }
-; }
+
+x := 0
+y := 0
+f1:: {
+    Send("{Ctrl Down}{LWin Down}{LAlt Down}2{Ctrl Up}{LWin Up}{LAlt Up}")
+}
 
 SetNumLockState("On")
 
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
-^s::
+~^s::
 {
-    Send("^s")
+    ; Send("^s")
+    ToolTip("Reloading " A_ScriptName ".", A_ScreenWidth / 2, A_ScreenHeight / 2)
+    Sleep(250)
     Reload()
-    MsgBox("reloading !")
+    ; MsgBox("reloading !")
     Return
 }
 
