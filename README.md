@@ -4,17 +4,17 @@ random scripts and AutoHotkey v2 stuff i use because im weird :)
 
 ## My setup
 ### Mouse: G502
-  - Side    / DPI shift - F21  
-  - DPI Up  /  G8       - F22  
-  - DPI Down  /  G7     - F23  
+  - Side    / DPI shift - F21
+  - DPI Up  /  G8       - F22
+  - DPI Down  /  G7     - F23
   - Top middle  / G9    - F24
-    
-### Keyboard: Wooting 2 HE  
-  - A1	 - F13  
-  - A2	 - F14  
-  - A3	 - F15  
+
+### Keyboard: Wooting 2 HE
+  - A1	 - F13
+  - A2	 - F14
+  - A3	 - F15
   - Mode - F16
-    
+
 The original functions for these keys (switching keyboard profile) are in the FN layer.
 
 ### Tablet: XP-Pen Star G640
@@ -30,10 +30,10 @@ Using [OpenTabletDriver](https://github.com/OpenTabletDriver/OpenTabletDriver)
 
 ### shell:startup
 
-Visit `shell:startup` or `%appdata%\Microsoft\Windows\Start Menu\Programs\Startup`  
+Visit `shell:startup` or `%appdata%\Microsoft\Windows\Start Menu\Programs\Startup`.  
 Scripts that don't need Administrator or to run before login go here.  
 I advise you use shortcuts instead of copying the file, so all scripts are in the same place, if you want to edit them.    
-The following scripts can go here  
+The following scripts can go here:  
 
 - spotify.ahk
 
@@ -41,7 +41,7 @@ The following scripts can go here
 Some things need to go in Task Scheduler because they run weirdly!  
 There are exported xml schedules you can import, but they may need modifying for your user.
  - Run startobs.bat on workstation unlock of any user  
- - Run main script at log on of any user, needs highest privileges   
+ - Run main script at log on of any user, needs highest privileges  
 
 ## Secrets
 
