@@ -1,12 +1,12 @@
 "controller_mappings"
 {
 	"version"		"3"
-	"revision"		"161"
+	"revision"		"167"
 	"title"		"Toggleable Desktop Controls"
 	"description"		"#SettingsController_AutosaveDescription"
 	"creator"		"76561198301681888"
-	"progenitor"		"workshop://3218184312"
-	"url"		"workshop://3218184312"
+	"progenitor"		"usercloud://413080/controller_xboxone"
+	"url"		"autosave://C:\\Program Files (x86)\\Steam\\steamapps\\common\\Steam Controller Configs\\341416160\\config\\413080\\controller_xboxone.vdf"
 	"export_type"		"community"
 	"controller_type"		"controller_xboxone"
 	"controller_caps"		"9978879"
@@ -321,6 +321,14 @@
 						"bindings"
 						{
 							"binding"		"key_press ESCAPE, , "
+						}
+					}
+					"Long_Press"
+					{
+						"bindings"
+						{
+							"binding"		"key_press LEFT_CONTROL, , "
+							"binding"		"key_press W, , "
 						}
 					}
 				}
