@@ -5,4 +5,4 @@ rmdir 413080 /S /Q
 robocopy "C:\Program Files (x86)\Steam\steamapps\common\Steam Controller Configs\341416160\config\413080" "./413080"
 git add .
 git commit -m "Updated Steam controller config"
-timeout /t 3
+timeout /t 30
