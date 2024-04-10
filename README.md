@@ -17,13 +17,14 @@ random scripts and AutoHotkey v2 stuff i use because im weird :)
 
 The original functions for these keys (switching keyboard profile) are in the FN layer.
 
-### Tablet: XP-Pen Star G640
+### Tablet: Huion Q11k
 Using [OpenTabletDriver](https://github.com/OpenTabletDriver/OpenTabletDriver)
   - Pen 1 - F17
   - Pen 2 - E
 <details><summary>Plugins</summary>
 
 [WindowsInk](https://github.com/X9VoiD/VoiDPlugins/wiki/WindowsInk)
+Windows Ink absolute mode with Tip binding set to Windows Ink Pen Tip button
 </details>
 
 ## Auto startup
