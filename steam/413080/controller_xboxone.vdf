@@ -1,7 +1,7 @@
 "controller_mappings"
 {
 	"version"		"3"
-	"revision"		"170"
+	"revision"		"171"
 	"title"		"Toggleable Desktop Controls"
 	"description"		"#SettingsController_AutosaveDescription"
 	"creator"		"76561198301681888"
@@ -271,13 +271,6 @@
 			{
 				"activators"
 				{
-					"Full_Press"
-					{
-						"bindings"
-						{
-							"binding"		"controller_action MOUSE_POSITION 29567 11059 1, , "
-						}
-					}
 				}
 				"disabled_activators"
 				{
