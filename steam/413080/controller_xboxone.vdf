@@ -1,12 +1,12 @@
 "controller_mappings"
 {
 	"version"		"3"
-	"revision"		"169"
+	"revision"		"170"
 	"title"		"Toggleable Desktop Controls"
 	"description"		"#SettingsController_AutosaveDescription"
 	"creator"		"76561198301681888"
 	"progenitor"		"usercloud://413080/toggleable desktop controls_0"
-	"url"		"usercloud://413080/toggleable desktop controls_0"
+	"url"		"autosave://C:\\Program Files (x86)\\Steam\\steamapps\\common\\Steam Controller Configs\\341416160\\config\\413080\\controller_xboxone.vdf"
 	"export_type"		"personal_local"
 	"controller_type"		"controller_xboxone"
 	"controller_caps"		"9978879"
@@ -267,6 +267,22 @@
 		"description"		""
 		"inputs"
 		{
+			"dpad_east"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"controller_action MOUSE_POSITION 29567 11059 1, , "
+						}
+					}
+				}
+				"disabled_activators"
+				{
+				}
+			}
 		}
 		"settings"
 		{
@@ -807,15 +823,6 @@
 							"haptic_intensity"		"2"
 						}
 					}
-				}
-				"disabled_activators"
-				{
-				}
-			}
-			"scroll_wheel_list_8"
-			{
-				"activators"
-				{
 				}
 				"disabled_activators"
 				{
