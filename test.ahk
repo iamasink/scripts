@@ -3,6 +3,7 @@
 
 CoordMode("Mouse")
 SetDefaultMouseSpeed(0)
+TraySetIcon(A_ScriptDir "\icon\ahkblue16.ico")
 
 if (!A_IsAdmin)
 {
@@ -16,19 +17,22 @@ if (!A_IsAdmin)
 
 
 ; MsgBox(A_ScriptDir)
+#:: {
+    MsgBox("awawa")
+    Sleep(1000)
+    RunWait("taskkill.exe /F /IM Explorer.exe", , "Hide")
+    Sleep(3000)
+    Run("Explorer.exe")
+}
 f12:: {
+    MsgBox("awawa2")
+
     ExitApp()
 }
-TraySetIcon(A_ScriptDir "\icon\ahkblue16.ico")
-
-
-x := 0
-y := 0
-f1:: {
-    Send("{Ctrl Down}{LWin Down}{LAlt Down}2{Ctrl Up}{LWin Up}{LAlt Up}")
+]:: {
+    RunWait("taskkill.exe /F /IM AutoHotkey64.exe", , "Hide")
 }
 
-SetNumLockState("On")
 
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
@@ -41,6 +45,7 @@ SetNumLockState("On")
     ; MsgBox("reloading !")
     Return
 }
+
 
 ; E 11.1607
 ; A 8.4966

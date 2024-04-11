@@ -58,6 +58,7 @@ SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
 if (!A_IsAdmin)
 {
 	try {
+		; MsgBox("Running as admin...")
 		Run("*RunAs `"" A_ScriptFullPath "`"")
 	}
 	catch {
@@ -75,9 +76,11 @@ if (!A_IsAdmin)
 homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
 
 ; set display on start
-if (MonitorGetCount() = 1) { ; if only 1 monitor is on
-	Run("C:\Windows\System32\DisplaySwitch.exe /extend") ; set windows display to "extend"
-	Sleep(2000)
+if (MonitorGetCount() = 1 or MonitorGetCount() = 3) { ; if 1 or 3 monitors are on
+	; Run("C:\Windows\System32\DisplaySwitch.exe /extend") ; set windows display to "extend"
+	; load default profile with MonitorSwitcher.exe
+	RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/")
+	Sleep(10000)
 	; tell littlebigmouse to open and start
 	Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
 }
@@ -135,6 +138,12 @@ switchFancyZonesLayout(monitor := 0, layout := 1)
 	; MouseMove(0, 0)
 	MouseMove(xpos, ypos)
 	MouseMove(xpos, ypos)
+}
+
+restartExplorer() {
+	RunWait("taskkill.exe /F /IM Explorer.exe", , "Hide")
+	Sleep(3000)
+	Run("Explorer.exe")
 }
 
 ; ===== home assistant functions
@@ -677,7 +686,47 @@ F14:: ; A2
 	; 	ToolTip("")
 	; }
 	; maybe use ? http://www.nirsoft.net/utils/multi_monitor_tool.html
-	SendMessage(0x112, 0xF170, 2, , "Program Manager")
+	; this is to toggle between two monitorswitcher profiles. the xml might have to created with `MonitorSwitcher.exe -save:myprofileX.xml` while in the correct layout in windows.
+	KeyWait("F14") ; wait for key to be released
+	ToolTip("Are you sure you want to switch display mode? Press button again to confirm.", A_ScreenWidth / 2, A_ScreenHeight / 2)
+	if (KeyWait("F14", "D T5") = 0) {
+		ToolTip("Cancelled", A_ScreenWidth / 2, A_ScreenHeight / 2)
+		Sleep(2000)
+		ToolTip()
+		return
+	}
+	ToolTip()
+
+	static Toggle := false
+	Toggle := !Toggle
+	If Toggle {
+		ToolTip("TV display")
+		Sleep(250)
+		Run("C:\Windows\System32\DisplaySwitch.exe /internal")
+		RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile2.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/")
+		Sleep(2000)
+		; doing this often causes a lot of issues, so restart explorer for good measure (i mean displayport takes so long to wake up that this'll probably be ran before the monitors even turn on)
+		restartExplorer()
+		Sleep(10000)
+		; restart littlebigmouse, it can wait to ensure everything is settled
+		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
+		Sleep(1000)
+		ToolTip("")
+	} else {
+		ToolTip("Main displays")
+		Sleep(250)
+		RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/")
+		Sleep(5000)
+		; doing this often causes a lot of issues, so restart explorer for good measure
+		restartExplorer()
+		Sleep(10000)
+		; restart littlebigmouse
+		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
+		Sleep(1000)
+		ToolTip("")
+	}
+
+
 }
 F15:: ; A3
 {
