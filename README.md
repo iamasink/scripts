@@ -77,7 +77,7 @@ You may have to change the download location in the yt-dlp .bat scripts. It uses
 ## restart ahk script on save
 put this in a script to reload it when you press ctrl+s, so its easier to test  
 nothing has to be changed per script, but you have to manually reload if you change the filename or stuff like that  
-ahk_exe can be changed to any other exe name  
+ahk_exe can be changed to any other exe name for your editor  
 the tooltip flashes briefly when it reloads, so you know it worked  
 ```
 ; reload the script when its saved
