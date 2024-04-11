@@ -4,10 +4,10 @@ It goes in `[steam directory]\steamapps\common\Steam Controller Configs\[Account
 An AccountID can be found by searching your profile url in SteamDB
 
 ## Xbox Button reference
-View = two squares, left of Guide
-Menu = Three lines ≡
-Guide = Xbox button
-Share = below guide, middle
+View = two squares, left of Guide  
+Menu = Three lines ≡  
+Guide = Xbox button  
+Share = below guide, middle  
 
 ## Button Layout:
 
@@ -37,6 +37,7 @@ All other controls are Disabled on this layout, intented for when a game that do
     (Note this is configured on the Right Stick so this appears blank)  
 **Right Stick** - Mouse control  
 **Right Stick Click**  
+    Double click - Open keyboard
 **Left Stick** - Scroll wheel, spin clockwise to scroll down  
 **Left Stick Click** - Middle mouse click  
 
