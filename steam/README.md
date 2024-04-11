@@ -1,7 +1,7 @@
 # steam/413080
 This is my desktop controller configuration for steam input.  
 It goes in `[steam directory]\steamapps\common\Steam Controller Configs\[AccountID]\config\413080`  
-An AccountID can be found by searching your profile url in SteamDB
+An AccountID can be found by searching your profile url in SteamDB  
 
 ## Xbox Button reference
 View = two squares, left of Guide  
@@ -12,13 +12,13 @@ Share = below guide, middle
 ## Button Layout:
 
 ### When Disabled
-View + Menu - Switch to Enabled layout  
-All other controls are Disabled on this layout, intented for when a game that doesn't use steam input is open or whatever  
+**View + Menu** - Switch to Enabled layout  
+All other controls are Disabled on this layout, intended for games,etc. that don't use steam input.  
 
 ### When Enabled
 **A** - Enter  
 **B** - Escape  
-    (Hold) Ctrl+W / Close tab  
+**Hold B** - Ctrl+W / Close tab  
 **X** - Alt  
 **Y** - Control  
 **LB** - Shift  
@@ -34,11 +34,11 @@ All other controls are Disabled on this layout, intented for when a game that do
 **RT Soft** - None  
 **LT Full** - Right click  
 **LT Soft** - Lower Mouse speed  
-    (Note this is configured on the Right Stick so this appears blank)  
+    (*Note this is configured on the Right Stick so this appears blank in steam input*)  
 **Right Stick** - Mouse control  
 **Right Stick Click**  
-    Double click - Open keyboard
-**Left Stick** - Scroll wheel, spin clockwise to scroll down  
+**Right Stick Double Click** - Open keyboard  
+**Left Stick** - Scroll wheel; spin clockwise to scroll down  
 **Left Stick Click** - Middle mouse click  
 
 ### Some chords for apps
@@ -47,4 +47,4 @@ All other controls are Disabled on this layout, intented for when a game that do
 **Alt tab next** - X + RB  
 **Alt tab prev** - X + LB + RB  
 **X + DPad Left** - Navigate Back (like mouse 5)  
-**X + DPad Left** - Navigate Forward (like mouse 4)  
+**X + DPad Right** - Navigate Forward (like mouse 4)  
