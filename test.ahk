@@ -32,7 +32,9 @@ f12:: {
 ]:: {
     RunWait("taskkill.exe /F /IM AutoHotkey64.exe", , "Hide")
 }
-
+[:: {
+    RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/")
+}
 
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")

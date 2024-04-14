@@ -3,6 +3,7 @@
 TraySetIcon(A_ScriptDir "\icon\ahkocean16.ico")
 SetTitleMatchMode("RegEx")
 CoordMode("ToolTip")
+homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
 
 ; current app loop
 ; detects the currently running app, and does stuff for them on open/close
@@ -33,7 +34,7 @@ closelbm := ["ahk_exe .*-Win64-Shipping\.exe$", ; unreal engine stuff usually do
 ]
 
 ; Initialize variables to track the state of applications
-openapps := Map("closeobs", false, "closelbm", false)
+openapps := Map("closeobs", false, "closelbm", false, "idle", false)
 
 ; Function to check if any application in the given list is running
 AnyAppRunning(appList) {
@@ -95,13 +96,32 @@ while true {
 		openapps["closelbm"] := false
 	}
 
+	if (A_TimeIdle > 10 * 100 * 1000) {
+		if (!openapps["idle"]) {
+			; the user is idle.
+			Tooltippy("(idle)", , 3)
+		}
+		openapps["idle"] := true
+	} else {
+		if (openapps["idle"]) {
+			; the user is back from idle!
+			Tooltippy("return", time := 60 * 1000, 3)
+			; this monitor sometimes enters deep sleep. it then needs to be entirely turned off or the pc restarted because it sucks.
+			; this is an attempt to fix this (forcefully)
+			homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_off", true)
+			Sleep(5000)
+			homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_on", true)
+
+		}
+		openapps["idle"] := false
+	}
 
 	if (ProcessExist("obs64.exe")) {
 		; obs open yey
-		SetNumLockState("Off")
+		; SetNumLockState("Off")
 
 	} else {
-		SetNumLockState("On")
+		; SetNumLockState("On")
 
 	}
 
@@ -252,4 +272,16 @@ while true {
 	Reload()
 	; MsgBox("reloading !")
 	Return
+}
+
+
+homeassistantRequest(requestJSON, url, wait := false)
+{
+	; get token from variable earlier
+	global homeassistantToken
+	if (wait) {
+		RunWait(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, , "hide")
+	} else {
+		Run(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, , "hide")
+	}
 }

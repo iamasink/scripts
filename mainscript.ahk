@@ -244,50 +244,50 @@ homeassistantGetLightTempApprox(light, temp, request := homeassistantGet("states
 lighttoggle(r, g, b, w, brightness, wait := false)
 {
 	; remember that `" is the escape for " within autohotkey, a \ escapes that " for the CMD that runs
-	; so CMD sees (eg) {\"entity_id\":\"light.hue_color_lamp_2\"}
-	; which then curls {"entity_id":"light.hue_color_lamp_2"}
+	; so CMD sees (eg) {\"entity_id\":\"light.lilys_light\"}
+	; which then curls {"entity_id":"light.lilys_light"}
 	; autohotkey inherently concatenates strings, so within the rgbw_color array, the main "" ends so it can concatenate the variable.
 	; yes its complicated and i'll probably have to relearn everything next time i want to touch this 😭😭
 	; it's possible some of the " are avoidable, but i really do not want to do this any longer
 
 	; this toggle function includes a rgbw and brightness, because it still sets the light to these if turning on
-	homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
+	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
 }
 
 lighttoggletemp(k, brightness, wait := false)
 {
-	homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
+	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
 }
 
 lightontemp(k, brightness, wait := false)
 {
-	homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
+	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
 }
 
 lighton(r, g, b, w, brightness, wait := false)
 {
-	homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
+	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
 }
 
 lightoff(wait := false)
 {
-	if (homeassistantGetLightState("hue_color_lamp_2") = 0) {
+	if (homeassistantGetLightState("lilys_light") = 0) {
 		; already off
 		; ToolTip("Already off")
 	} else {
 		lighttemp(6500, 100, false) ; the light should always be reset to this value before turning off, so it turns on as expected when via other means
 		Sleep(100) ; sleep so it actually does it first because yes
-		homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`"}", "services/light/turn_off", wait)
+		homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`"}", "services/light/turn_off", wait)
 	}
 }
 
 lightoff2() {
-	homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`"}", "services/light/turn_off", false)
+	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`"}", "services/light/turn_off", false)
 }
 
 lighttemp(k, brightness, wait := false)
 {
-	homeassistantRequest("{\`"entity_id\`":\`"light.hue_color_lamp_2\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
+	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
 }
 
 
@@ -398,7 +398,10 @@ Shift & CapsLock:: {
 	;"Modifier keys are restored differently to allow a Send to turn off a hotkey's modifiers even if the user is still physically holding them down."
 	; this ensures that the shift key is (logically) released before the delete key is pressed, even if the user is still holding shift
 	Send("{Blind}{Shift Up}")
+	; Send("{Shift Up}")
 	Send("{Delete}")
+	Send("{Shift Up}") ; sometimes, shift gets stuck? my hope is that this fixes that.
+	; Send("{Shift Up}{Delete}")
 }
 
 ; ^+CapsLock:: Send("!{Delete}")
@@ -613,13 +616,13 @@ F13:: ; A1
 	SetTimer aftertime, -400 ; Wait for more presses within a 400 millisecond window.
 	aftertime()
 	{
-		request := homeassistantGet("states/light.hue_color_lamp_2")
+		request := homeassistantGet("states/light.lilys_light")
 		; MsgBox(request)
 		switch presses {
 			case 1: ; The key was pressed once. this turns the light to 6500, 100% if the light is not at that already, otherwise it turns it off
 				{
 					; if light on already, just turn it off
-					if (homeassistantGetLightState("hue_color_lamp_2", request)) {
+					if (homeassistantGetLightState("lilys_light", request)) {
 						lightoff2()
 					} else {
 						; MsgBox("light is not at 6500")
@@ -628,7 +631,7 @@ F13:: ; A1
 				}
 			case 2: ; The key was pressed twice.
 				{
-					if (homeassistantGetLightTempApprox("hue_color_lamp_2", 2700, request)) {
+					if (homeassistantGetLightTempApprox("lilys_light", 2700, request)) {
 						lightoff()
 					} else {
 						lightontemp(2700, 25)
@@ -687,8 +690,9 @@ F14:: ; A2
 	; }
 	; maybe use ? http://www.nirsoft.net/utils/multi_monitor_tool.html
 	; this is to toggle between two monitorswitcher profiles. the xml might have to created with `MonitorSwitcher.exe -save:myprofileX.xml` while in the correct layout in windows.
+	static Toggle := false
 	KeyWait("F14") ; wait for key to be released
-	ToolTip("Are you sure you want to switch display mode? Press button again to confirm.", A_ScreenWidth / 2, A_ScreenHeight / 2)
+	ToolTip("Are you sure you want to switch display mode? Press button again to confirm.`nCurrently: " (Toggle ? "TV" : "Main"), A_ScreenWidth / 2, A_ScreenHeight / 2)
 	if (KeyWait("F14", "D T5") = 0) {
 		ToolTip("Cancelled", A_ScreenWidth / 2, A_ScreenHeight / 2)
 		Sleep(2000)
@@ -697,29 +701,33 @@ F14:: ; A2
 	}
 	ToolTip()
 
-	static Toggle := false
 	Toggle := !Toggle
 	If Toggle {
 		ToolTip("TV display")
 		Sleep(250)
-		Run("C:\Windows\System32\DisplaySwitch.exe /internal")
+		; Run("C:\Windows\System32\DisplaySwitch.exe /internal")
 		RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile2.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/")
 		Sleep(2000)
 		; doing this often causes a lot of issues, so restart explorer for good measure (i mean displayport takes so long to wake up that this'll probably be ran before the monitors even turn on)
-		restartExplorer()
+		; restartExplorer()
+		; kill spotify because it sometimes just starts playing idk
+		RunWait("taskkill.exe /F /IM Spotify.exe", , "Hide")
 		Sleep(10000)
 		; restart littlebigmouse, it can wait to ensure everything is settled
 		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
 		Sleep(1000)
+		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_off", true)
 		ToolTip("")
 	} else {
 		ToolTip("Main displays")
-		Sleep(250)
+		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_on", true)
+		Sleep(15000)
 		RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/")
 		Sleep(5000)
 		; doing this often causes a lot of issues, so restart explorer for good measure
-		restartExplorer()
-		Sleep(10000)
+		; restartExplorer()
+		Sleep(1000)
+		Sleep(5000)
 		; restart littlebigmouse
 		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
 		Sleep(1000)
@@ -732,7 +740,7 @@ F15:: ; A3
 {
 	MouseGetPos &xpos, &ypos
 	MsgBox("current window: " WinGetProcessName(WinActive("A")) "`nMouse Position (Screen) " xpos ", " ypos "at dpi " A_ScreenDPI " ")
-	; MsgBox(homeassistantGetLightTemp("hue_color_lamp_2"))
+	; MsgBox(homeassistantGetLightTemp("lilys_light"))
 }
 F16:: ;"Mode" key
 { ; adjust FancyZones zones on second monitor
@@ -750,7 +758,8 @@ F16:: ;"Mode" key
 	SetTimer aftertime, -400 ; Wait for more presses within a 400 millisecond window.
 	aftertime()
 	{
-		; request := homeassistantGet("states/light.hue_color_lamp_2")
+		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
+		; request := homeassistantGet("states/light.lilys_light")
 		; MsgBox(request)
 		; MsgBox(presses)
 		switchFancyZonesLayout(1, presses)
@@ -758,6 +767,7 @@ F16:: ;"Mode" key
 		; prepare for the next series of presses:
 		presses := 0
 		ToolTip
+		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
 	}
 }
 
