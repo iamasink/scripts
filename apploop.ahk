@@ -105,7 +105,7 @@ while true {
 	} else {
 		if (openapps["idle"]) {
 			; the user is back from idle!
-			Tooltippy("return", time := 60 * 1000, 3)
+			Tooltippy("return", time := 5 * 1000, 3)
 			; this monitor sometimes enters deep sleep. it then needs to be entirely turned off or the pc restarted because it sucks.
 			; this is an attempt to fix this (forcefully)
 			homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_off", true)

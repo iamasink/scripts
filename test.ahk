@@ -16,25 +16,153 @@ if (!A_IsAdmin)
 }
 
 
+; F23:: ; DPI Down / G7
+; {
+;     try {
+;         MouseGetPos(&x1, &y1)
+
+
+;         moveval := 0
+;         pixeldist := 5
+;         pixeldisty := 15
+;         largepixeldist := 500
+;         ; stops waiting and skip = 1 if timeout expires, else waits for timeout and if its still held down skip is 0
+;         skip := KeyWait("F23", "T0.3")
+;         if (!skip) {
+;             ToolTip("", x1, y1, 2)
+;             ToolTip("←", x1 - largepixeldist, y1, 3)
+;             ToolTip("→", x1 + largepixeldist, y1, 4)
+;         }
+
+;         loop {
+;             If (GetKeyState("F23", "p") or skip) {
+;                 MouseGetPos(&x2, &y2)
+;                 XDif := (x2 - x1)
+;                 YDif := (y2 - y1)
+;                 If (abs(XDif) >= abs(YDif)) {
+;                     If (abs(XDif) >= largepixeldist) {
+;                         If (XDif >= largepixeldist)
+;                         {
+;                             if (moveval != 1)
+;                                 ToolTip("big right", x1, y1, 2)
+;                             moveval := 1
+;                         }
+
+;                         If (XDif <= -largepixeldist)
+;                         {
+;                             if (moveval != 2)
+;                                 ToolTip("big left", x1, y1, 2)
+;                             moveval := 2
+;                         }
+
+;                     }
+;                     else {
+;                         If (XDif >= pixeldist)
+;                         {
+;                             if (moveval != 5)
+;                                 ToolTip("right", x1, y1, 2)
+;                             moveval := 5
+;                         }
+
+;                         If (XDif <= -pixeldist)
+;                         {
+;                             if (moveval != 6)
+;                                 ToolTip("left", x1, y1, 2)
+;                             moveval := 6
+;                         }
+
+;                     }
+;                 }
+;                 else {
+;                     If (abs(YDif) >= largepixeldist) {
+;                         If (YDif >= largepixeldist)
+;                         {
+;                             if (moveval != 3)
+;                                 ToolTip("", x1, y1, 2)
+;                             moveval := 3
+;                         }
+
+;                         If (YDif <= -largepixeldist) {
+;                             if (moveval != 4)
+;                                 ToolTip("", x1, y1, 2)
+;                             moveval := 4
+
+;                         }
+
+;                     }
+;                     else {
+;                         If (YDif >= pixeldisty)
+;                         {
+;                             if (moveval != 7)
+;                                 ToolTip("", x1, y1, 2)
+
+;                             moveval := 7
+;                         }
+
+;                         If (YDif <= -pixeldisty)
+;                         {
+;                             if (moveval != 8)
+;                                 ToolTip("", x1, y1, 2)
+;                             moveval := 8
+;                         }
+
+;                     }
+;                 }
+;                 if (skip) {
+;                     break
+;                 }
+;             } else {
+;                 break
+;             }
+;             Sleep 25
+;         }
+
+;         ; clear tooltips
+;         ToolTip()
+;         ToolTip(, , , 2)
+;         ToolTip(, , , 3)
+;         ToolTip(, , , 4)
+
+
+;         if (moveval = 0) ; no movement
+;             Send("^{LButton}")
+;         ; close tabs shortcuts https://addons.mozilla.org/en-GB/firefox/addon/close-tabs-shortcuts/
+;         if (moveval = 1) ; Big Right
+;             Send("!+{F2}") ; close tabs to the right
+;         if (moveval = 2) ; Big Left
+;             Send("!+{F1}") ; close tabs to the left
+;         ;
+;         if (moveval = 3) ; Big Down
+;             Send("^w")
+;         if (moveval = 4) ; Big Up
+;             Send("+^t")
+;         if (moveval = 5) ; Right
+;             Send("^{tab}")
+;         if (moveval = 6) ; Left
+;             Send("^+{tab}")
+;         if (moveval = 7) ; Down
+;             Send("^w")
+;         if (moveval = 8) ; Up
+;             Send("^l") ; select address bar
+
+;     }
+; }
+
+
 ; MsgBox(A_ScriptDir)
 #:: {
-    MsgBox("awawa")
+    MsgBox("Killing Explorer.exe")
     Sleep(1000)
     RunWait("taskkill.exe /F /IM Explorer.exe", , "Hide")
     Sleep(3000)
     Run("Explorer.exe")
 }
 f12:: {
-    MsgBox("awawa2")
+    MsgBox("Exiting " A_ScriptName)
 
     ExitApp()
 }
-]:: {
-    RunWait("taskkill.exe /F /IM AutoHotkey64.exe", , "Hide")
-}
-[:: {
-    RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/")
-}
+
 
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")

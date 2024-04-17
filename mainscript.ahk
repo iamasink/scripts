@@ -716,10 +716,11 @@ F14:: ; A2
 		; restart littlebigmouse, it can wait to ensure everything is settled
 		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
 		Sleep(1000)
-		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_off", true)
 		ToolTip("")
 	} else {
 		ToolTip("Main displays")
+		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_off", true)
+		Sleep(2000)
 		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_on", true)
 		Sleep(15000)
 		RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/")
@@ -991,7 +992,7 @@ F23:: ; DPI Down / G7
 		YDif := (y2 - y1)
 		If (abs(XDif) >= abs(YDif)) {
 			If (abs(XDif) >= largepixeldist) {
-				If (XDif >= (largepixeldist * 2))
+				If (XDif >= largepixeldist * 2)
 					moveval := 1
 				If (XDif <= -largepixeldist)
 					moveval := 2
@@ -1056,7 +1057,7 @@ F23:: ; DPI Down / G7
 	YDif := (y2 - y1)
 	If (abs(XDif) >= abs(YDif)) {
 		If (abs(XDif) >= largepixeldist) {
-			If (XDif >= (largepixeldist * 2))
+			If (XDif >= largepixeldist * 2)
 				moveval := 1
 			If (XDif <= -largepixeldist)
 				moveval := 2
@@ -1100,9 +1101,9 @@ F23:: ; DPI Down / G7
 		if (moveval = 6) ; Left
 			Send("^{PgUp}")
 		if (moveval = 7) ; Down
-			Send("^w")
-		if (moveval = 8) ; Up
-			Send("^+p") ; select address bar
+			; Send("^w")
+			if (moveval = 8) ; Up
+				Send("^+p") ; select address bar
 	}
 }
 #HotIf WinActive("ahk_class CabinetWClass ahk_exe explorer.exe") ; Only run if Explorer is active
