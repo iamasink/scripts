@@ -1,7 +1,7 @@
 "controller_mappings"
 {
 	"version"		"3"
-	"revision"		"171"
+	"revision"		"176"
 	"title"		"Toggleable Desktop Controls"
 	"description"		"#SettingsController_AutosaveDescription"
 	"creator"		"76561198301681888"
@@ -267,15 +267,6 @@
 		"description"		""
 		"inputs"
 		{
-			"dpad_east"
-			{
-				"activators"
-				{
-				}
-				"disabled_activators"
-				{
-				}
-			}
 		}
 		"settings"
 		{
@@ -736,7 +727,7 @@
 			"output_joystick"		"2"
 			"deadzone_inner_radius"		"300"
 			"deadzone_outer_radius"		"8015"
-			"sensitivity"		"100"
+			"sensitivity"		"75"
 		}
 	}
 	"group"
@@ -861,6 +852,48 @@
 			"curve_exponent"		"0"
 			"output_joystick"		"2"
 			"sensitivity"		"33"
+		}
+	}
+	"group"
+	{
+		"id"		"26"
+		"mode"		"joystick_mouse"
+		"name"		""
+		"description"		""
+		"inputs"
+		{
+		}
+		"settings"
+		{
+			"output_joystick"		"2"
+		}
+	}
+	"group"
+	{
+		"id"		"27"
+		"mode"		"mouse_region"
+		"name"		""
+		"description"		""
+		"inputs"
+		{
+		}
+		"settings"
+		{
+			"output_joystick"		"3"
+		}
+	}
+	"group"
+	{
+		"id"		"28"
+		"mode"		"mouse_region"
+		"name"		""
+		"description"		""
+		"inputs"
+		{
+		}
+		"settings"
+		{
+			"output_joystick"		"3"
 		}
 	}
 	"group"
@@ -1052,6 +1085,26 @@
 				{
 				}
 			}
+			"left_stick_click"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"mode_shift joystick 27"
+						}
+						"settings"
+						{
+							"interruptable"		"0"
+						}
+					}
+				}
+				"disabled_activators"
+				{
+				}
+			}
 		}
 	}
 	"preset"
@@ -1062,8 +1115,8 @@
 		{
 			"7"		"switch active"
 			"9"		"right_joystick inactive"
-			"0"		"button_diamond active"
 			"1"		"joystick active"
+			"0"		"button_diamond active"
 			"4"		"left_trigger active"
 			"5"		"right_trigger active"
 			"8"		"dpad active"
@@ -1078,12 +1131,15 @@
 			"14"		"switch active"
 			"20"		"right_joystick active"
 			"25"		"right_joystick active modeshift"
-			"15"		"button_diamond active"
+			"28"		"right_joystick inactive"
 			"16"		"joystick inactive"
 			"21"		"joystick inactive"
 			"22"		"joystick active"
 			"23"		"joystick inactive"
 			"24"		"joystick inactive modeshift"
+			"26"		"joystick inactive modeshift"
+			"27"		"joystick inactive modeshift"
+			"15"		"button_diamond active"
 			"17"		"left_trigger active"
 			"18"		"right_trigger active"
 			"19"		"dpad active"
