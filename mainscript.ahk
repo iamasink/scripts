@@ -37,6 +37,7 @@ TraySetIcon(A_ScriptDir "\icon\ahkpurple16.ico")
 
 ; run other script (this could be #Include, but i dont want it to clog the log for this one!)
 Run(".\apploop.ahk")
+Run(".\text-shortcuts.ahk")
 
 
 ; ===== this all runs when script is started:
@@ -50,6 +51,7 @@ SetDefaultMouseSpeed(0)
 CoordMode("Mouse")
 CoordMode("ToolTip")
 SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
+
 #SingleInstance Force
 
 
@@ -392,6 +394,8 @@ GetFileNameAndExtension(pathOrFile) {
 }
 
 +`::~
+
+
 Shift & CapsLock:: {
 	; KeyWait("Shift")
 	; https://www.autohotkey.com/docs/v2/lib/Send.htm#Blind
@@ -400,10 +404,13 @@ Shift & CapsLock:: {
 	Send("{Blind}{Shift Up}")
 	; Send("{Shift Up}")
 	Send("{Delete}")
+	Sleep(10)
 	Send("{Shift Up}") ; sometimes, shift gets stuck? my hope is that this fixes that.
 	; Send("{Shift Up}{Delete}")
 }
 
+; Shift & CapsLock:: Send("{Blind}{Shift Up}{Delete}")
+;
 ; ^+CapsLock:: Send("!{Delete}")
 
 
@@ -420,13 +427,12 @@ Shift & CapsLock:: {
 ; 	Send("{Home}{Home}{Shift Down}{End}{Shift Up}{Delete}")
 ; }
 CapsLock & e:: {
-
 	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
 		Run(A_AppData "\Spotify\Spotify.exe")
 		WinWait("ahk_exe Spotify.exe")
 		Sleep(1000)
 	}
-	PostMessage(0x319, , 0xB0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Next to spotifye
+	PostMessage(0x319, , 0xB0000, , "ahk_exe Spotify.exe")	 ;Send Media_Next to spotifye
 }
 CapsLock & q:: {
 	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
@@ -457,13 +463,14 @@ CapsLock & o::End
 ; CapsLock & v:: {
 ; 	Send("^!+{v}")
 ; }
+
 CapsLock & Tab::Enter
 
 ; keyboard switching
 ; in "Text Services and Input Languages", English is LAlt + Shift + 1
 ; Japanese is LAlt + Shift + 2
 ; ~ means dont block from system
-CapsLock & z:: { ; english layou
+CapsLock & z:: { ; english layout
 	SetCapsLockState("Off")
 	KeyWait("CapsLock")
 	Send("!+1")
@@ -514,19 +521,9 @@ w:: {
 }
 #HotIf
 
-; *CapsLock:: { ; why do this over CapsLock::Backspace? am i dumb??? ok i think it was for koroebi which i dont use anymore so idk
-
-; 	KeyWait("CapsLock")
-; 	if (A_ThisHotkey = "*CapsLock")
-; 		Send("{BackSpace}")
-; 	SetCapsLockState("Off")
-; 	SetCapsLockState("AlwaysOff")
-; 	Return
-; }
 
 ; omg this used to be :: send backspace
-; but this seems to work much better, ctrl + capslock works and doesnt have to be specifically defined
-; that got stuck a lot, so hopefully this is better
+; but this seems to work much better
 CapsLock::BackSpace
 
 
@@ -592,10 +589,6 @@ NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap 
 	KeyWait "LShift"
 	DllCall("LockWorkStation")
 	Return
-}
-
-F1::
-{
 }
 
 
@@ -693,13 +686,17 @@ F14:: ; A2
 	static Toggle := false
 	KeyWait("F14") ; wait for key to be released
 	ToolTip("Are you sure you want to switch display mode? Press button again to confirm.`nCurrently: " (Toggle ? "TV" : "Main"), A_ScreenWidth / 2, A_ScreenHeight / 2)
+	ToolTip("Are you sure you want to switch display mode? Press button again to confirm.`nCurrently: " (Toggle ? "TV" : "Main"), , , 2)
 	if (KeyWait("F14", "D T5") = 0) {
 		ToolTip("Cancelled", A_ScreenWidth / 2, A_ScreenHeight / 2)
+		ToolTip("Cancelled", , , 2)
 		Sleep(2000)
 		ToolTip()
+		ToolTip(, , , 2)
 		return
 	}
 	ToolTip()
+	ToolTip(, , , 2)
 
 	Toggle := !Toggle
 	If Toggle {
@@ -868,46 +865,6 @@ showdesktopundo(lastactivewindow) {
 	Send("#d")
 }
 
-; these are alt-gr + hotkeys
-<^>!3::
-{
-	Send("¥")
-}
-<!>!5::
-{
-	Send("§")
-}
-<^>!8:: ; alt-gr + 8
-{
-	Send("°")
-}
-<^>!Space:: {
-	Send("　")
-}
-<^>!Right:: {
-	Send("→")
-}
-<^>!Left:: {
-	Send("←")
-}
-<^>!Up:: {
-	Send("↑")
-}
-<^>!Down:: {
-	Send("↓")
-}
-<^>!y:: {
-	Send("✓")
-}
-<^>!x:: {
-	Send("✗")
-}
-<^>!\:: {
-	Send("＼")
-}
-<^>!/:: {
-	Send("／")
-}
 ;
 
 ; If (WinExist("ahk_exe Spotify.exe") && WinGetMinMax() != -1) {
@@ -964,11 +921,6 @@ F22::
 #HotIf WinActive("Risk of Rain 2",)
 F21::Ctrl
 #HotIf WinActive("ahk_exe firefox.exe")
-^+8::
-{
-	Send("@lillliieieiee.anonaddy.me")
-}
-
 f1::
 {
 	switchFancyZonesLayout(1, 2)
