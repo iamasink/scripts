@@ -405,7 +405,7 @@ Shift & CapsLock:: {
 	; Send("{Shift Up}")
 	Send("{Delete}")
 	Sleep(10)
-	Send("{Shift Up}") ; sometimes, shift gets stuck? my hope is that this fixes that.
+	SendInput("{Shift Up}") ; sometimes, shift gets stuck? my hope is that this fixes that.
 	; Send("{Shift Up}{Delete}")
 }
 
@@ -493,7 +493,9 @@ CapsLock & c:: { ; japanese katakana layout
 	SetCapsLockState("AlwaysOff")
 
 }
-;
+
+
+CapsLock & `;:: Send("^{BackSpace}")
 
 
 #HotIf (GetKeyState("CapsLock", "P") AND !GetKeyState("Alt", "P"))
@@ -544,14 +546,19 @@ SC049::Numpad9
 SC052::Numpad0
 SC053::NumpadDot
 NumLock & SC049:: {
-	send("hi")
+	SetCapsLockState("Off")
+	Send("{CapsLock}")
+}
+NumLock & SC048:: {
+	SetCapsLockState("On")
+	Sleep(10)
+	SetCapsLockState("AlwaysOff")
 }
 NumLock & NumpadEnter:: {
 	; msgbox("Hi")
 	run(A_ScriptDir "\startobs.ahk")
 }
 NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap :3
-
 
 ; Win+Numpad1 is run on SteamVR dashboard open (thanks to OVR advanced settings)
 #Numpad1:: lighttemp(6500, 25)
@@ -613,23 +620,23 @@ F13:: ; A1
 		; MsgBox(request)
 		switch presses {
 			case 1: ; The key was pressed once. this turns the light to 6500, 100% if the light is not at that already, otherwise it turns it off
-				{
-					; if light on already, just turn it off
-					if (homeassistantGetLightState("lilys_light", request)) {
-						lightoff2()
-					} else {
-						; MsgBox("light is not at 6500")
-						lightontemp(6500, 100)
-					}
+			{
+				; if light on already, just turn it off
+				if (homeassistantGetLightState("lilys_light", request)) {
+					lightoff2()
+				} else {
+					; MsgBox("light is not at 6500")
+					lightontemp(6500, 100)
 				}
+			}
 			case 2: ; The key was pressed twice.
-				{
-					if (homeassistantGetLightTempApprox("lilys_light", 2700, request)) {
-						lightoff()
-					} else {
-						lightontemp(2700, 25)
-					}
+			{
+				if (homeassistantGetLightTempApprox("lilys_light", 2700, request)) {
+					lightoff()
+				} else {
+					lightontemp(2700, 25)
 				}
+			}
 			case 3:
 			{
 				; if (homeassistantGetLightState("hue_color_lamp_1", request)) {
@@ -1148,11 +1155,11 @@ CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead o
 				tab.Navigate(tab.Document.Folder.Self.Path) ; navigate, in current tab, to the current folder
 			}
 		default:
-			{
-				ToolTip("Not a folder view")
-				Sleep(1000)
-				ToolTip()
-			}
+		{
+			ToolTip("Not a folder view")
+			Sleep(1000)
+			ToolTip()
+		}
 	}
 }
 
