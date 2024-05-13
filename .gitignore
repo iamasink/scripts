@@ -5,6 +5,7 @@ yt-dlp.exe
 yt-dlp.exe.old
 spotify/Uninstall-Spotify.bat
 scrcpy/scrcpy
+scrcpy-old
 autoupdate.ahk
 includes/*
 !includes/README.md
