@@ -395,6 +395,15 @@ GetFileNameAndExtension(pathOrFile) {
 
 +`::~
 
+F21 & WheelUp:: {
+	Loop 2
+		Send("{WheelLeft}")
+}
+
+F21 & WheelDown:: {
+	Loop 2
+		Send("{WheelRight}")
+}
 
 Shift & CapsLock:: {
 	; KeyWait("Shift")
