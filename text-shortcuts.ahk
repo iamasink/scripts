@@ -4,9 +4,9 @@
 addyioToken := FileRead("secrets\addyio.txt")
 email1 := FileRead("secrets\email-1.txt") ; load the token from file
 
-f1:: {
-    MsgBox(JEE_RunGetStdOut(A_ComSpec " /C curl -X GET -H `"Authorization: Bearer " addyioToken "`" -H `"Content-Type: application/json`" `"https://app.addy.io/api/v1/api-token-details`""))
-}
+; ^f1:: {
+;     MsgBox(JEE_RunGetStdOut(A_ComSpec " /C curl -X GET -H `"Authorization: Bearer " addyioToken "`" -H `"Content-Type: application/json`" `"https://app.addy.io/api/v1/api-token-details`""))
+; }
 
 ; curl --request GET\
 ; --get "https://app.addy.io/api/v1/api-token-details"\
@@ -53,6 +53,7 @@ f1:: {
 <^>!]:: Send("」")
 <^>!u:: Send("µ")
 <^>!-:: Send("·")
+<^>!c:: Send("¢")
 <^>!RShift:: Send("​")
 
 #InputLevel 1 ; this allows the zwsp to trigger the hotstring
