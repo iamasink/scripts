@@ -15,19 +15,6 @@ if (!A_IsAdmin)
     }
 }
 
-Shift & CapsLock:: Send("{Blind}{Shift Up}{Delete}")
-
-CapsLock & w::Up
-CapsLock & a::Left
-CapsLock & s::Down
-CapsLock & d::Right
-
-
-CapsLock::BackSpace
-
-
-SetCapsLockState("Off")
-
 
 ; MsgBox(A_ScriptDir)
 #:: {

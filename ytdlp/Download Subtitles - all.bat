@@ -21,5 +21,5 @@ yt-dlp -U
 @REM --skip-download skips downloading the video, only downloads the subtitles
 @REM %url% is the url the user enters when the script is ran
 @REM "|| pause" pauses the script if theres any issue (to show the error), else it will just close
-yt-dlp -P %DownloadLocation% --write-sub --skip-download  %url% || pause
+yt-dlp -P %DownloadLocation% --write-sub --sub-lang ".*" --skip-download  %url% || pause
 timeout /t 5
