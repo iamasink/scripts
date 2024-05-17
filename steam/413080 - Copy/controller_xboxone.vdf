@@ -1,7 +1,7 @@
 "controller_mappings"
 {
 	"version"		"3"
-	"revision"		"184"
+	"revision"		"176"
 	"title"		"Toggleable Desktop Controls"
 	"description"		"#SettingsController_AutosaveDescription"
 	"creator"		"76561198301681888"
@@ -805,15 +805,6 @@
 						"settings"
 						{
 							"haptic_intensity"		"2"
-						}
-					}
-					"Double_Press"
-					{
-						"bindings"
-						{
-							"binding"		"key_press LEFT_WINDOWS, , "
-							"binding"		"key_press LEFT_SHIFT, , "
-							"binding"		"key_press D, , "
 						}
 					}
 				}
