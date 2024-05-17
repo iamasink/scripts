@@ -1,7 +1,7 @@
 "controller_mappings"
 {
 	"version"		"3"
-	"revision"		"199"
+	"revision"		"187"
 	"title"		"Toggleable Desktop Controls"
 	"description"		"#SettingsController_AutosaveDescription"
 	"creator"		"76561198301681888"
@@ -386,7 +386,7 @@
 					{
 						"bindings"
 						{
-							"binding"		"mouse_wheel SCROLL_UP, , "
+							"binding"		"key_press UP_ARROW, , "
 						}
 						"settings"
 						{
@@ -406,7 +406,7 @@
 					{
 						"bindings"
 						{
-							"binding"		"mouse_wheel SCROLL_DOWN, , "
+							"binding"		"key_press DOWN_ARROW, , "
 						}
 						"settings"
 						{
@@ -423,6 +423,17 @@
 			{
 				"activators"
 				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"key_press RIGHT_ARROW, , "
+						}
+						"settings"
+						{
+							"haptic_intensity"		"1"
+						}
+					}
 				}
 				"disabled_activators"
 				{
@@ -432,6 +443,17 @@
 			{
 				"activators"
 				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"key_press LEFT_ARROW, , "
+						}
+						"settings"
+						{
+							"haptic_intensity"		"1"
+						}
+					}
 				}
 				"disabled_activators"
 				{
@@ -692,13 +714,6 @@
 							"binding"		"controller_action SHOW_KEYBOARD, , "
 						}
 					}
-					"Full_Press"
-					{
-						"bindings"
-						{
-							"binding"		"mouse_button MIDDLE, , "
-						}
-					}
 				}
 				"disabled_activators"
 				{
@@ -800,7 +815,7 @@
 		}
 		"settings"
 		{
-			"scroll_angle"		"75"
+			"scroll_angle"		"125"
 		}
 	}
 	"group"
@@ -879,63 +894,6 @@
 		"settings"
 		{
 			"output_joystick"		"3"
-		}
-	}
-	"group"
-	{
-		"id"		"29"
-		"mode"		"scrollwheel"
-		"name"		""
-		"description"		""
-		"inputs"
-		{
-		}
-	}
-	"group"
-	{
-		"id"		"30"
-		"mode"		"dpad"
-		"name"		""
-		"description"		""
-		"inputs"
-		{
-			"dpad_north"
-			{
-				"activators"
-				{
-					"Full_Press"
-					{
-						"bindings"
-						{
-							"binding"		"mouse_wheel SCROLL_UP, , "
-						}
-					}
-				}
-				"disabled_activators"
-				{
-				}
-			}
-			"dpad_south"
-			{
-				"activators"
-				{
-					"Full_Press"
-					{
-						"bindings"
-						{
-							"binding"		"mouse_wheel SCROLL_DOWN, , "
-						}
-					}
-				}
-				"disabled_activators"
-				{
-				}
-			}
-		}
-		"settings"
-		{
-			"requires_click"		"0"
-			"layout"		"0"
 		}
 	}
 	"group"
@@ -1107,7 +1065,7 @@
 				{
 				}
 			}
-			"right_trigger_threshold"
+			"left_trigger_threshold"
 			{
 				"activators"
 				{
@@ -1115,7 +1073,7 @@
 					{
 						"bindings"
 						{
-							"binding"		"mode_shift right_joystick 30"
+							"binding"		"mode_shift right_joystick 25"
 						}
 						"settings"
 						{
@@ -1172,13 +1130,11 @@
 		{
 			"14"		"switch active"
 			"20"		"right_joystick active"
-			"25"		"right_joystick inactive modeshift"
+			"25"		"right_joystick active modeshift"
 			"28"		"right_joystick inactive"
-			"29"		"right_joystick inactive"
-			"30"		"right_joystick active modeshift"
-			"16"		"joystick active"
+			"16"		"joystick inactive"
 			"21"		"joystick inactive"
-			"22"		"joystick inactive"
+			"22"		"joystick active"
 			"23"		"joystick inactive"
 			"24"		"joystick inactive modeshift"
 			"26"		"joystick inactive modeshift"

@@ -1,12 +1,12 @@
 "controller_mappings"
 {
 	"version"		"3"
-	"revision"		"199"
+	"revision"		"168"
 	"title"		"Toggleable Desktop Controls"
-	"description"		"#SettingsController_AutosaveDescription"
+	"description"		"Desktop Controls with toggle (for non steam games, etc)"
 	"creator"		"76561198301681888"
-	"progenitor"		"usercloud://413080/toggleable desktop controls_0"
-	"url"		"autosave://C:\\Program Files (x86)\\Steam\\steamapps\\common\\Steam Controller Configs\\341416160\\config\\413080\\controller_xboxone.vdf"
+	"progenitor"		""
+	"url"		"usercloud://413080/controller_xboxone"
 	"export_type"		"personal_local"
 	"controller_type"		"controller_xboxone"
 	"controller_caps"		"9978879"
@@ -386,7 +386,7 @@
 					{
 						"bindings"
 						{
-							"binding"		"mouse_wheel SCROLL_UP, , "
+							"binding"		"key_press UP_ARROW, , "
 						}
 						"settings"
 						{
@@ -406,7 +406,7 @@
 					{
 						"bindings"
 						{
-							"binding"		"mouse_wheel SCROLL_DOWN, , "
+							"binding"		"key_press DOWN_ARROW, , "
 						}
 						"settings"
 						{
@@ -423,6 +423,17 @@
 			{
 				"activators"
 				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"key_press RIGHT_ARROW, , "
+						}
+						"settings"
+						{
+							"haptic_intensity"		"1"
+						}
+					}
 				}
 				"disabled_activators"
 				{
@@ -432,6 +443,17 @@
 			{
 				"activators"
 				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"key_press LEFT_ARROW, , "
+						}
+						"settings"
+						{
+							"haptic_intensity"		"1"
+						}
+					}
 				}
 				"disabled_activators"
 				{
@@ -692,13 +714,6 @@
 							"binding"		"controller_action SHOW_KEYBOARD, , "
 						}
 					}
-					"Full_Press"
-					{
-						"bindings"
-						{
-							"binding"		"mouse_button MIDDLE, , "
-						}
-					}
 				}
 				"disabled_activators"
 				{
@@ -712,7 +727,7 @@
 			"output_joystick"		"2"
 			"deadzone_inner_radius"		"300"
 			"deadzone_outer_radius"		"8015"
-			"sensitivity"		"75"
+			"sensitivity"		"100"
 		}
 	}
 	"group"
@@ -800,7 +815,7 @@
 		}
 		"settings"
 		{
-			"scroll_angle"		"75"
+			"scroll_angle"		"125"
 		}
 	}
 	"group"
@@ -837,105 +852,6 @@
 			"curve_exponent"		"0"
 			"output_joystick"		"2"
 			"sensitivity"		"33"
-		}
-	}
-	"group"
-	{
-		"id"		"26"
-		"mode"		"joystick_mouse"
-		"name"		""
-		"description"		""
-		"inputs"
-		{
-		}
-		"settings"
-		{
-			"output_joystick"		"2"
-		}
-	}
-	"group"
-	{
-		"id"		"27"
-		"mode"		"mouse_region"
-		"name"		""
-		"description"		""
-		"inputs"
-		{
-		}
-		"settings"
-		{
-			"output_joystick"		"3"
-		}
-	}
-	"group"
-	{
-		"id"		"28"
-		"mode"		"mouse_region"
-		"name"		""
-		"description"		""
-		"inputs"
-		{
-		}
-		"settings"
-		{
-			"output_joystick"		"3"
-		}
-	}
-	"group"
-	{
-		"id"		"29"
-		"mode"		"scrollwheel"
-		"name"		""
-		"description"		""
-		"inputs"
-		{
-		}
-	}
-	"group"
-	{
-		"id"		"30"
-		"mode"		"dpad"
-		"name"		""
-		"description"		""
-		"inputs"
-		{
-			"dpad_north"
-			{
-				"activators"
-				{
-					"Full_Press"
-					{
-						"bindings"
-						{
-							"binding"		"mouse_wheel SCROLL_UP, , "
-						}
-					}
-				}
-				"disabled_activators"
-				{
-				}
-			}
-			"dpad_south"
-			{
-				"activators"
-				{
-					"Full_Press"
-					{
-						"bindings"
-						{
-							"binding"		"mouse_wheel SCROLL_DOWN, , "
-						}
-					}
-				}
-				"disabled_activators"
-				{
-				}
-			}
-		}
-		"settings"
-		{
-			"requires_click"		"0"
-			"layout"		"0"
 		}
 	}
 	"group"
@@ -1107,7 +1023,7 @@
 				{
 				}
 			}
-			"right_trigger_threshold"
+			"left_trigger_threshold"
 			{
 				"activators"
 				{
@@ -1115,27 +1031,7 @@
 					{
 						"bindings"
 						{
-							"binding"		"mode_shift right_joystick 30"
-						}
-						"settings"
-						{
-							"interruptable"		"0"
-						}
-					}
-				}
-				"disabled_activators"
-				{
-				}
-			}
-			"left_stick_click"
-			{
-				"activators"
-				{
-					"Full_Press"
-					{
-						"bindings"
-						{
-							"binding"		"mode_shift joystick 27"
+							"binding"		"mode_shift right_joystick 25"
 						}
 						"settings"
 						{
@@ -1157,8 +1053,8 @@
 		{
 			"7"		"switch active"
 			"9"		"right_joystick inactive"
-			"1"		"joystick active"
 			"0"		"button_diamond active"
+			"1"		"joystick active"
 			"4"		"left_trigger active"
 			"5"		"right_trigger active"
 			"8"		"dpad active"
@@ -1172,18 +1068,13 @@
 		{
 			"14"		"switch active"
 			"20"		"right_joystick active"
-			"25"		"right_joystick inactive modeshift"
-			"28"		"right_joystick inactive"
-			"29"		"right_joystick inactive"
-			"30"		"right_joystick active modeshift"
-			"16"		"joystick active"
+			"25"		"right_joystick active modeshift"
+			"15"		"button_diamond active"
+			"16"		"joystick inactive"
 			"21"		"joystick inactive"
-			"22"		"joystick inactive"
+			"22"		"joystick active"
 			"23"		"joystick inactive"
 			"24"		"joystick inactive modeshift"
-			"26"		"joystick inactive modeshift"
-			"27"		"joystick inactive modeshift"
-			"15"		"button_diamond active"
 			"17"		"left_trigger active"
 			"18"		"right_trigger active"
 			"19"		"dpad active"
