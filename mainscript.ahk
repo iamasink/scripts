@@ -35,6 +35,10 @@ TraySetIcon(A_ScriptDir "\icon\ahkpurple16.ico")
 ; https://github.com/GroggyOtter/PeepAHK
 #Include includes\Peep.v2.ahk
 
+; bluetooth toggle
+; https://www.autohotkey.com/boards/viewtopic.php?p=559901#p559901
+#Include includes\bluetooth.ahk
+
 ; run other script (this could be #Include, but i dont want it to clog the log for this one!)
 Run(".\apploop.ahk")
 Run(".\text-shortcuts.ahk")
@@ -146,6 +150,12 @@ restartExplorer() {
 	RunWait("taskkill.exe /F /IM Explorer.exe", , "Hide")
 	Sleep(3000)
 	Run("Explorer.exe")
+}
+
+; tooltip in middle of screen
+CenteredTooltip(text, time := 2500, number := 1) {
+	ToolTip(text, A_ScreenWidth / 2, A_ScreenHeight / 2 - number * 50, number)
+	SetTimer () => ToolTip(, , , number), -time
 }
 
 ; ===== home assistant functions
@@ -395,16 +405,6 @@ GetFileNameAndExtension(pathOrFile) {
 
 +`::~
 
-F21 & WheelUp:: {
-	Loop 2
-		Send("{WheelLeft}")
-}
-
-F21 & WheelDown:: {
-	Loop 2
-		Send("{WheelRight}")
-}
-
 Shift & CapsLock:: {
 	; KeyWait("Shift")
 	; https://www.autohotkey.com/docs/v2/lib/Send.htm#Blind
@@ -577,6 +577,9 @@ NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap 
 ; on lock
 #l::
 {
+	bluetooth := RadioModule('Bluetooth')
+	bluetooth.State := 'Off'
+
 	Run("taskkill /im obs64.exe", , "Hide")
 
 	; there might be multiple media trying to play, sometimes theyre being weird so do it 4 times :)
@@ -606,7 +609,17 @@ NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap 
 	DllCall("LockWorkStation")
 	Return
 }
-
+#b::
+{
+	bluetooth := RadioModule('Bluetooth')
+	if (bluetooth.State = 'On') {
+		CenteredTooltip("Bluetooth Disabled", 1000, 4)
+		bluetooth.State := 'Off'
+	} else {
+		CenteredTooltip("Bluetooth Enabled", 1000, 4)
+		bluetooth.State := 'On'
+	}
+}
 
 #InputLevel 1
 F13:: ; A1
@@ -733,9 +746,9 @@ F14:: ; A2
 	} else {
 		ToolTip("Main displays")
 		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_off", true)
-		Sleep(2000)
+		Sleep(1000)
 		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_on", true)
-		Sleep(15000)
+		Sleep(10000)
 		RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/")
 		Sleep(5000)
 		; doing this often causes a lot of issues, so restart explorer for good measure
@@ -747,9 +760,18 @@ F14:: ; A2
 		Sleep(1000)
 		ToolTip("")
 	}
-
+}
+^F14:: {
+	Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
+	homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_off", true)
+	Sleep(2000)
+	homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_on", true)
+	Sleep(15000)
+	Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
 
 }
+
+
 F15:: ; A3
 {
 	MouseGetPos &xpos, &ypos
@@ -943,7 +965,15 @@ f1::
 	Send("!{F1}") ; detach tab using tabdetach https://addons.mozilla.org/en-GB/firefox/addon/tabdetach/
 
 }
+F21 & WheelUp:: {
+	Loop 2
+		Send("{WheelLeft}")
+}
 
+F21 & WheelDown:: {
+	Loop 2
+		Send("{WheelRight}")
+}
 ; stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
 F23:: ; DPI Down / G7
 {
@@ -1011,6 +1041,15 @@ F23:: ; DPI Down / G7
 	}
 }
 #HotIf WinActive("ahk_exe Code.exe")
+F21 & WheelUp:: {
+	Loop 2
+		Send("{WheelLeft}")
+}
+
+F21 & WheelDown:: {
+	Loop 2
+		Send("{WheelRight}")
+}
 F23:: ; DPI Down / G7
 {
 	moveval := 0
