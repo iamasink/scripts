@@ -44,8 +44,8 @@ AnyAppRunning(appList) {
 	}
 	return false
 }
-; tooltip in middle of screen, attempting to avoid overlap
-Tooltippy(text, time := 2500, number := 0) {
+; tooltip in middle of screen
+CenteredTooltip(text, time := 2500, number := 1) {
 	ToolTip(text, A_ScreenWidth / 2, A_ScreenHeight / 2 - number * 50, number)
 	SetTimer () => ToolTip(, , , number), -time
 }
@@ -58,7 +58,7 @@ while true {
 		if (!openapps["closeobs"]) {
 			; when this app is launched
 			; run some code
-			Tooltippy("Closing OBS", , 1)
+			CenteredTooltip("Closing OBS", , 1)
 			RunWait("taskkill /im obs64.exe", , "Hide")
 			; try WinKill("ahk_exe obs64.exe")
 
@@ -68,7 +68,7 @@ while true {
 		if (openapps["closeobs"]) {
 			; when this app is closed
 			; run some code
-			Tooltippy("Launched OBS", , 1)
+			CenteredTooltip("Launched OBS", , 1)
 			Run("`"C:\Program Files\obs-studio\bin\64bit\obs64.exe`" --startreplaybuffer --scene default", "C:\Program Files\obs-studio\bin\64bit", "Hide")
 
 		}
@@ -82,7 +82,7 @@ while true {
 		if (!openapps["closelbm"]) {
 			; when this app is launched
 			; run some code
-			Tooltippy("Closing LBM", , 2)
+			CenteredTooltip("Closing LBM", , 2)
 			Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
 		}
 		openapps["closelbm"] := true
@@ -90,31 +90,31 @@ while true {
 		if (openapps["closelbm"]) {
 			; when this app is closed
 			; run some code
-			Tooltippy("Launched LBM", , 2)
+			CenteredTooltip("Launched LBM", , 2)
 			Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
 		}
 		openapps["closelbm"] := false
 	}
 
-	if (A_TimeIdle > 10 * 100 * 1000) {
-		if (!openapps["idle"]) {
-			; the user is idle.
-			Tooltippy("(idle)", , 3)
-		}
-		openapps["idle"] := true
-	} else {
-		if (openapps["idle"]) {
-			; the user is back from idle!
-			Tooltippy("return", time := 5 * 1000, 3)
-			; this monitor sometimes enters deep sleep. it then needs to be entirely turned off or the pc restarted because it sucks.
-			; this is an attempt to fix this (forcefully)
-			homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_off", true)
-			Sleep(5000)
-			homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_on", true)
+	; if (A_TimeIdle > 10 * 100 * 1000) {
+	; 	if (!openapps["idle"]) {
+	; 		; the user is idle.
+	; 		Tooltippy("(idle)", , 3)
+	; 	}
+	; 	openapps["idle"] := true
+	; } else {
+	; 	if (openapps["idle"]) {
+	; 		; the user is back from idle!
+	; 		Tooltippy("return", time := 5 * 1000, 3)
+	; 		; this monitor sometimes enters deep sleep. it then needs to be entirely turned off or the pc restarted because it sucks.
+	; 		; this is an attempt to fix this (forcefully)
+	; 		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_off", true)
+	; 		Sleep(5000)
+	; 		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_on", true)
 
-		}
-		openapps["idle"] := false
-	}
+	; 	}
+	; 	openapps["idle"] := false
+	; }
 
 	if (ProcessExist("obs64.exe")) {
 		; obs open yey
