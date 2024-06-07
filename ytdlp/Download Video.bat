@@ -21,5 +21,5 @@ yt-dlp -U
 @REM the rest just embed other info self explanatory 
 @REM %url% is the url the user enters when the script is ran
 @REM "|| pause" pauses the script if theres any issue (to show the error), else it will just close
-yt-dlp -P %DownloadLocation% -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --no-mtime --sub-langs all --embed-subs --sub-format best --embed-thumbnail --write-thumbnail --embed-metadata --embed-chapters --embed-info-json %url% || pause
+yt-dlp -P %DownloadLocation% -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --no-mtime --sub-langs all --embed-subs --sub-format best --embed-thumbnail --write-thumbnail --embed-metadata --embed-chapters --embed-info-json %url% --cookies-from-browser firefox || pause
 timeout /t 5
