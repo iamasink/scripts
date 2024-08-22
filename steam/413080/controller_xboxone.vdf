@@ -1,7 +1,7 @@
 "controller_mappings"
 {
 	"version"		"3"
-	"revision"		"199"
+	"revision"		"200"
 	"title"		"Toggleable Desktop Controls"
 	"description"		"#SettingsController_AutosaveDescription"
 	"creator"		"76561198301681888"
@@ -419,24 +419,6 @@
 				{
 				}
 			}
-			"dpad_east"
-			{
-				"activators"
-				{
-				}
-				"disabled_activators"
-				{
-				}
-			}
-			"dpad_west"
-			{
-				"activators"
-				{
-				}
-				"disabled_activators"
-				{
-				}
-			}
 			"click"
 			{
 				"activators"
@@ -801,6 +783,10 @@
 		"settings"
 		{
 			"scroll_angle"		"75"
+			"scroll_friction"		"3"
+		}
+		"gameactions"
+		{
 		}
 	}
 	"group"
@@ -1176,9 +1162,9 @@
 			"28"		"right_joystick inactive"
 			"29"		"right_joystick inactive"
 			"30"		"right_joystick active modeshift"
-			"16"		"joystick active"
+			"16"		"joystick inactive"
 			"21"		"joystick inactive"
-			"22"		"joystick inactive"
+			"22"		"joystick active"
 			"23"		"joystick inactive"
 			"24"		"joystick inactive modeshift"
 			"26"		"joystick inactive modeshift"
