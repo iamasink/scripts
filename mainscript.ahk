@@ -26,7 +26,6 @@ TraySetIcon(A_ScriptDir "\icon\ahkpurple16.ico")
 ;   - Mode 	- F16
 ;   The original functions for these keys (switching keyboard profile) are available in the FN layer.
 
-
 ; include librarys
 ; Include jsongo to use it
 #Include includes\jsongo.v2.ahk
@@ -137,10 +136,10 @@ switchFancyZonesLayout(monitor := 0, layout := 1)
 	MouseGetPos &xpos, &ypos
 	Sleep 10
 	MouseMove(monitor * A_ScreenWidth + 100, 100)
-	Sleep 100
+	Sleep 15
 	; two := 2
 	Send("{Ctrl Down}{LWin Down}{LAlt Down}" layout "{Ctrl Up}{LWin Up}{LAlt Up}")
-	Sleep 100
+	Sleep 15
 	; MouseMove(0, 0)
 	MouseMove(xpos, ypos)
 	MouseMove(xpos, ypos)
@@ -403,7 +402,8 @@ GetFileNameAndExtension(pathOrFile) {
 
 }
 
-+`::~
+; +`::~
+¬::~
 
 Shift & CapsLock:: {
 	; KeyWait("Shift")
@@ -958,7 +958,7 @@ F22::
 !WheelDown::[
 #HotIf WinActive("Risk of Rain 2",)
 F21::Ctrl
-#HotIf WinActive("ahk_exe firefox.exe")
+#HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe")
 f1::
 {
 	switchFancyZonesLayout(1, 2)

@@ -32,9 +32,10 @@ closelbm := ["ahk_exe .*-Win64-Shipping\.exe$", ; unreal engine stuff usually do
 	; "ahk_exe prismlauncher\.exe$",
 	"ahk_exe League of Legends\.exe$",
 ]
+highperf := ["ahk_exe cs2\.exe$"]
 
 ; Initialize variables to track the state of applications
-openapps := Map("closeobs", false, "closelbm", false, "idle", false)
+openapps := Map("closeobs", false, "closelbm", false, "idle", false, "highperf", false)
 
 ; Function to check if any application in the given list is running
 AnyAppRunning(appList) {
@@ -57,7 +58,6 @@ while true {
 	if (closeobsappRunning) {
 		if (!openapps["closeobs"]) {
 			; when this app is launched
-			; run some code
 			CenteredTooltip("Closing OBS", , 1)
 			RunWait("taskkill /im obs64.exe", , "Hide")
 			; try WinKill("ahk_exe obs64.exe")
@@ -67,7 +67,6 @@ while true {
 	} else {
 		if (openapps["closeobs"]) {
 			; when this app is closed
-			; run some code
 			CenteredTooltip("Launched OBS", , 1)
 			Run("`"C:\Program Files\obs-studio\bin\64bit\obs64.exe`" --startreplaybuffer --scene default", "C:\Program Files\obs-studio\bin\64bit", "Hide")
 
@@ -81,7 +80,6 @@ while true {
 	if (closelbmappRunning) {
 		if (!openapps["closelbm"]) {
 			; when this app is launched
-			; run some code
 			CenteredTooltip("Closing LBM", , 2)
 			Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
 		}
@@ -89,32 +87,33 @@ while true {
 	} else {
 		if (openapps["closelbm"]) {
 			; when this app is closed
-			; run some code
 			CenteredTooltip("Launched LBM", , 2)
 			Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
 		}
 		openapps["closelbm"] := false
 	}
 
-	; if (A_TimeIdle > 10 * 100 * 1000) {
-	; 	if (!openapps["idle"]) {
-	; 		; the user is idle.
-	; 		Tooltippy("(idle)", , 3)
-	; 	}
-	; 	openapps["idle"] := true
-	; } else {
-	; 	if (openapps["idle"]) {
-	; 		; the user is back from idle!
-	; 		Tooltippy("return", time := 5 * 1000, 3)
-	; 		; this monitor sometimes enters deep sleep. it then needs to be entirely turned off or the pc restarted because it sucks.
-	; 		; this is an attempt to fix this (forcefully)
-	; 		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_off", true)
-	; 		Sleep(5000)
-	; 		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_on", true)
+	; Check if any application in the closeobs group is running
+	highperfappRunning := AnyAppRunning(highperf)
+	if (highperfappRunning) {
+		if (!openapps["highperf"]) {
+			; when this app is launched
+			; CenteredTooltip("High performance plan enabled", , 3)
+			; set power plan to high performance
+			; Run("powercfg.exe /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c")
+		}
+		openapps["highperf"] := true
+	} else {
+		if (openapps["highperf"]) {
+			; when this app is closed
+			; CenteredTooltip("Returned to balanced plan", , 3)
+			; set power plan to balanced
+			; Run("powercfg.exe /setactive 381b4222-f694-41f0-9685-ff5bb260df2e")
 
-	; 	}
-	; 	openapps["idle"] := false
-	; }
+		}
+		openapps["highperf"] := false
+	}
+
 
 	if (ProcessExist("obs64.exe")) {
 		; obs open yey

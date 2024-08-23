@@ -1,3 +1,5 @@
+@REM unused
+
 @REM this script runs when pc unlocked
 @REM close obs and give it time to close
 taskkill /im obs64.exe

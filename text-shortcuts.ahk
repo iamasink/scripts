@@ -117,9 +117,13 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
 :?*:[sup)]::{U+207E} ; )
 :?*:^)   ::{U+207E}
 
+; other
 
 :?*:[maru]::〇
 :?*:[mrmr]::〇〇
+
+:?*:[~=]::≈
+:?*:[!=]::≠
 
 ; these are alt-gr + hotkeys
 <^>!1:: Send("¡")
@@ -144,6 +148,7 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
 <^>!-:: Send("·")
 <^>!c:: Send("¢")
 <^>!.:: Send("・")
+
 ; <^>!RShift:: Send("​")
 
 #InputLevel 1 ; this allows the zwsp to trigger the hotstring

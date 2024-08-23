@@ -24,5 +24,5 @@ spicetify
 spicetify update
 spicetify backup
 spicetify upgrade
-spicetify restore backup apply
+spicetify backup apply
 pause

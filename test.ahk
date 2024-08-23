@@ -30,6 +30,10 @@ f12:: {
     ExitApp()
 }
 
+f9:: {
+    Run(A_ComSpec " /C " "`"C:\Program Files\Mozilla Firefox\firefox.exe`" -new-tab .", , "hide")
+}
+
 
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
