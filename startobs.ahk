@@ -10,9 +10,9 @@ SoundSetMute(0, , "Microphone (4- HyperX QuadCast S)")
 Sleep(150)
 SoundSetMute(1, , "Microphone (4- HyperX QuadCast S)")
 
-if (!ProcessExist("firefox.exe")) {
-    Run(A_ComSpec " /C " "`"C:\Program Files\Mozilla Firefox\firefox.exe`" -new-tab https://google.com", , "hide")
-}
+; if (!ProcessExist("firefox.exe")) {
+;     Run(A_ComSpec " /C " "`"C:\Program Files\Mozilla Firefox\firefox.exe`" -new-tab https://google.com", , "hide")
+; }
 
 ; close obs and give it time to close
 Run(A_ComSpec " /C " "taskkill /im obs64.exe", , "hide")

@@ -38,9 +38,12 @@ TraySetIcon(A_ScriptDir "\icon\ahkpurple16.ico")
 ; https://www.autohotkey.com/boards/viewtopic.php?p=559901#p559901
 #Include includes\bluetooth.ahk
 
-; run other script (this could be #Include, but i dont want it to clog the log for this one!)
-Run(".\apploop.ahk")
-Run(".\text-shortcuts.ahk")
+; run other scripts (this could be #Include, but i dont want it to clog the log for this one!)
+
+kids := ["apploop.ahk", "text-shortcuts.ahk"]
+for s in kids {
+	Run(".\" s)
+}
 
 
 ; ===== this all runs when script is started:
@@ -563,10 +566,10 @@ NumLock & SC048:: {
 	Sleep(10)
 	SetCapsLockState("AlwaysOff")
 }
-NumLock & NumpadEnter:: {
-	; msgbox("Hi")
-	run(A_ScriptDir "\startobs.ahk")
-}
+; NumLock & NumpadEnter:: {
+; 	; msgbox("Hi")
+; 	run(A_ScriptDir "\startobs.ahk")
+; }
 NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap :3
 
 ; Win+Numpad1 is run on SteamVR dashboard open (thanks to OVR advanced settings)
@@ -687,7 +690,7 @@ F13:: ; A1
 		ToolTip
 	}
 }
-F14:: ; A2
+^+F14:: ; A2
 {
 	; static Toggle := false
 	; Toggle := !Toggle
@@ -714,51 +717,34 @@ F14:: ; A2
 	; this is to toggle between two monitorswitcher profiles. the xml might have to created with `MonitorSwitcher.exe -save:myprofileX.xml` while in the correct layout in windows.
 	static Toggle := false
 	KeyWait("F14") ; wait for key to be released
-	ToolTip("Are you sure you want to switch display mode? Press button again to confirm.`nCurrently: " (Toggle ? "TV" : "Main"), A_ScreenWidth / 2, A_ScreenHeight / 2)
-	ToolTip("Are you sure you want to switch display mode? Press button again to confirm.`nCurrently: " (Toggle ? "TV" : "Main"), , , 2)
-	if (KeyWait("F14", "D T5") = 0) {
-		ToolTip("Cancelled", A_ScreenWidth / 2, A_ScreenHeight / 2)
-		ToolTip("Cancelled", , , 2)
-		Sleep(2000)
-		ToolTip()
-		ToolTip(, , , 2)
-		return
-	}
+	; ToolTip("Are you sure you want to switch display mode? Press button again to confirm.`nCurrently: " (Toggle ? "TV" : "Main"), A_ScreenWidth / 2, A_ScreenHeight / 2)
+	; ToolTip("Are you sure you want to switch display mode? Press button again to confirm.`nCurrently: " (Toggle ? "TV" : "Main"), , , 2)
+	; if (KeyWait("F14", "D T5") = 0) {
+	; 	ToolTip("Cancelled", A_ScreenWidth / 2, A_ScreenHeight / 2)
+	; 	ToolTip("Cancelled", , , 2)
+	; 	Sleep(2000)
+	; 	ToolTip()
+	; 	ToolTip(, , , 2)
+	; 	return
+	; }
 	ToolTip()
 	ToolTip(, , , 2)
 
 	Toggle := !Toggle
 	If Toggle {
-		ToolTip("TV display")
-		Sleep(250)
-		; Run("C:\Windows\System32\DisplaySwitch.exe /internal")
-		RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile2.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/")
-		Sleep(2000)
-		; doing this often causes a lot of issues, so restart explorer for good measure (i mean displayport takes so long to wake up that this'll probably be ran before the monitors even turn on)
-		; restartExplorer()
-		; kill spotify because it sometimes just starts playing idk
-		RunWait("taskkill.exe /F /IM Spotify.exe", , "Hide")
-		Sleep(10000)
-		; restart littlebigmouse, it can wait to ensure everything is settled
-		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
-		Sleep(1000)
-		ToolTip("")
+		RunWait(A_ScriptDir "/monitor/monitor1.ahk")
 	} else {
 		ToolTip("Main displays")
 		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_off", true)
 		Sleep(1000)
 		homeassistantRequest("{\`"entity_id\`":\`"switch.lily_monitor\`"}", "services/switch/turn_on", true)
 		Sleep(10000)
-		RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/")
-		Sleep(5000)
-		; doing this often causes a lot of issues, so restart explorer for good measure
-		; restartExplorer()
-		Sleep(1000)
-		Sleep(5000)
-		; restart littlebigmouse
-		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
-		Sleep(1000)
+		RunWait(A_ScriptDir "/monitor/monitor2.ahk")
+
+		; ...
+
 		ToolTip("")
+
 	}
 }
 ^F14:: {
@@ -1108,7 +1094,7 @@ F23:: ; DPI Down / G7
 		if (moveval = 6) ; Left
 			Send("^{PgUp}")
 		if (moveval = 7) ; Down
-			; Send("^w")
+		; Send("^w")
 			if (moveval = 8) ; Up
 				Send("^+p") ; select address bar
 	}
@@ -1199,9 +1185,9 @@ CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead o
 	tab := GetActiveExplorerTab() ; get the active windows 11 explorer tab
 	switch type(tab.Document) {
 		case "ShellFolderView":
-			{
-				tab.Navigate(tab.Document.Folder.Self.Path) ; navigate, in current tab, to the current folder
-			}
+		{
+			tab.Navigate(tab.Document.Folder.Self.Path) ; navigate, in current tab, to the current folder
+		}
 		default:
 		{
 			ToolTip("Not a folder view")
@@ -1250,3 +1236,15 @@ RCtrl:: Send("^z")
 	; MsgBox("reloading !")
 	Return
 }
+
+; ; Just before this script is killed, kill its Children.
+; OnExit(RemoveChildren())
+; RemoveChildren() {
+; 	DetectHiddenWindows(true)
+; 	for i in kids
+; 	{
+; 		MsgBox(i)
+; 		WinClose(A_ScriptDir i "ahk_exe AutoHotkey64.exe")
+; 	}
+; 	DetectHiddenWindows(false)
+; }

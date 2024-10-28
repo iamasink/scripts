@@ -14,12 +14,18 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
 ; --header "Content-Type: application/json"\
 ; --header "X-Requested-With: XMLHttpRequest"
 
+#Hotstring EndChars -()[]{}:;'"/\,.?!`n`t ; no space
+
+
+#InputLevel 2
+:*?:[switchmonitor]:: {
+    Sleep(10)
+    Send("{Ctrl Down}{Shift Down}{F14}{Ctrl Up}{Shift Up}")
+}
 
 #InputLevel 0 ; default, must be lower than the one below
 
-#Hotstring EndChars -()[]{}:;'"/\,.?!`n`t ; no space
 
-; press space 3 times to trigger
 :*?:[addy]:: {
     Send(email1)
 }
@@ -31,6 +37,8 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
     Sleep(10)
     SetCapsLockState("AlwaysOff")
 }
+
+
 ; Subscripts
 :?*:[sub1]::{U+2081} ; 1
 :?*:[sub2]::{U+2082} ; 2
@@ -124,6 +132,9 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
 
 :?*:[~=]::≈
 :?*:[!=]::≠
+
+:?*:[tm]::™
+:?*:[r]::®
 
 ; these are alt-gr + hotkeys
 <^>!1:: Send("¡")

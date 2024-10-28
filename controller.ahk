@@ -1,6 +1,9 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
+#Include "includes\XInput.ahk"
+XInput_Init()
+
 CoordMode("Mouse")
 SetDefaultMouseSpeed(0)
 TraySetIcon(A_ScriptDir "\icon\ahkblue16.ico")
@@ -20,22 +23,32 @@ Joy1::
     MsgBox("Hi")
 }
 
-; MsgBox(A_ScriptDir)
-#:: {
-    MsgBox("Killing Explorer.exe")
-    Sleep(1000)
-    RunWait("taskkill.exe /F /IM Explorer.exe", , "Hide")
-    Sleep(3000)
-    Run("Explorer.exe")
+
+Loop {
+    controllerstate := XInput_GetState(0)
+    buttons := controllerstate.wButtons
+
+    GuidePressed := (buttons & XINPUT_GAMEPAD_GUIDE)
+    APressed := (buttons & XINPUT_GAMEPAD_A)
+
+    ; ToolTip(GuidePressed APressed)
+
+    If (GuidePressed > 0 &
+        
+        & APressed > 0)
+    {
+        Soundbeep 300, 50
+        Send("{Alt Down}{Tab Down}{Tab Up}{Alt Up}")
+    }
+
+    sleep 1000
 }
+
+
 f12:: {
     MsgBox("Exiting " A_ScriptName)
 
     ExitApp()
-}
-
-f9:: {
-    Run(A_ComSpec " /C " "`"C:\Program Files\Mozilla Firefox\firefox.exe`" -new-tab .", , "hide")
 }
 
 
