@@ -940,11 +940,11 @@ F22::
 	Send("k")
 	Click()
 }
-!WheelUp::]
-!WheelDown::[
+; !WheelUp::]
+; !WheelDown::[
 #HotIf WinActive("Risk of Rain 2",)
 F21::Ctrl
-#HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe")
+#HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe") || WinActivate("ahk_exe chrome.exe")
 f1::
 {
 	switchFancyZonesLayout(1, 2)
@@ -1216,6 +1216,7 @@ RCtrl:: Send("^z")
 	Sleep(15)
 	Send("^a")
 }
+
 
 ; #HotIf WinActive("ahk_exe Code.exe")
 ; Alt & CapsLock::
