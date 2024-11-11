@@ -944,7 +944,7 @@ F22::
 ; !WheelDown::[
 #HotIf WinActive("Risk of Rain 2",)
 F21::Ctrl
-#HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe") || WinActivate("ahk_exe chrome.exe")
+#HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe") || WinActive("ahk_exe chrome.exe")
 f1::
 {
 	switchFancyZonesLayout(1, 2)
