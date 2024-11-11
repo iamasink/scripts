@@ -142,23 +142,24 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
 <^>!3:: Send("¥")
 ; €
 <^>!5:: Send("§")
-<^>!8:: Send("°")
-<^>!Space:: Send("　")
+<^>!8:: Send("°") ; degrees
+<^>!Space:: Send("　") ; japanese full width space
 <^>!Right:: Send("→")
 <^>!Left:: Send("←")
 <^>!Up:: Send("↑")
 <^>!Down:: Send("↓")
-<^>!y:: Send("✓")
-<^>!x:: Send("✗")
+<^>!y:: Send("✓") ; check
+<^>!x:: Send("✗") ; cross
 <^>!\:: Send("＼")
 <^>!/:: Send("／")
-<^>!+/:: Send("¿") ; + shift​​​​​​​​​​​​​
-<^>![:: Send("「")
-<^>!]:: Send("」")
-<^>!u:: Send("µ")
-<^>!-:: Send("·")
+<^>!+/:: Send("¿") ; + shift​   upside down question mark​​​​​​​​​​​​
+<^>![:: Send("「") ; left corner bracket / opening japanese quotation
+<^>!]:: Send("」") ; right ''
+<^>!u:: Send("µ") ; mu / micro
+<^>!-:: Send("—") ; emdash
+<^>!+-:: Send("·") ; latin interpunct
+<^>!.:: Send("・") ; japanese interpunct
 <^>!c:: Send("¢")
-<^>!.:: Send("・")
 
 ; <^>!RShift:: Send("​")
 
