@@ -1,6 +1,7 @@
 ; main script.
 ; what an awfully long and complex script but weird things happen if i split it into littler ones and idk how to fix that so there we go
 #Requires AutoHotkey v2.0.4
+#SingleInstance Force
 
 ; something because of weird dpi scaling issues
 ; see https://www.autohotkey.com/boards/viewtopic.php?t=73780
@@ -38,16 +39,7 @@ TraySetIcon(A_ScriptDir "\icon\ahkpurple16.ico")
 ; https://www.autohotkey.com/boards/viewtopic.php?p=559901#p559901
 #Include includes\bluetooth.ahk
 
-; run other scripts (this could be #Include, but i dont want it to clog the log for this one!)
-
-kids := ["apploop.ahk", "text-shortcuts.ahk"]
-for s in kids {
-	Run(".\" s)
-}
-
-
 ; ===== this all runs when script is started:
-
 SetTitleMatchMode(2) ;A window's title can contain WinTitle anywhere inside it to be a match.
 Persistent(true) ; dont close the script even if no threads are running
 ;keeps num and caps off permanently
@@ -58,27 +50,32 @@ CoordMode("Mouse")
 CoordMode("ToolTip")
 SetWorkingDir(A_ScriptDir) ; Ensures a consistent starting directory.
 
-#SingleInstance Force
-
-
 ; if not admin, start as admin
 ; taken from https://www.autohotkey.com/boards/viewtopic.php?p=523250#p523250
-if (!A_IsAdmin)
-{
+if (!A_IsAdmin) {
 	try {
 		; MsgBox("Running as admin...")
 		Run("*RunAs `"" A_ScriptFullPath "`"")
+		; wait, so that the script doesnt continue running and instead restarts as admin (hopefully) before this runs out, otherwise it will just close.
+		Sleep(10000)
+		MsgBox("Couldn't run " A_ScriptName " as admin! Exiting..")
+		ExitApp()
 	}
 	catch {
-		MsgBox("Couldn't run " A_ScriptName " as admin! Some things may not work")
+		MsgBox("Couldn't run " A_ScriptName " as admin! Exiting..")
+		ExitApp()
 	}
 }
 
+; run other scripts (this could be #Include, but i dont want it to clog the log for this one!)
+kids := ["apploop.ahk", "text-shortcuts.ahk"]
+for s in kids {
+	Run("*RunAs .\" s "")
+}
 
 ; #WinActivateForce
 ; https://www.autohotkey.com/docs/v2/lib/_WinActivateForce.htm
 ; "it might prevent task bar buttons from flashing when different windows are activated quickly one after the other.""
-
 
 ; read secrets, this runs on script start so the script must be restarted to update the token
 homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
@@ -87,12 +84,12 @@ homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token fro
 if (MonitorGetCount() = 1 or MonitorGetCount() = 3) { ; if 1 or 3 monitors are on
 	; Run("C:\Windows\System32\DisplaySwitch.exe /extend") ; set windows display to "extend"
 	; load default profile with MonitorSwitcher.exe
-	RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/")
+	RunWait(A_ScriptDir "/monitor/MonitorProfileSwitcher/MonitorSwitcher.exe -load:myprofile.xml", A_ScriptDir "/monitor/MonitorProfileSwitcher/"
+	)
 	Sleep(10000)
 	; tell littlebigmouse to open and start
 	Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
 }
-
 
 ; MsgBox(A_AhkVersion)
 
@@ -108,12 +105,10 @@ ProcessSetPriority("H") ; set priority to high.
 ; run with an argument (1) to skip my "run as admin" warning in the bat script. (it is ran with admin if this script is.)
 Run(A_ComSpec " /C " A_ScriptDir "\synctime.bat 1", A_ScriptDir, "Hide") ; run sync time script
 
-
 ; =========== functions ===========
 
 ; runs a command and returns the stdout
-JEE_RunGetStdOut(vTarget, vSize := "")
-{
+JEE_RunGetStdOut(vTarget, vSize := "") {
 	DetectHiddenWindows(true)
 	vComSpec := A_ComSpec ? A_ComSpec : A_ComSpec
 	Run(vComSpec, , "Hide", &vPID)
@@ -132,8 +127,7 @@ JEE_RunGetStdOut(vTarget, vSize := "")
 	return vStdOut
 }
 
-switchFancyZonesLayout(monitor := 0, layout := 1)
-{
+switchFancyZonesLayout(monitor := 0, layout := 1) {
 	; MsgBox(layout)
 	CoordMode("Mouse")
 	MouseGetPos &xpos, &ypos
@@ -166,20 +160,22 @@ CenteredTooltip(text, time := 2500, number := 1) {
  * @param requestJSON a string containing json for the request body
  * @param url the url suffix, past /api/
  */
-homeassistantRequest(requestJSON, url, wait := false)
-{
+homeassistantRequest(requestJSON, url, wait := false) {
 	; get token from variable earlier
 	global homeassistantToken
 	if (wait) {
-		RunWait(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, , "hide")
+		RunWait(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, ,
+			"hide")
 	} else {
-		Run(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, , "hide")
+		Run(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, ,
+			"hide")
 	}
 }
 homeassistantGet(url) {
 	global homeassistantToken
 	try {
-		output := jsongo.Parse(JEE_RunGetStdOut(A_ComSpec " /c curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url))
+		output := jsongo.Parse(JEE_RunGetStdOut(A_ComSpec " /c curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url
+		))
 	} catch as e {
 		ToolTip("could not connect to home assistant!")
 		SetTimer () => ToolTip(), -5000
@@ -189,8 +185,7 @@ homeassistantGet(url) {
 	; return ComObject("WScript.Shell").Exec("curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url).StdOut.ReadAll()
 }
 
-homeassistantGetLightState(light, request := homeassistantGet("states/light." light))
-{
+homeassistantGetLightState(light, request := homeassistantGet("states/light." light)) {
 	if (request = -1) {
 		return 0
 	}
@@ -210,8 +205,7 @@ homeassistantGetLightState(light, request := homeassistantGet("states/light." li
 }
 
 ; returns a temp in kelvin, or -1 if the light is off or doesn't have a colour temp
-homeassistantGetLightTemp(light, request := homeassistantGet("states/light." light))
-{
+homeassistantGetLightTemp(light, request := homeassistantGet("states/light." light)) {
 	if (homeassistantGetLightState(light, request)) {
 		if (homeassistantGetLightColorMode(light, request) = "color_temp") {
 			state := request['attributes']['color_temp_kelvin']
@@ -229,10 +223,8 @@ homeassistantGetLightTemp(light, request := homeassistantGet("states/light." lig
 	return 0
 }
 
-homeassistantGetLightColorMode(light, request := homeassistantGet("states/light." light))
-{
-	if (homeassistantGetLightState(light, request))
-	{
+homeassistantGetLightColorMode(light, request := homeassistantGet("states/light." light)) {
+	if (homeassistantGetLightState(light, request)) {
 		; if on
 		return request['attributes']['color_mode']
 	} else {
@@ -255,8 +247,7 @@ homeassistantGetLightTempApprox(light, temp, request := homeassistantGet("states
 	}
 }
 
-lighttoggle(r, g, b, w, brightness, wait := false)
-{
+lighttoggle(r, g, b, w, brightness, wait := false) {
 	; remember that `" is the escape for " within autohotkey, a \ escapes that " for the CMD that runs
 	; so CMD sees (eg) {\"entity_id\":\"light.lilys_light\"}
 	; which then curls {"entity_id":"light.lilys_light"}
@@ -265,26 +256,26 @@ lighttoggle(r, g, b, w, brightness, wait := false)
 	; it's possible some of the " are avoidable, but i really do not want to do this any longer
 
 	; this toggle function includes a rgbw and brightness, because it still sets the light to these if turning on
-	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
+	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}",
+		"services/light/toggle", wait)
 }
 
-lighttoggletemp(k, brightness, wait := false)
-{
-	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/toggle", wait)
+lighttoggletemp(k, brightness, wait := false) {
+	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}",
+		"services/light/toggle", wait)
 }
 
-lightontemp(k, brightness, wait := false)
-{
-	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
+lightontemp(k, brightness, wait := false) {
+	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}",
+		"services/light/turn_on", wait)
 }
 
-lighton(r, g, b, w, brightness, wait := false)
-{
-	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
+lighton(r, g, b, w, brightness, wait := false) {
+	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"rgbw_color\`":[" r "," g "," b "," w "], \`"brightness_pct\`": " brightness "}",
+		"services/light/turn_on", wait)
 }
 
-lightoff(wait := false)
-{
+lightoff(wait := false) {
 	if (homeassistantGetLightState("lilys_light") = 0) {
 		; already off
 		; ToolTip("Already off")
@@ -299,11 +290,10 @@ lightoff2() {
 	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`"}", "services/light/turn_off", false)
 }
 
-lighttemp(k, brightness, wait := false)
-{
-	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}", "services/light/turn_on", wait)
+lighttemp(k, brightness, wait := false) {
+	homeassistantRequest("{\`"entity_id\`":\`"light.lilys_light\`", \`"color_temp_kelvin\`":" k ", \`"brightness_pct\`": " brightness "}",
+		"services/light/turn_on", wait)
 }
-
 
 ; ===== explorer stuff
 
@@ -332,7 +322,7 @@ GetParentFolder(path) {
 	splitpath := StrSplit(path, "\")
 	splitpath.Pop() ; remove the last element (filename)
 	Str := ""
-	For Index, Value In splitpath
+	for Index, Value In splitpath
 		Str .= Value . "\"
 	; Str := RTrim(Str, "\") ; remove the last slash
 	return Str
@@ -342,7 +332,7 @@ GetFileName(pathOrFile) { ; get name without extension
 	splitname := StrSplit(filename, ".")
 	; combine all elements except the last one
 	Str := ""
-	For Index, Value In splitname
+	for Index, Value In splitname
 		if (Index != splitname.Length)
 			Str .= Value . "."
 	Str := RTrim(Str, ".") ; remove the last dot
@@ -359,7 +349,6 @@ GetFileNameAndExtension(pathOrFile) {
 	filename := splitpath[splitpath.Length]
 	return filename
 }
-
 
 ; =========== hotkeys ===========
 
@@ -416,7 +405,6 @@ Shift & CapsLock:: {
 	Send("{Blind}{Shift Up}")
 	; Send("{Shift Up}")
 	Send("{Delete}")
-	Sleep(10)
 	; SendInput("{Shift Up}") ; sometimes, shift gets stuck? my hope is that this fixes that.
 	; Send("{Shift Up}{Delete}")
 }
@@ -424,7 +412,6 @@ Shift & CapsLock:: {
 ; Shift & CapsLock:: Send("{Blind}{Shift Up}{Delete}")
 ;
 ; ^+CapsLock:: Send("!{Delete}")
-
 
 ; Alt & CapsLock:: ; this could cause some issues on other applications, like explorer where it deletes everything in the folder
 ; {
@@ -439,19 +426,20 @@ Shift & CapsLock:: {
 ; 	Send("{Home}{Home}{Shift Down}{End}{Shift Up}{Delete}")
 ; }
 CapsLock & e:: {
-	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
-		Run(A_AppData "\Spotify\Spotify.exe")
-		WinWait("ahk_exe Spotify.exe")
-		Sleep(1000)
-	}
+	; if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
+	; 	Run(A_AppData "\Spotify\Spotify.exe")
+	; 	WinWait("ahk_exe Spotify.exe")
+	; 	Sleep(1000)
+	; }
 	PostMessage(0x319, , 0xB0000, , "ahk_exe Spotify.exe")	 ;Send Media_Next to spotifye
+	; Send("{Media_Next}")
 }
 CapsLock & q:: {
-	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
-		Run(A_AppData "\Spotify\Spotify.exe")
-		WinWait("ahk_exe Spotify.exe")
-		Sleep(1000)
-	}
+	; if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
+	; 	Run(A_AppData "\Spotify\Spotify.exe")
+	; 	WinWait("ahk_exe Spotify.exe")
+	; 	Sleep(1000)
+	; }
 	PostMessage(0x319, , 0xC0000, , "ahk_exe Spotify.exe")	 ;Send  Media_Prev to spotify
 }
 
@@ -506,9 +494,7 @@ CapsLock & c:: { ; japanese katakana layout
 
 }
 
-
 CapsLock & `;:: Send("^{BackSpace}")
-
 
 #HotIf (GetKeyState("CapsLock", "P") AND !GetKeyState("Alt", "P"))
 d:: {
@@ -526,24 +512,22 @@ d:: {
 	}
 }
 w:: {
-	if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
-		Run(A_AppData "\Spotify\Spotify.exe")
-		WinWait("ahk_exe Spotify.exe")
-		Sleep(1000)
-	}
+	; if (!WinExist("ahk_exe Spotify.exe")) { ; if spotify isn't open, open it!
+	; 	Run(A_AppData "\Spotify\Spotify.exe")
+	; 	WinWait("ahk_exe Spotify.exe")
+	; 	Sleep(1000)
+	; }
 	PostMessage(0x319, , 0xE0000, , "ahk_exe Spotify.exe")	; Send Media_Play_Pause to spotify
 }
 #HotIf
-
 
 ; omg this used to be :: send backspace
 ; but this seems to work much better
 CapsLock::BackSpace
 
-
-!+e:: Send("{Media_Next}")
-!+w:: Send("{Media_Play_Pause}")
-!+q:: Send("{Media_Prev}")
+; !+e:: Send("{Media_Next}")
+; !+w:: Send("{Media_Play_Pause}")
+; !+q:: Send("{Media_Prev}")
 
 ;set num pad with num lock off (so the numlock light is disabled)
 SC04F::Numpad1
@@ -593,7 +577,7 @@ NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap 
 	Send("{Media_Stop}")
 	Sleep(250)
 	Send("{Media_Stop}")
-	Return
+	return
 }
 #!L::
 {
@@ -610,7 +594,7 @@ NumLock::BackSpace ; i replaced the numlock key with the small backspace keycap 
 	KeyWait "L"
 	KeyWait "LShift"
 	DllCall("LockWorkStation")
-	Return
+	return
 }
 #b::
 {
@@ -639,8 +623,7 @@ F13:: ; A1
 	; the timer:
 	presses := 1
 	SetTimer aftertime, -400 ; Wait for more presses within a 400 millisecond window.
-	aftertime()
-	{
+	aftertime() {
 		request := homeassistantGet("states/light.lilys_light")
 		; MsgBox(request)
 		switch presses {
@@ -731,7 +714,7 @@ F13:: ; A1
 	ToolTip(, , , 2)
 
 	Toggle := !Toggle
-	If Toggle {
+	if Toggle {
 		RunWait(A_ScriptDir "/monitor/monitor1.ahk")
 	} else {
 		ToolTip("Main displays")
@@ -757,11 +740,11 @@ F13:: ; A1
 
 }
 
-
 F15:: ; A3
 {
 	MouseGetPos &xpos, &ypos
-	MsgBox("current window: " WinGetProcessName(WinActive("A")) "`nMouse Position (Screen) " xpos ", " ypos "at dpi " A_ScreenDPI " ")
+	MsgBox("current window: " WinGetProcessName(WinActive("A")) "`nMouse Position (Screen) " xpos ", " ypos "at dpi " A_ScreenDPI " "
+	)
 	; MsgBox(homeassistantGetLightTemp("lilys_light"))
 }
 F16:: ;"Mode" key
@@ -778,8 +761,7 @@ F16:: ;"Mode" key
 	; the timer:
 	presses := 1
 	SetTimer aftertime, -400 ; Wait for more presses within a 400 millisecond window.
-	aftertime()
-	{
+	aftertime() {
 		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
 		; request := homeassistantGet("states/light.lilys_light")
 		; MsgBox(request)
@@ -792,7 +774,6 @@ F16:: ;"Mode" key
 		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
 	}
 }
-
 
 ; yt-dlp download from url
 ^#Down::
@@ -807,7 +788,7 @@ F16:: ;"Mode" key
 	; Send("{Enter}")
 	; Sleep(100)
 	; Send("#{Down}")
-	Return
+	return
 }
 ; run scrcpy
 ^#Right::
@@ -823,7 +804,9 @@ showdesktop(undo := true) {
 	moveclockmiddle()
 	if (undo) {
 		; await any input or other key
-		ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
+		ihkey := InputHook("L1 M",
+			"{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"
+		), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
 		; ihkey := InputHook("L1 M", "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
 		showdesktopundo(lastactivewindow)
 	} else {
@@ -833,7 +816,9 @@ showdesktop(undo := true) {
 moveclockmiddle() {
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
 	Sleep(250)
-	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"50%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]")
+	Run(
+		"`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"50%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]"
+	)
 	Sleep(250)
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
 }
@@ -843,7 +828,9 @@ showdesktopundo(lastactivewindow) {
 	Sleep(100)
 	try WinActivate("ahk_id " lastactivewindow) ; activate last active window
 	; MsgBox("hello world")
-	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"75%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]")
+	Run(
+		"`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"75%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]"
+	)
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
 	lightoff()
 }
@@ -871,7 +858,8 @@ showdesktopundo(lastactivewindow) {
 #f::
 {
 	; if either spotify or discord are visible, ensure both are minimized
-	if ((WinExist("ahk_exe Spotify.exe") && WinGetMinMax() != -1) || (WinExist("ahk_exe Discord.exe") && WinGetMinMax() != -1)) {
+	if ((WinExist("ahk_exe Spotify.exe") && WinGetMinMax() != -1) || (WinExist("ahk_exe Discord.exe") && WinGetMinMax() !=
+	-1)) {
 		try WinMinimize("ahk_exe Spotify.exe")
 		try WinMinimize("ahk_exe Discord.exe")
 		moveclockmiddle()
@@ -880,7 +868,9 @@ showdesktopundo(lastactivewindow) {
 		Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!HideFade `"Elegant Clock`"][!Update]")
 		try WinRestore("ahk_exe Spotify.exe")
 		try WinRestore("ahk_exe Discord.exe")
-		Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"75%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]")
+		Run(
+			"`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!SetWindowPosition `"75%@2`" `"20%@2`" `"63%`" `"58%`" `"Elegant Clock`"][!Update]"
+		)
 		Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
 	}
 }
@@ -944,22 +934,17 @@ F22::
 ; !WheelDown::[
 #HotIf WinActive("Risk of Rain 2",)
 F21::Ctrl
-#HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe") || WinActive("ahk_exe chrome.exe") || WinActive("ahk_exe WindowsTerminal.exe")
+#HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe") ||
+WinActive("ahk_exe chrome.exe") || WinActive("ahk_exe WindowsTerminal.exe")
 ; f1::
 ; {
 ; 	switchFancyZonesLayout(1, 2)
 ; 	Send("!{F1}") ; detach tab using tabdetach https://addons.mozilla.org/en-GB/firefox/addon/tabdetach/
 
 ; }
-F21 & WheelUp:: {
-	Loop 2
-		Send("{WheelLeft}")
-}
+F21 & WheelUp::WheelLeft
 
-F21 & WheelDown:: {
-	Loop 2
-		Send("{WheelRight}")
-}
+F21 & WheelDown::WheelRight
 ; stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
 F23:: ; DPI Down / G7
 {
@@ -967,73 +952,83 @@ F23:: ; DPI Down / G7
 		moveval := 0
 		pixeldist := 5
 		largepixeldist := 500
-		If GetKeyState("F23", "p") {
+		if GetKeyState("F23", "p") {
 			MouseGetPos(&x1, &y1)
-			KeyWait("F23")
+			if KeyWait("F23", "T1") {
+				; ToolTip("a")
+			} else {
+				ToolTip("<", x1 - largepixeldist, y1, 3)
+				ToolTip(">", x1 + largepixeldist, y1, 4)
+				ToolTip(".", x1, y1, 5)
+				KeyWait("F23")
+				ToolTip(, , , 3)
+				ToolTip(, , , 4)
+				ToolTip(, , , 5)
+			}
 		}
 		MouseGetPos(&x2, &y2)
 		XDif := (x2 - x1)
 		YDif := (y2 - y1)
-		If (abs(XDif) >= abs(YDif)) {
-			If (abs(XDif) >= largepixeldist) {
-				If (XDif >= largepixeldist * 2)
+		if (abs(XDif) >= abs(YDif)) {
+			if (abs(XDif) >= largepixeldist) {
+				if (XDif >= largepixeldist)
 					moveval := 1
-				If (XDif <= -largepixeldist)
+				if (XDif <= -largepixeldist)
 					moveval := 2
 			}
 			else {
-				If (XDif >= pixeldist)
+				if (XDif >= pixeldist)
 					moveval := 5
-				If (XDif <= -pixeldist)
+				if (XDif <= -pixeldist)
 					moveval := 6
 			}
 		}
 		else {
-			If (abs(YDif) >= largepixeldist) {
-				If (YDif >= largepixeldist)
+			if (abs(YDif) >= largepixeldist) {
+				if (YDif >= largepixeldist)
 					moveval := 3
-				If (YDif <= -largepixeldist)
+				if (YDif <= -largepixeldist)
 					moveval := 4
 			}
 			else {
-				If (YDif >= pixeldist)
+				if (YDif >= pixeldist)
 					moveval := 7
-				If (YDif <= -pixeldist)
+				if (YDif <= -pixeldist)
 					moveval := 8
 			}
 		}
 		{
 			if (moveval = 0) ; no movement
-				Send("^{LButton}")
+				Send("{Ctrl Down}{LButton}{Ctrl Up}")
 			; close tabs shortcuts https://addons.mozilla.org/en-GB/firefox/addon/close-tabs-shortcuts/
 			if (moveval = 1) ; Big Right
-				Send("!+{F2}") ; close tabs to the right
+				Send("{Alt Down}{Shift Down}{F2}{Shift Up}{Alt Up}") ; close tabs to the right
 			if (moveval = 2) ; Big Left
-				Send("!+{F1}") ; close tabs to the left
+				Send("{Alt Down}{Shift Down}{F1}{Shift Up}{Alt Up}") ; close tabs to the left
 			;
 			if (moveval = 3) ; Big Down
-				Send("^w")
+				Send("{Ctrl Down}w{Ctrl Up}")
 			if (moveval = 4) ; Big Up
-				Send("+^t")
+				Send("{Ctrl Down}{Shift Down}C{Shift Up}{Ctrl Up}")
 			if (moveval = 5) ; Right
-				Send("^{tab}")
+				Send("{Ctrl Down}{tab}{Ctrl Up}")
 			if (moveval = 6) ; Left
-				Send("^+{tab}")
+				Send("{Ctrl Down}{Shift Down}{tab}{Shift Up}{Ctrl Up}")
 			if (moveval = 7) ; Down
-				Send("^w")
+				Send("{Ctrl Down}w{Ctrl Up}")
 			if (moveval = 8) ; Up
-				Send("^l") ; select address bar
+				Send("{Ctrl Down}l{Ctrl Up}") ; select address bar
 		}
 	}
 }
 #HotIf WinActive("ahk_exe Code.exe")
 F21 & WheelUp:: {
-	Loop 2
+	loop 2
 		Send("{WheelLeft}")
 }
 
 F21 & WheelDown:: {
-	Loop 2
+	loop 2
 		Send("{WheelRight}")
 }
 F23:: ; DPI Down / G7
@@ -1041,62 +1036,63 @@ F23:: ; DPI Down / G7
 	moveval := 0
 	pixeldist := 5
 	largepixeldist := 500
-	If GetKeyState("F23", "p") {
+	if GetKeyState("F23", "p") {
 		MouseGetPos(&x1, &y1)
 		KeyWait("F23")
 	}
 	MouseGetPos(&x2, &y2)
 	XDif := (x2 - x1)
 	YDif := (y2 - y1)
-	If (abs(XDif) >= abs(YDif)) {
-		If (abs(XDif) >= largepixeldist) {
-			If (XDif >= largepixeldist * 2)
+	if (abs(XDif) >= abs(YDif)) {
+		if (abs(XDif) >= largepixeldist) {
+			if (XDif >= largepixeldist * 2)
 				moveval := 1
-			If (XDif <= -largepixeldist)
+			if (XDif <= -largepixeldist)
 				moveval := 2
 		}
 		else {
-			If (XDif >= pixeldist)
+			if (XDif >= pixeldist)
 				moveval := 5
-			If (XDif <= -pixeldist)
+			if (XDif <= -pixeldist)
 				moveval := 6
 		}
 	}
 	else {
-		If (abs(YDif) >= largepixeldist) {
-			If (YDif >= largepixeldist)
+		if (abs(YDif) >= largepixeldist) {
+			if (YDif >= largepixeldist)
 				moveval := 3
-			If (YDif <= -largepixeldist)
+			if (YDif <= -largepixeldist)
 				moveval := 4
 		}
 		else {
-			If (YDif >= pixeldist)
+			if (YDif >= pixeldist)
 				moveval := 7
-			If (YDif <= -pixeldist)
+			if (YDif <= -pixeldist)
 				moveval := 8
 		}
 	}
 	{
 		if (moveval = 0) ; no movement
-			Send("^{LButton}")
+			Send("{Ctrl Down}{LButton}{Ctrl Up}")
 		; close tabs shortcuts set in settings
 		if (moveval = 1) ; Big Right
-			Send("!+{F2}") ; close tabs to the right
+			Send("{Shift Down}{Alt Down}{F2}{Shift Up}{Alt Up}") ; close tabs to the right
 		if (moveval = 2) ; Big Left
-			Send("!+{F1}") ; close tabs to the left
+			Send("{Shift Down}{Alt Down}{F1}{Shift Up}{Alt Up}") ; close tabs to the left
 		;
 		if (moveval = 3) ; Big Down
-			Send("^w")
+			Send("{Ctrl Down}w{Ctrl Up}")
 		if (moveval = 4) ; Big Up
-			Send("+^t")
+			Send("{Shift Down}{Ctrl Down}t{Shift Up}{Ctrl Up}")
 		if (moveval = 5) ; Right
-			Send("^{PgDn}")
+			Send("{Ctrl Down}{PgDn}{Ctrl Up}")
 		if (moveval = 6) ; Left
-			Send("^{PgUp}")
+			Send("{Ctrl Down}{PgUp}{Ctrl Up}")
 		if (moveval = 7) ; Down
-		; Send("^w")
-			if (moveval = 8) ; Up
-				Send("^+p") ; select address bar
+		{
+		}
+		if (moveval = 8) ; Up
+			Send("{Ctrl Down}{Shift Down}p{Shift Up}{Ctrl Up}") ; select address bar
 	}
 }
 #HotIf WinActive("ahk_class CabinetWClass ahk_exe explorer.exe") ; Only run if Explorer is active
@@ -1197,7 +1193,6 @@ CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead o
 	}
 }
 
-
 #HotIf WinActive("ahk_exe anki.exe")
 SC053:: ; numpad period
 {
@@ -1208,15 +1203,6 @@ SC052:: Send("^z") ; numpad zero
 RShift:: Send("{Shift Up}1")
 RCtrl:: Send("^z")
 #HotIf
-
-#HotIf WinActive('Enigmatica 6 Expert - Minecraft 1.16.5')
-~F23:: {
-	Sleep(200)
-	Send("{Tab}")
-	Sleep(15)
-	Send("^a")
-}
-
 
 ; #HotIf WinActive("ahk_exe Code.exe")
 ; Alt & CapsLock::
@@ -1235,7 +1221,7 @@ RCtrl:: Send("^z")
 	Sleep(250)
 	Reload()
 	; MsgBox("reloading !")
-	Return
+	return
 }
 
 ; ; Just before this script is killed, kill its Children.
