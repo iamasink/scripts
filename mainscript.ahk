@@ -363,47 +363,47 @@ GetFileNameAndExtension(pathOrFile) {
 
 ; =========== hotkeys ===========
 
-^!l:: ;Control-Alt-L
-{
-	; Timeout duration (in milliseconds)
-	timeoutDuration := 2500
+; ^!l:: ;Control-Alt-L
+; {
+; 	; Timeout duration (in milliseconds)
+; 	timeoutDuration := 2500
 
-	; Start the input with a timeout
-	SetTimer(CheckTimeout, timeoutDuration)
-	ToolTip("Light switch mode")
+; 	; Start the input with a timeout
+; 	SetTimer(CheckTimeout, timeoutDuration)
+; 	ToolTip("Light switch mode")
 
-	; Wait for a key and run a function based on the key
-	; this doesn't differentiate numpad keys and the others because its literally taking the text so like whatever
-	ihkey := InputHook("L1"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
+; 	; Wait for a key and run a function based on the key
+; 	; this doesn't differentiate numpad keys and the others because its literally taking the text so like whatever
+; 	ihkey := InputHook("L1"), ihkey.Start(), ihkey.Wait(), pressedkey := ihkey.Input
 
-	; If a key is pressed, execute the corresponding function
-	switch pressedkey {
-		case "0":
-			lightoff()
-		case "1":
-			lighton(0, 255, 0, 0, 100) ; green
-		case "2":
-			lighttemp(6500, 100) ; normal
-		case "3":
-			lighton(254, 0, 76, 13, 100) ; red purple thing
-		default:
-			ToolTip("invalid key")
-			Sleep(1000)
-			ToolTip() ;clear tooltip after 1 second
-	}
+; 	; If a key is pressed, execute the corresponding function
+; 	switch pressedkey {
+; 		case "0":
+; 			lightoff()
+; 		case "1":
+; 			lighton(0, 255, 0, 0, 100) ; green
+; 		case "2":
+; 			lighttemp(6500, 100) ; normal
+; 		case "3":
+; 			lighton(254, 0, 76, 13, 100) ; red purple thing
+; 		default:
+; 			ToolTip("invalid key")
+; 			Sleep(1000)
+; 			ToolTip() ;clear tooltip after 1 second
+; 	}
 
-	; Clear the timer if a key is pressed before timeout
-	SetTimer(CheckTimeout, 0)
-	ToolTip()
+; 	; Clear the timer if a key is pressed before timeout
+; 	SetTimer(CheckTimeout, 0)
+; 	ToolTip()
 
-	CheckTimeout()
-	{
-		; no key
-		ToolTip()
-		return
-	}
+; 	CheckTimeout()
+; 	{
+; 		; no key
+; 		ToolTip()
+; 		return
+; 	}
 
-}
+; }
 
 ; +`::~
 ¬::~
@@ -417,7 +417,7 @@ Shift & CapsLock:: {
 	; Send("{Shift Up}")
 	Send("{Delete}")
 	Sleep(10)
-	SendInput("{Shift Up}") ; sometimes, shift gets stuck? my hope is that this fixes that.
+	; SendInput("{Shift Up}") ; sometimes, shift gets stuck? my hope is that this fixes that.
 	; Send("{Shift Up}{Delete}")
 }
 
@@ -847,19 +847,19 @@ showdesktopundo(lastactivewindow) {
 	Run("`"C:\Program Files\Rainmeter\Rainmeter.exe`" [!ShowFade `"Elegant Clock`"][!Update]")
 	lightoff()
 }
-~LButton:: ; ~ means dont block the original key.
-; this replaces the show desktop button in the bottom right corner of the screen, so it should be disabled in the taskbar settings
-{
-	; get mouse position
-	MouseGetPos(&xpos, &ypos)
-	; ToolTip("x: " xpos "`ny: " ypos)
-	; 2559, 1439 -> 2560, 1440
-	if (xpos >= A_ScreenWidth - 2 && ypos >= A_ScreenHeight - 2 && xpos <= A_ScreenWidth && ypos <= A_ScreenHeight && !WinExist("ahk_exe FortniteClient-Win64-Shipping.exe") && !WinExist("ahk_exe Palworld-Win64-Shipping.exe")) {
-		; if mouse is in the bottom right corner, show desktop
-		; MsgBox("hello world")
-		showdesktop()
-	}
-}
+; ~LButton:: ; ~ means dont block the original key.
+; ; this replaces the show desktop button in the bottom right corner of the screen, so it should be disabled in the taskbar settings
+; {
+; 	; get mouse position
+; 	MouseGetPos(&xpos, &ypos)
+; 	; ToolTip("x: " xpos "`ny: " ypos)
+; 	; 2559, 1439 -> 2560, 1440
+; 	if (xpos >= A_ScreenWidth - 2 && ypos >= A_ScreenHeight - 2 && xpos <= A_ScreenWidth && ypos <= A_ScreenHeight && !WinExist("ahk_exe FortniteClient-Win64-Shipping.exe") && !WinExist("ahk_exe Palworld-Win64-Shipping.exe")) {
+; 		; if mouse is in the bottom right corner, show desktop
+; 		; MsgBox("hello world")
+; 		showdesktop()
+; 	}
+; }
 #d::
 {
 	showdesktop()
@@ -944,13 +944,13 @@ F22::
 ; !WheelDown::[
 #HotIf WinActive("Risk of Rain 2",)
 F21::Ctrl
-#HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe") || WinActive("ahk_exe chrome.exe")
-f1::
-{
-	switchFancyZonesLayout(1, 2)
-	Send("!{F1}") ; detach tab using tabdetach https://addons.mozilla.org/en-GB/firefox/addon/tabdetach/
+#HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe") || WinActive("ahk_exe chrome.exe") || WinActive("ahk_exe WindowsTerminal.exe")
+; f1::
+; {
+; 	switchFancyZonesLayout(1, 2)
+; 	Send("!{F1}") ; detach tab using tabdetach https://addons.mozilla.org/en-GB/firefox/addon/tabdetach/
 
-}
+; }
 F21 & WheelUp:: {
 	Loop 2
 		Send("{WheelLeft}")
