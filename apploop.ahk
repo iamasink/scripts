@@ -10,8 +10,7 @@ homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token fro
 
 ; if not admin, start as admin
 ; taken from https://www.autohotkey.com/boards/viewtopic.php?p=523250#p523250
-if (!A_IsAdmin)
-{
+if (!A_IsAdmin) {
 	try {
 		Run("*RunAs `"" A_ScriptFullPath "`"")
 	}
@@ -19,7 +18,6 @@ if (!A_IsAdmin)
 		MsgBox("Couldn't run " A_ScriptName " as admin! Some things may not work")
 	}
 }
-
 
 ; Define applications
 closeobs := ["ahk_exe osu!\.exe$",
@@ -33,9 +31,10 @@ closelbm := ["ahk_exe .*-Win64-Shipping\.exe$", ; unreal engine stuff usually do
 	"ahk_exe League of Legends\.exe$",
 ]
 highperf := ["ahk_exe cs2\.exe$"]
+league := ["ahk_exe LeagueClientUx\.exe$"]
 
 ; Initialize variables to track the state of applications
-openapps := Map("closeobs", false, "closelbm", false, "idle", false, "highperf", false)
+openapps := Map("closeobs", false, "closelbm", false, "idle", false, "highperf", false, "league", false)
 
 ; Function to check if any application in the given list is running
 AnyAppRunning(appList) {
@@ -50,7 +49,6 @@ CenteredTooltip(text, time := 2500, number := 1) {
 	ToolTip(text, A_ScreenWidth / 2, A_ScreenHeight / 2 - number * 50, number)
 	SetTimer () => ToolTip(, , , number), -time
 }
-
 
 while true {
 	; Check if any application in the closeobs group is running
@@ -68,12 +66,12 @@ while true {
 		if (openapps["closeobs"]) {
 			; when this app is closed
 			CenteredTooltip("Launched OBS", , 1)
-			Run("`"C:\Program Files\obs-studio\bin\64bit\obs64.exe`" --startreplaybuffer --scene default", "C:\Program Files\obs-studio\bin\64bit", "Hide")
+			Run("`"C:\Program Files\obs-studio\bin\64bit\obs64.exe`" --startreplaybuffer --scene default",
+				"C:\Program Files\obs-studio\bin\64bit", "Hide")
 
 		}
 		openapps["closeobs"] := false
 	}
-
 
 	; Check if any application in the closeobs group is running
 	closelbmappRunning := AnyAppRunning(closelbm)
@@ -81,14 +79,17 @@ while true {
 		if (!openapps["closelbm"]) {
 			; when this app is launched
 			CenteredTooltip("Closing LBM", , 2)
-			Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
+			Run("taskkill /f /im LittleBigMouse.Hook.exe", , "Hide")
+			Run("taskkill /f /im LittleBigMouse.Ui.Avalonia.exe", , "Hide")
 		}
 		openapps["closelbm"] := true
 	} else {
 		if (openapps["closelbm"]) {
 			; when this app is closed
 			CenteredTooltip("Launched LBM", , 2)
-			Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
+			; Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
+			Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse.Ui.Avalonia.exe`" --start")
+			 
 		}
 		openapps["closelbm"] := false
 	}
@@ -114,6 +115,24 @@ while true {
 		openapps["highperf"] := false
 	}
 
+	leagueappRunning := AnyAppRunning(league)
+	if (leagueappRunning) {
+		if (!openapps["league"]) {
+			; when this app is launched
+			CenteredTooltip("League client opened`nRunning Blitz", , 4)
+			Run("C:\Users\Lily\AppData\Local\Programs\Blitz\Blitz.exe")
+			Run("D:\tools\cslol\cslol-manager\cslol-manager.exe")
+		}
+		openapps["league"] := true
+	} else {
+		if (openapps["league"]) {
+			; when this app is closed
+			CenteredTooltip("League client closed`nClosing Blitz", , 4)
+			Run("taskkill /f /im Blitz.exe", , "Hide")
+			Run("taskkill /im cslol-manager.exe", , "Hide")
+		}
+		openapps["league"] := false
+	}
 
 	if (ProcessExist("obs64.exe")) {
 		; obs open yey
@@ -127,7 +146,6 @@ while true {
 	Sleep(5000)
 
 }
-
 
 ; while true {
 
@@ -156,7 +174,6 @@ while true {
 ; 		}
 ; 	}
 
-
 ; For (index, value in closelbm)
 ; {
 ; 	if (WinExist(value))
@@ -170,9 +187,7 @@ while true {
 ; 	}
 ; }
 
-
 ; on close of closeobs game
-
 
 ; if WinExist("osu! ahk_exe osu!.exe") {
 ; 	if (openapps["osu"] != true) {
@@ -248,7 +263,6 @@ while true {
 ; 	openapps["fn"] := false
 ; }
 
-
 ; 	if (ProcessExist("obs64.exe")) {
 ; 		; obs open yey
 ; 		SetNumLockState("Off")
@@ -261,7 +275,6 @@ while true {
 ; 	Sleep(2500) ; this should be fine considering obs takes a bit to launch
 ; }
 
-
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
 ~^s::
 {
@@ -270,17 +283,17 @@ while true {
 	Sleep(250)
 	Reload()
 	; MsgBox("reloading !")
-	Return
+	return
 }
 
-
-homeassistantRequest(requestJSON, url, wait := false)
-{
+homeassistantRequest(requestJSON, url, wait := false) {
 	; get token from variable earlier
 	global homeassistantToken
 	if (wait) {
-		RunWait(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, , "hide")
+		RunWait(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, ,
+			"hide")
 	} else {
-		Run(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, , "hide")
+		Run(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, ,
+			"hide")
 	}
 }
