@@ -1,0 +1,1 @@
+sudo diskpart /s stopdrive.txt
