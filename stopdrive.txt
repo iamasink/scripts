@@ -1,2 +1,0 @@
-select disk 1
-offline disk
