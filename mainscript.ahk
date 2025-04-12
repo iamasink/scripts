@@ -484,7 +484,11 @@ CapsLock & Tab::Enter
 CapsLock & v::Send("{Ctrl Down}{Shift Down}{Alt Down}{V}{Alt Up}{Shift Up}{Ctrl Up}")
 
 ; keyboard switching
-; in "Text Services and Input Languages", English is LAlt + Shift + 1
+; in "Text Services and Input Languages", 
+; In Windows 10 you can find it in: Settings > Devices > Typing > Advanced keyboard settings > Input language hot keys.
+; In Windows 11, it's Settings > Time & Language > Typing > Advanced keyboard settings > Input language hot keys.
+; ty https://superuser.com/a/1588984
+; English is LAlt + Shift + 1
 ; Japanese is LAlt + Shift + 2
 ; ~ means dont block from system
 CapsLock & z:: { ; english layout
