@@ -60,10 +60,12 @@ if (!A_IsAdmin) {
         ; wait, so that the script doesnt continue running and instead restarts as admin (hopefully) before this runs out, otherwise it will just close.
         Sleep(10000)
         MsgBox("Couldn't run " A_ScriptName " as admin! Exiting..")
+        Sleep(5000)
         ExitApp()
     }
     catch {
         MsgBox("Couldn't run " A_ScriptName " as admin! Exiting..")
+        Sleep(5000)
         ExitApp()
     }
 }
@@ -300,8 +302,7 @@ lighttemp(k, brightness, wait := false) {
         "services/light/turn_on", wait)
 }
 
-
-; #endregion 
+; #endregion
 ; #region MARK: explorer functions
 ; ===== explorer stuff
 
@@ -362,7 +363,6 @@ GetFileNameAndExtension(pathOrFile) {
 ; #endregion
 
 ; #region MARK: hotkeys
-
 
 ; =========== hotkeys ===========
 
@@ -481,7 +481,7 @@ CapsLock & o::End
 CapsLock & Tab::Enter
 
 ; eartrumpet volume flyout open
-CapsLock & v::Send("{Ctrl Down}{Shift Down}{Alt Down}{V}{Alt Up}{Shift Up}{Ctrl Up}")
+CapsLock & v:: Send("{Ctrl Down}{Shift Down}{Alt Down}{V}{Alt Up}{Shift Up}{Ctrl Up}")
 
 ; keyboard switching
 ; in "Text Services and Input Languages", English is LAlt + Shift + 1
@@ -538,7 +538,6 @@ w:: {
     Send("{Media_Play_Pause}")
 }
 #HotIf
-
 
 ; omg this used to be :: send backspace
 ; but this seems to work much better
@@ -778,7 +777,6 @@ F15:: ; A3
     Run(A_ScriptDir "\scrcpy\scrcpy.bat", A_ScriptDir "\scrcpy\")
 }
 
-
 #f::
 {
     ; if either spotify or discord are visible, ensure both are minimized
@@ -856,18 +854,12 @@ F21::Ctrl
 
 ; #HotIf WinActive("ahk_")
 
-#HotIf WinActive("NeoForge*",) 
-~F24::{
+#HotIf WinActive("NeoForge*",)
+~F24:: {
     Sleep(200)
     Send("{Tab}")
 }
-F22::MouseClick("left")
-
-
-
-
-
-
+F22:: MouseClick("left")
 
 #HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe") ||
 WinActive("ahk_exe chrome.exe") || WinActive("ahk_exe WindowsTerminal.exe")
@@ -1158,22 +1150,17 @@ RCtrl:: Send("^z")
     ; MsgBox("reloading !")
     return
 }
-#HotIf 
-
+#HotIf
 
 ; #endregion
 ; #endregion
-
 
 ; #region MARK: quick menu
 ; ====== quick menu ======
 
 CapsLock & m:: {
-    ; read files from ./quickmenu-scripts/
-    scripts := []
-    
-    
-    static quickmenuGui := Gui()
+
+    quickmenuGui := Gui()
     ListBox := quickmenuGui.Add("ListBox", "x10 y8 w195 h160",)
     loop files A_ScriptDir "\quickmenu-scripts\*.ahk" {
         ListBox.Add([A_LoopFileName])
@@ -1188,16 +1175,16 @@ CapsLock & m:: {
 
     ButtonCancel.OnEvent("Click", OnCancelClick)
 
-
-
     OnRunClick(*) {
         ; run the selected script
         Run(A_ScriptDir "\quickmenu-scripts\" ListBox.Text)
         ; close the gui
+        ListBox.Delete()
         quickmenuGui.Hide()
     }
     OnCancelClick(*) {
         ; close the gui
+        ListBox.Delete()
         quickmenuGui.Hide()
     }
 
@@ -1205,7 +1192,6 @@ CapsLock & m:: {
 
     quickmenuGui.Show("w300 h200")
 }
-
 
 ; ; Just before this script is killed, kill its Children.
 ; OnExit(RemoveChildren())
