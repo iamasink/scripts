@@ -72,6 +72,20 @@ In `\secrets`, text files are needed for some stuff
 
 You may have to change the download location in the yt-dlp .bat scripts. It uses `%userprofile%\Downloads` by default.
 
+
+# stuff to change
+
+## keyboard switching
+in "Text Services and Input Languages",     
+In Windows 10 you can find it in: `Settings > Devices > Typing > Advanced keyboard settings > Input language hot keys.  `  
+In Windows 11, it's　　　　`Settings > Time & Language > Typing > Advanced keyboard settings > Input language hot keys.  `  
+ty https://superuser.com/a/1588984     
+set the following for the ahk script:    
+English is LAlt + Shift + 1    
+Japanese is LAlt + Shift + 2    
+
+
+
 # Useful things for ahk
 
 ## restart ahk script on save
