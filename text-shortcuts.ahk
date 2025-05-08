@@ -131,6 +131,7 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
 :?*:[mrmr]::〇〇
 
 :?*:[~=]::≈
+:?*:[=~]::≈
 :?*:[!=]::≠
 
 :?*:[tm]::™
@@ -174,11 +175,10 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
     Sleep(250)
     Reload()
     ; MsgBox("reloading !")
-    Return
+    return
 }
 
-JEE_RunGetStdOut(vTarget, vSize := "")
-{
+JEE_RunGetStdOut(vTarget, vSize := "") {
     DetectHiddenWindows(true)
     vComSpec := A_ComSpec ? A_ComSpec : A_ComSpec
     Run(vComSpec, , "Hide", &vPID)
