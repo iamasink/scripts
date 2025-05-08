@@ -1,6 +1,7 @@
 #SingleInstance Force
 
-; run all scripts
+; this just runs all scripts now, check mainscript2.ahk for the actual main script.
+; bad naming cuz im lazy
 
 ; if not admin, start as admin
 ; taken from https://www.autohotkey.com/boards/viewtopic.php?p=523250#p523250
