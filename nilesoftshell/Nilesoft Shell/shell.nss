@@ -21,7 +21,8 @@ menu(mode="multiple" title=title.more_options image=icon.more_options)
 {
 }
 
-import 'imports/terminal.nss'
+
+item(title=title.Windows_Terminal tip=tip_run_admin admin=has_admin image='@package.path("WindowsTerminal")\WindowsTerminal.exe' cmd='wt.exe' arg='-d "@sel.path\."')
 import 'imports/file-manage.nss'
 import 'imports/develop.nss'
 import 'imports/goto.nss'
