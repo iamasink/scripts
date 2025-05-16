@@ -2,7 +2,7 @@
 {
     priority=1
     exclude.where = !process.is_explorer
-    showdelay = 100
+    showdelay = 0
     // Options to allow modification of system items
     modify.remove.duplicate=1
     tip.enabled=true
@@ -22,8 +22,20 @@ menu(mode="multiple" title=title.more_options image=icon.more_options)
 }
 
 
-item(title=title.Windows_Terminal tip=tip_run_admin admin=has_admin image='@package.path("WindowsTerminal")\WindowsTerminal.exe' cmd='wt.exe' arg='-d "@sel.path\."')
 import 'imports/file-manage.nss'
-import 'imports/develop.nss'
-import 'imports/goto.nss'
+import 'imports/terminal.nss'
+item(title='Code' image=[\uE272, #22A7F2] cmd='code' args='"@sel.path"')
+item(type='file' mode="single" title='Windows notepad' image cmd='@sys.bin\notepad.exe' args='"@sel.path"')
+
+modify(
+    find='vlc|Open Alacritty here|Scan with Microsoft Defender|Edit with|TeraCopy|Open with Sublime Text|WizTree|WinMerge'
+    menu=title.more_options
+)
+
+
+// import 'imports/goto.nss'
 import 'imports/taskbar.nss'
+
+
+// remove stuff
+remove(find="Open with Visual Studio")
