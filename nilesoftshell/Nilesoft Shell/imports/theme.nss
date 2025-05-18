@@ -4,7 +4,7 @@
     dark=auto
     background
     {
-        color=auto
+        color=#000000
         opacity=0
         effect=auto
     }
@@ -17,4 +17,17 @@
         opacity = 50        
         radius  = 2          
     }
+    shadow {
+        enabled = true
+        size    = 2     
+        color   = #000000 
+        opacity = 10       
+        offset  = 5        
+    }
+    
+    image
+    {
+        color = auto
+    }
 }
+
