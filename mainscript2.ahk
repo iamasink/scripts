@@ -848,25 +848,35 @@ WinActive("ahk_exe chrome.exe") || WinActive("ahk_exe WindowsTerminal.exe")
 ; F21 & WheelUp::WheelLeft
 
 ; F21 & WheelDown::WheelRight
+
 ; stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
-F23:: ; DPI Down / G7
-{
-    try {
+
+mousemovegesture(key := "F23") {
+try {
         moveval := 0
-        pixeldist := 5
+        xpixeldist := 5
+        ypixeldist := 20
         largepixeldist := 500
-        if GetKeyState("F23", "p") {
+        if GetKeyState(key, "p") {
             MouseGetPos(&x1, &y1)
-            if KeyWait("F23", "T1") {
+            if KeyWait(key, "T1") {
                 ; ToolTip("a")
             } else {
-                ToolTip("<", x1 - largepixeldist, y1, 3)
-                ToolTip(">", x1 + largepixeldist, y1, 4)
-                ToolTip(".", x1, y1, 5)
-                KeyWait("F23")
+                ToolTip("←", x1 - largepixeldist, y1, 3)
+                ToolTip("→", x1 + largepixeldist, y1, 4)
+                ToolTip("↓", x1 - 7, (y1 - 7) + ypixeldist, 5)
+                ToolTip("↑", x1 - 7, (y1 - 7) - ypixeldist, 6)
+                ToolTip("↓", x1 - 7, (y1 - 7) + largepixeldist, 7)
+                ToolTip("↑", x1 - 7, (y1 - 7) - largepixeldist, 8)
+                ToolTip(".", x1 - 7, (y1 - 7), 9)
+                KeyWait(key)
                 ToolTip(, , , 3)
                 ToolTip(, , , 4)
                 ToolTip(, , , 5)
+                ToolTip(, , , 6)
+                ToolTip(, , , 7)
+                ToolTip(, , , 8)
+                ToolTip(, , , 9)
             }
         }
         MouseGetPos(&x2, &y2)
@@ -880,9 +890,9 @@ F23:: ; DPI Down / G7
                     moveval := 2
             }
             else {
-                if (XDif >= pixeldist)
+                if (XDif >= xpixeldist)
                     moveval := 5
-                if (XDif <= -pixeldist)
+                if (XDif <= -xpixeldist)
                     moveval := 6
             }
         }
@@ -894,13 +904,19 @@ F23:: ; DPI Down / G7
                     moveval := 4
             }
             else {
-                if (YDif >= pixeldist)
+                if (YDif >= ypixeldist)
                     moveval := 7
-                if (YDif <= -pixeldist)
+                if (YDif <= -ypixeldist)
                     moveval := 8
             }
         }
-        {
+    }
+    return moveval
+}
+
+F23:: ; DPI Down / G7
+{
+    moveval := mousemovegesture()
             if (moveval = 0) ; no movement
                 Send("{Ctrl Down}{LButton}{Ctrl Up}")
             ; close tabs shortcuts https://addons.mozilla.org/en-GB/firefox/addon/close-tabs-shortcuts/
@@ -921,8 +937,6 @@ F23:: ; DPI Down / G7
                 Send("{Ctrl Down}w{Ctrl Up}")
             if (moveval = 8) ; Up
                 Send("{Ctrl Down}l{Ctrl Up}") ; select address bar
-        }
-    }
 }
 #HotIf WinActive("ahk_exe Code.exe")
 F21 & WheelUp:: {
@@ -936,45 +950,7 @@ F21 & WheelDown:: {
 }
 F23:: ; DPI Down / G7
 {
-    moveval := 0
-    pixeldist := 5
-    largepixeldist := 500
-    if GetKeyState("F23", "p") {
-        MouseGetPos(&x1, &y1)
-        KeyWait("F23")
-    }
-    MouseGetPos(&x2, &y2)
-    XDif := (x2 - x1)
-    YDif := (y2 - y1)
-    if (abs(XDif) >= abs(YDif)) {
-        if (abs(XDif) >= largepixeldist) {
-            if (XDif >= largepixeldist * 2)
-                moveval := 1
-            if (XDif <= -largepixeldist)
-                moveval := 2
-        }
-        else {
-            if (XDif >= pixeldist)
-                moveval := 5
-            if (XDif <= -pixeldist)
-                moveval := 6
-        }
-    }
-    else {
-        if (abs(YDif) >= largepixeldist) {
-            if (YDif >= largepixeldist)
-                moveval := 3
-            if (YDif <= -largepixeldist)
-                moveval := 4
-        }
-        else {
-            if (YDif >= pixeldist)
-                moveval := 7
-            if (YDif <= -pixeldist)
-                moveval := 8
-        }
-    }
-    {
+        moveval := mousemovegesture()
         if (moveval = 0) ; no movement
             Send("{Ctrl Down}{LButton}{Ctrl Up}")
         ; close tabs shortcuts set in settings
@@ -996,7 +972,7 @@ F23:: ; DPI Down / G7
         }
         if (moveval = 8) ; Up
             Send("{Ctrl Down}{Shift Down}p{Shift Up}{Ctrl Up}") ; select address bar
-    }
+    
 }
 #HotIf WinActive("ahk_class CabinetWClass ahk_exe explorer.exe") ; Only run if Explorer is active
 ; CapsLock & .:: { ; unzip selected archive(s) (buggy and laggy so commented out :)
