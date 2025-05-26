@@ -147,17 +147,17 @@ homeassistantRequest(requestJSON, url, wait := false) {
     ; get token from variable earlier
     global homeassistantToken
     if (wait) {
-        RunWait(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, ,
+        RunWait(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.server.lan:8123/api/" url, ,
             "hide")
     } else {
-        Run(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.local:8123/api/" url, ,
+        Run(A_ComSpec " /C " "curl -X POST -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" -d `"" requestJSON "`" http://homeassistant.server.lan:8123/api/" url, ,
             "hide")
     }
 }
 homeassistantGet(url) {
     global homeassistantToken
     try {
-        output := jsongo.Parse(JEE_RunGetStdOut(A_ComSpec " /c curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url
+        output := jsongo.Parse(JEE_RunGetStdOut(A_ComSpec " /c curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.server.lan:8123/api/" url
         ))
     } catch as e {
         ToolTip("could not connect to home assistant!")
@@ -165,7 +165,7 @@ homeassistantGet(url) {
         output := -1
     }
     return output
-    ; return ComObject("WScript.Shell").Exec("curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.local:8123/api/" url).StdOut.ReadAll()
+    ; return ComObject("WScript.Shell").Exec("curl -H `"Authorization: Bearer " homeassistantToken "`" -H `"Content-Type: application/json`" http://homeassistant.server.lan:8123/api/" url).StdOut.ReadAll()
 }
 
 homeassistantGetLightState(light, request := homeassistantGet("states/light." light)) {
@@ -852,7 +852,7 @@ WinActive("ahk_exe chrome.exe") || WinActive("ahk_exe WindowsTerminal.exe")
 ; stolen from u/also_charlie https://www.reddit.com/r/AutoHotkey/comments/1516eem/heres_a_very_useful_script_i_wrote_to_assign_5/
 
 mousemovegesture(key := "F23") {
-try {
+    try {
         moveval := 0
         xpixeldist := 5
         ypixeldist := 20
@@ -917,26 +917,26 @@ try {
 F23:: ; DPI Down / G7
 {
     moveval := mousemovegesture()
-            if (moveval = 0) ; no movement
-                Send("{Ctrl Down}{LButton}{Ctrl Up}")
-            ; close tabs shortcuts https://addons.mozilla.org/en-GB/firefox/addon/close-tabs-shortcuts/
-            if (moveval = 1) ; Big Right
-                Send("{Alt Down}{Shift Down}{F2}{Shift Up}{Alt Up}") ; close tabs to the right
-            if (moveval = 2) ; Big Left
-                Send("{Alt Down}{Shift Down}{F1}{Shift Up}{Alt Up}") ; close tabs to the left
-            ;
-            if (moveval = 3) ; Big Down
-                Send("{Ctrl Down}w{Ctrl Up}")
-            if (moveval = 4) ; Big Up
-                Send("{Ctrl Down}{Shift Down}t{Shift Up}{Ctrl Up}")
-            if (moveval = 5) ; Right
-                Send("{Ctrl Down}{tab}{Ctrl Up}")
-            if (moveval = 6) ; Left
-                Send("{Ctrl Down}{Shift Down}{tab}{Shift Up}{Ctrl Up}")
-            if (moveval = 7) ; Down
-                Send("{Ctrl Down}w{Ctrl Up}")
-            if (moveval = 8) ; Up
-                Send("{Ctrl Down}l{Ctrl Up}") ; select address bar
+    if (moveval = 0) ; no movement
+        Send("{Ctrl Down}{LButton}{Ctrl Up}")
+    ; close tabs shortcuts https://addons.mozilla.org/en-GB/firefox/addon/close-tabs-shortcuts/
+    if (moveval = 1) ; Big Right
+        Send("{Alt Down}{Shift Down}{F2}{Shift Up}{Alt Up}") ; close tabs to the right
+    if (moveval = 2) ; Big Left
+        Send("{Alt Down}{Shift Down}{F1}{Shift Up}{Alt Up}") ; close tabs to the left
+    ;
+    if (moveval = 3) ; Big Down
+        Send("{Ctrl Down}w{Ctrl Up}")
+    if (moveval = 4) ; Big Up
+        Send("{Ctrl Down}{Shift Down}t{Shift Up}{Ctrl Up}")
+    if (moveval = 5) ; Right
+        Send("{Ctrl Down}{tab}{Ctrl Up}")
+    if (moveval = 6) ; Left
+        Send("{Ctrl Down}{Shift Down}{tab}{Shift Up}{Ctrl Up}")
+    if (moveval = 7) ; Down
+        Send("{Ctrl Down}w{Ctrl Up}")
+    if (moveval = 8) ; Up
+        Send("{Ctrl Down}l{Ctrl Up}") ; select address bar
 }
 #HotIf WinActive("ahk_exe Code.exe")
 F21 & WheelUp:: {
@@ -950,29 +950,29 @@ F21 & WheelDown:: {
 }
 F23:: ; DPI Down / G7
 {
-        moveval := mousemovegesture()
-        if (moveval = 0) ; no movement
-            Send("{Ctrl Down}{LButton}{Ctrl Up}")
-        ; close tabs shortcuts set in settings
-        if (moveval = 1) ; Big Right
-            Send("{Shift Down}{Alt Down}{F2}{Shift Up}{Alt Up}") ; close tabs to the right
-        if (moveval = 2) ; Big Left
-            Send("{Shift Down}{Alt Down}{F1}{Shift Up}{Alt Up}") ; close tabs to the left
-        ;
-        if (moveval = 3) ; Big Down
-            Send("{Ctrl Down}w{Ctrl Up}")
-        if (moveval = 4) ; Big Up
-            Send("{Shift Down}{Ctrl Down}t{Shift Up}{Ctrl Up}")
-        if (moveval = 5) ; Right
-            Send("{Ctrl Down}{PgDn}{Ctrl Up}")
-        if (moveval = 6) ; Left
-            Send("{Ctrl Down}{PgUp}{Ctrl Up}")
-        if (moveval = 7) ; Down
-        {
-        }
-        if (moveval = 8) ; Up
-            Send("{Ctrl Down}{Shift Down}p{Shift Up}{Ctrl Up}") ; select address bar
-    
+    moveval := mousemovegesture()
+    if (moveval = 0) ; no movement
+        Send("{Ctrl Down}{LButton}{Ctrl Up}")
+    ; close tabs shortcuts set in settings
+    if (moveval = 1) ; Big Right
+        Send("{Shift Down}{Alt Down}{F2}{Shift Up}{Alt Up}") ; close tabs to the right
+    if (moveval = 2) ; Big Left
+        Send("{Shift Down}{Alt Down}{F1}{Shift Up}{Alt Up}") ; close tabs to the left
+    ;
+    if (moveval = 3) ; Big Down
+        Send("{Ctrl Down}w{Ctrl Up}")
+    if (moveval = 4) ; Big Up
+        Send("{Shift Down}{Ctrl Down}t{Shift Up}{Ctrl Up}")
+    if (moveval = 5) ; Right
+        Send("{Ctrl Down}{PgDn}{Ctrl Up}")
+    if (moveval = 6) ; Left
+        Send("{Ctrl Down}{PgUp}{Ctrl Up}")
+    if (moveval = 7) ; Down
+    {
+    }
+    if (moveval = 8) ; Up
+        Send("{Ctrl Down}{Shift Down}p{Shift Up}{Ctrl Up}") ; select address bar
+
 }
 #HotIf WinActive("ahk_class CabinetWClass ahk_exe explorer.exe") ; Only run if Explorer is active
 ; CapsLock & .:: { ; unzip selected archive(s) (buggy and laggy so commented out :)
