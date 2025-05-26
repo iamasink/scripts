@@ -20,12 +20,14 @@ if (!A_IsAdmin) {
 }
 
 ; Define applications
-closeobs := ["ahk_exe osu!\.exe$",
-	"ahk_exe Beat Saber\.exe$",
+closeobs := [
+	; "ahk_exe osu!\.exe$",
+	; "ahk_exe Beat Saber\.exe$",
 	; "ahk_exe prismlauncher\.exe$",
 	; "ahk_exe LosslessCut\.exe$",
 ]
-closelbm := ["ahk_exe .*-Win64-Shipping\.exe$", ; unreal engine stuff usually doesnt work well
+closelbm := [
+	"ahk_exe .*-Win64-Shipping\.exe$", ; unreal engine stuff usually doesnt work well
 	"ahk_exe osu!\.exe$",
 	; "ahk_exe prismlauncher\.exe$",
 	"ahk_exe League of Legends\.exe$",
