@@ -22,7 +22,7 @@ if (!A_IsAdmin) {
     }
 }
 
-; run other scripts (this could be #Include, but i dont want it to clog the log for this one!)
+; run other scripts
 kids := ["apploop.ahk", "text-shortcuts.ahk", "../ahk-win-switcher/alttab.ahk", "mainscript2.ahk"]
 for s in kids {
     Run("*RunAs .\" s "")
