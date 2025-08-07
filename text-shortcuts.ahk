@@ -137,6 +137,13 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
 :?*:[tm]::™
 :?*:[r]::®
 
+
+:?*:[a-]::ā
+:?*:[e-]::ē
+:?*:[i-]::ī
+:?*:[o-]::ō
+:?*:[u-]::ū
+
 ; these are alt-gr + hotkeys
 <^>!1:: Send("¡")
 <^>!2:: Send("¥")
@@ -161,6 +168,15 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
 <^>!+-:: Send("·") ; latin interpunct
 <^>!.:: Send("・") ; japanese interpunct
 <^>!c:: Send("¢")
+<^>!=:: Send("≈")
+
+<^>!0:: Send("♘")
+<^>!9:: Send("☃")
+<^>!#:: Send("☃")
+
+<^>!v:: {
+    SendText(A_Clipboard)
+}
 
 ; <^>!RShift:: Send("​")
 
