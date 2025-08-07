@@ -5,8 +5,7 @@ CoordMode("Mouse")
 SetDefaultMouseSpeed(0)
 TraySetIcon(A_ScriptDir "\icon\ahkblue16.ico")
 
-if (!A_IsAdmin)
-{
+if (!A_IsAdmin) {
     try {
         Run("*RunAs `"" A_ScriptFullPath "`"")
     }
@@ -15,27 +14,9 @@ if (!A_IsAdmin)
     }
 }
 
-Joy1::
-{
-    MsgBox("Hi")
-}
 
-; MsgBox(A_ScriptDir)
-#:: {
-    MsgBox("Killing Explorer.exe")
-    Sleep(1000)
-    RunWait("taskkill.exe /F /IM Explorer.exe", , "Hide")
-    Sleep(3000)
-    Run("Explorer.exe")
-}
-f12:: {
-    MsgBox("Exiting " A_ScriptName)
-
-    ExitApp()
-}
-
-f9:: {
-    Run(A_ComSpec " /C " "`"C:\Program Files\Mozilla Firefox\firefox.exe`" -new-tab .", , "hide")
+#b:: {
+    SendText(FormatTime(, "ShortDate") . "AM -")
 }
 
 
@@ -48,7 +29,7 @@ f9:: {
     Sleep(250)
     Reload()
     ; MsgBox("reloading !")
-    Return
+    return
 }
 
 
