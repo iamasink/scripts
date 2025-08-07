@@ -8,7 +8,12 @@
 SET DownloadLocation="%userprofile%\Downloads"
 
 @REM this will show as an input when you run the script, so you can paste the url. do not change this
-SET /P url=Enter URL: 
+SET /P "url=Enter URL: "
+
+@REM replace urls
+call SET url=%url:deer.social=bsky.app%
+
+echo new url %url%
 
 @REM Update YT-DLP
 yt-dlp -U
@@ -22,4 +27,5 @@ yt-dlp -U
 @REM %url% is the url the user enters when the script is ran
 @REM "|| pause" pauses the script if theres any issue (to show the error), else it will just close
 yt-dlp -P %DownloadLocation% -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --no-mtime --sub-langs all --embed-subs --sub-format best --embed-thumbnail --embed-metadata --embed-chapters --embed-info-json %url% --cookies-from-browser firefox || pause
+
 timeout /t 5
