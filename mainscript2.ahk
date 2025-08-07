@@ -421,7 +421,7 @@ CapsLock & e:: {
     ; 	WinWait("ahk_exe Spotify.exe")
     ; 	Sleep(1000)
     ; }
-    PostMessage(0x319, , 0xB0000, , "ahk_exe Firefox.exe")	 ;Send Media_Next to spotifye
+    PostMessage(0x319, , 0xB0000, , "ahk_exe Firefox.exe")	 ;Send Media_Next to spotify
     ; Send("{Media_Next}")
 }
 CapsLock & q:: {
@@ -453,8 +453,14 @@ CapsLock & o::End
 ; CapsLock & v:: {
 ; 	Send("^!+{v}")
 ; }
-
 CapsLock & Tab::Enter
+
+CapsLock & 1:: {
+    Send(A_YYYY '-' A_MM '-' A_DD)
+}
+CapsLock & 2:: {
+    Send(A_YYYY '-' A_MM '-' A_DD " " A_Hour ":" A_Min ":" A_Sec)
+}
 
 ; eartrumpet volume flyout open
 CapsLock & v:: Send("{Ctrl Down}{Shift Down}{Alt Down}{V}{Alt Up}{Shift Up}{Ctrl Up}")
@@ -558,8 +564,10 @@ NumLock::BackSpace
 ; on lock
 #l::
 {
-    bluetooth := RadioModule('Bluetooth')
-    bluetooth.State := 'Off'
+    try {
+        bluetooth := RadioModule('Bluetooth')
+        bluetooth.State := 'Off'
+    }
 
     Run("taskkill /im obs64.exe", , "Hide")
 
@@ -591,13 +599,18 @@ NumLock::BackSpace
 }
 #b::
 {
-    bluetooth := RadioModule('Bluetooth')
-    if (bluetooth.State = 'On') {
-        CenteredTooltip("Bluetooth Disabled", 1000, 4)
-        bluetooth.State := 'Off'
-    } else {
-        CenteredTooltip("Bluetooth Enabled", 1000, 4)
-        bluetooth.State := 'On'
+    try {
+        bluetooth := RadioModule('Bluetooth')
+        if (bluetooth.State = 'On') {
+            CenteredTooltip("Bluetooth Disabled", 1000, 4)
+            bluetooth.State := 'Off'
+        } else {
+            CenteredTooltip("Bluetooth Enabled", 1000, 4)
+            bluetooth.State := 'On'
+        }
+    } catch {
+        CenteredTooltip("Bluetooth failed", 1000, 4)
+
     }
 }
 
@@ -786,6 +799,13 @@ F15:: ; A3
 
 ; #region MARK: per app hotkeys
 ; ====== per app hotkeys ======
+; put new ones at the top from now on?
+
+#HotIf WinActive("ahk_exe League of Legends.exe")
+F22::Up
+F23::Down
+
+
 #HotIf WinActive("Hammer - ahk_exe cs2.exe")
 F22::]
 F23::[
@@ -815,16 +835,40 @@ XButton1::[
 XButton2::]
 #HotIf WinActive("VALORANT",)
 CapsLock::#
-#HotIf WinActive("paint.net",)
-XButton2::]
-XButton1::[
+#HotIf WinActive("ahk_exe paintdotnet.exe",)
+$*XButton2:: {
+    Send "{Blind}]"
+    Sleep 300               ; initial delay (ms)
+    SetTimer Repeat_XB2, 10 ; repeat interval (ms)
+}
+
+Repeat_XB2() {
+    if !GetKeyState("XButton2", "P") {
+        SetTimer(Repeat_XB2, 0)
+        return
+    }
+    Send "{Blind}]"
+}
+$*XButton1:: {
+    Send "{Blind}["
+    Sleep 300               ; initial delay (ms)
+    SetTimer Repeat_XB1, 10 ; repeat interval (ms)
+}
+
+Repeat_XB1() {
+    if !GetKeyState("XButton1", "P") {
+        SetTimer(Repeat_XB1, 0)
+        return
+    }
+    Send "{Blind}["
+}
 F22::
 {
     Send("k")
     Click()
 }
-; !WheelUp::]
-; !WheelDown::[
+
+
 #HotIf WinActive("Risk of Rain 2",)
 F21::Ctrl
 
@@ -1073,16 +1117,24 @@ CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead o
 }
 
 #HotIf WinActive("ahk_exe anki.exe")
+#HotIf WinActive("Anki ahk_exe pythonw.exe") ;; new 2025-07 releases use a launcher and the window exe is different?
 SC053:: ; numpad period
 {
     Send("1")
 }
 SC052:: Send("^z") ; numpad zero
-
+SC04F:: return         ; Numpad1
+SC050:: return         ; Numpad2
+SC051:: Send("2")         ; Numpad3
+SC04B:: return         ; Numpad4
+SC04C:: return         ; Numpad5
+SC04D:: Send("4")         ; Numpad6
+SC047:: return         ; Numpad7
+SC048:: return         ; Numpad8
+SC049:: return         ; Numpad9
 RShift:: Send("{Shift Up}1")
 RCtrl:: Send("^z")
 #HotIf
-
 ; #HotIf WinActive("ahk_exe Code.exe")
 ; Alt & CapsLock::
 ; {
@@ -1093,8 +1145,7 @@ RCtrl:: Send("^z")
 ; }
 ; reload the script when its saved
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
-~^s::
-{
+~^s:: {
     ; Send("^s")
     ToolTip("Reloading " A_ScriptName ".", A_ScreenWidth / 2, A_ScreenHeight / 2)
     Sleep(250)
@@ -1103,30 +1154,22 @@ RCtrl:: Send("^z")
     return
 }
 #HotIf
-
 ; #endregion
 ; #endregion
-
 ; #region MARK: quick menu
 ; ====== quick menu ======
-
 CapsLock & m:: {
-
     quickmenuGui := Gui()
     ListBox := quickmenuGui.Add("ListBox", "x10 y8 w195 h160",)
     loop files A_ScriptDir "\quickmenu-scripts\*.ahk" {
         ListBox.Add([A_LoopFileName])
     }
-
     ButtonRun := quickmenuGui.Add("Button", "x210 y8 w80 h23", "Run...")
     ButtonCancel := quickmenuGui.Add("Button", "x210 y40 w80 h23", "Cancel")
-
     ; on button click or doubleclick list, run the selected script
     ButtonRun.OnEvent("Click", OnRunClick)
     ListBox.OnEvent("DoubleClick", OnRunClick)
-
     ButtonCancel.OnEvent("Click", OnCancelClick)
-
     OnRunClick(*) {
         ; run the selected script
         Run(A_ScriptDir "\quickmenu-scripts\" ListBox.Text)
@@ -1139,12 +1182,9 @@ CapsLock & m:: {
         ListBox.Delete()
         quickmenuGui.Hide()
     }
-
     ButtonCancel := quickmenuGui.Add("Button", "x210 y40 w80 h23", "Cancel")
-
     quickmenuGui.Show("w300 h200")
 }
-
 ; ; Just before this script is killed, kill its Children.
 ; OnExit(RemoveChildren())
 ; RemoveChildren() {

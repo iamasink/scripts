@@ -32,5 +32,7 @@ for s in kids {
 ; run with an argument (1) to skip my "run as admin" warning in the bat script. (it is ran with admin if this script is.)
 Run(A_ComSpec " /C " A_ScriptDir "\synctime.bat 1", A_ScriptDir, "Hide") ; run sync time script
 
+Run("D:\tools\ThrottleStop\ThrottleStop.exe")
+
 ; now exit :)
 ExitApp()
