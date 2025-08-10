@@ -170,10 +170,6 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
 <^>!c:: Send("¢")
 <^>!=:: Send("≈")
 
-<^>!0:: Send("♘")
-<^>!9:: Send("☃")
-<^>!#:: Send("☃")
-
 <^>!v:: {
     SendText(A_Clipboard)
 }
