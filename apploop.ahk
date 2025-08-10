@@ -5,8 +5,9 @@ SetTitleMatchMode("RegEx")
 CoordMode("ToolTip")
 homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token from file
 
-; current app loop
-; detects the currently running app, and does stuff for them on open/close
+
+#Include includes\Peep.v2.ahk
+
 
 ; if not admin, start as admin
 ; taken from https://www.autohotkey.com/boards/viewtopic.php?p=523250#p523250
@@ -19,285 +20,298 @@ if (!A_IsAdmin) {
     }
 }
 
-; Define applications
-closeobs := [
-    ; "ahk_exe osu!\.exe$",
-    ; "ahk_exe Beat Saber\.exe$",
-    ; "ahk_exe prismlauncher\.exe$",
-    ; "ahk_exe LosslessCut\.exe$",
-    "ahk_exe no435897u45893\.exe$"]
-closelbm := [
-    "ahk_exe .*-Win64-Shipping\.exe$", ; unreal engine stuff usually doesnt work well
-    "ahk_exe osu!\.exe$",
-    ; "ahk_exe prismlauncher\.exe$",
-    "ahk_exe League of Legends\.exe$",]
-highperf := ["ahk_exe cs2\.exe$"]
-league := ["ahk_exe LeagueClientUx\.exe$"]
 
-; Initialize variables to track the state of applications
-openapps := Map("closeobs", false, "closelbm", false, "idle", false, "highperf", false, "league", false)
+apps := [{
+    app: "ahk_exe Blitz\.exe$",
+    affinity: binary("10001000"),
+    priority: -1,
+    flags: []
+}, {
+    app: "ahk_exe LeagueClientUx\.exe$",
+    flags: [runblitz]
+}, {
+    app: "ahk_exe League of Legends\.exe$",
+    flags: [closelbm]
+}, {
+    app: "ahk_exe .*-Win64-Shipping\.exe$",
+    flags: [closelbm],
+},]
 
-; Function to check if any application in the given list is running
-AnyAppRunning(appList) {
-    for _, app in appList {
-        if (WinExist(app))
-            return true
+
+cpumask(cpuList*) {
+    mask := 0
+    for cpu in cpuList {
+        mask |= (1 << cpu)
     }
-    return false
+    return mask
 }
-; tooltip in middle of screen
-CenteredTooltip(text, time := 2500, number := 1) {
-    ToolTip(text, A_ScreenWidth / 2, A_ScreenHeight / 2 - number * 50, number)
-    SetTimer () => ToolTip(, , , number), -time
+binary(binStr) {
+    dec := 0
+    len := StrLen(binStr)
+    for i, c in StrSplit(binStr) {
+        dec := (dec << 1) | (c = "1" ? 1 : 0)
+    }
+    return dec
 }
-
-while true {
-    ; Check if any application in the closeobs group is running
-    closeobsappRunning := AnyAppRunning(closeobs)
-    if (closeobsappRunning) {
-        if (!openapps["closeobs"]) {
-            ; when this app is launched
-            CenteredTooltip("Closing OBS", , 1)
-            RunWait("taskkill /im obs64.exe", , "Hide")
-            ; try WinKill("ahk_exe obs64.exe")
-
+; collect unique flags from all apps with fast lookup
+states := []
+seen := Map()
+for app in apps {
+    for flag in app.flags {
+        if !seen.Has(flag) {
+            seen[flag] := true
+            states.Push(flag)
         }
-        openapps["closeobs"] := true
+
+    }
+}
+seen := Map()
+closeobs(state := true) {
+    ; MsgBox(state)
+}
+closelbm(state := true) {
+    closeapp(state,
+        "LBM",
+        ["LittleBigMouse.Hook.exe", "LittleBigMouse.Ui.Avalonia.exe"],
+        ["`"C:\Program Files\LittleBigMouse\LittleBigMouse.Ui.Avalonia.exe`" --start"]
+    )
+}
+runblitz(state := true) {
+    closeapp(!state, "blitz", "Blitz.exe", A_AppData "\..\Local\Programs\Blitz\Blitz.exe", false, true)
+}
+closeapp(state := true, name := "", closelist := [], runlist := [], hideLaunch := false, forceClose := false) {
+    closelist := Array(closelist)
+    runlist := Array(runlist)
+
+
+    if (name == "" && runlist.Length)
+        name := runlist[1]
+
+    if (state) {
+        CenteredTooltip("Closing " name)
+        for app in closelist {
+            cmd := "taskkill"
+            if forceClose
+                cmd .= " /f"
+            cmd .= " /im " app
+            Run(cmd, , "Hide")
+        }
     } else {
-        if (openapps["closeobs"]) {
-            ; when this app is closed
-            CenteredTooltip("Launched OBS", , 1)
-            Run("`"C:\Program Files\obs-studio\bin\64bit\obs64.exe`" --startreplaybuffer --scene default",
-                "C:\Program Files\obs-studio\bin\64bit", "Hide")
-
+        ; app closing → launch targets
+        CenteredTooltip("Launching " name)
+        for app in runlist {
+            Run(app, , hideLaunch ? "Hide" : "")
         }
-        openapps["closeobs"] := false
+    }
+}
+enabledstates := Map()
+for state in states {
+    enabledstates[state] := false
+}
+SetTimer(checkapps, 5000)
+checkapps()
+checkapps() {
+    tempStates := Map()
+
+    for flag in enabledstates {
+        tempStates[flag] := false
     }
 
-    ; Check if any application in the closeobs group is running
-    closelbmappRunning := AnyAppRunning(closelbm)
-    if (closelbmappRunning) {
-        if (!openapps["closelbm"]) {
-            ; when this app is launched
-            CenteredTooltip("Closing LBM", , 2)
-            Run("taskkill /f /im LittleBigMouse.Hook.exe", , "Hide")
-            Run("taskkill /f /im LittleBigMouse.Ui.Avalonia.exe", , "Hide")
-        }
-        openapps["closelbm"] := true
-    } else {
-        if (openapps["closelbm"]) {
-            ; when this app is closed
-            CenteredTooltip("Launched LBM", , 2)
-            ; Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
-            Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse.Ui.Avalonia.exe`" --start")
-
-        }
-        openapps["closelbm"] := false
-    }
-
-    ; Check if any application in the closeobs group is running
-    highperfappRunning := AnyAppRunning(highperf)
-    if (highperfappRunning) {
-        if (!openapps["highperf"]) {
-            ; when this app is launched
-            ; CenteredTooltip("High performance plan enabled", , 3)
-            ; set power plan to high performance
-            ; Run("powercfg.exe /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c")
-        }
-        openapps["highperf"] := true
-    } else {
-        if (openapps["highperf"]) {
-            ; when this app is closed
-            ; CenteredTooltip("Returned to balanced plan", , 3)
-            ; set power plan to balanced
-            ; Run("powercfg.exe /setactive 381b4222-f694-41f0-9685-ff5bb260df2e")
-
-        }
-        openapps["highperf"] := false
-    }
-
-    leagueappRunning := AnyAppRunning(league)
-    if (leagueappRunning) {
-        if (!openapps["league"]) {
-            ; when this app is launched
-            CenteredTooltip("League client opened`nRunning Blitz", , 4)
-            Run("C:\Users\Lily\AppData\Local\Programs\Blitz\Blitz.exe", , , &blitzpid)
-            Run("D:\tools\cslol\cslol-manager\cslol-manager.exe")
-            Sleep(15000)
-            try {
-                ProcessSetPriority("L", blitzpid)
-                for process in ComObjGet("winmgmts:").ExecQuery("Select * from Win32_Process") {
-                    if (process.Name = "Blitz.exe") {
-                        try {
-                            ProcessSetPriority("Low", process.ProcessId)
-                        }
-                    }
-                }
+    ; mark a flag active if any app using it is running
+    for app in apps {
+        if (WinExist(app.app)) {
+            ; set flags
+            for flag in app.flags {
+                tempStates[flag] := true
             }
         }
-        openapps["league"] := true
-    } else {
-        if (openapps["league"]) {
-            ; when this app is closed
-            CenteredTooltip("League client closed`nClosing Blitz", , 4)
-            Run("taskkill /f /im Blitz.exe", , "Hide")
-            Run("taskkill /im cslol-manager.exe", , "Hide")
+        ; set priority and affinity
+        if (app.HasOwnProp("priority") && app.priority != 0) {
+            SetPriority(app.app, app.priority)
         }
-        openapps["league"] := false
+        if (app.HasOwnProp("affinity") && app.affinity != 0) {
+            SetAffinity(app.app, app.affinity)
+        }
     }
 
-    if (ProcessExist("obs64.exe")) {
-        ; obs open yey
-        ; SetNumLockState("Off")
-
-    } else {
-        ; SetNumLockState("On")
-
+    ; compare with previous states and trigger on change
+    for flag in enabledstates {
+        prev := enabledstates[flag]
+        curr := tempStates[flag]
+        if (curr != prev) {
+            ; run function
+            flag.Call(curr)
+            enabledstates[flag] := curr
+        }
     }
-
-    Sleep(5000)
-
 }
+SetPriority(appname, Level := "Normal") {
+    static pidcache := Map()
 
-; while true {
+    prio := "Normal"
 
-; 	For (index, value in closeobs)
-; 	{
-; 		if (WinExist(value))
-; 		{
-; 			if (!openapps["closeobs"]) {
-; 				openapps["closeobs"] := true
-; 				tooltip "Closing OBS!"
-; 			} else {
-; 				tooltip "(nothing)"
-; 			}
+    if !IsNumber(Level)
+        norm := StrLower(StrReplace(StrReplace(Level, " ", ""), "_", ""))
+    else
+        norm := String(Level)
 
-; 			; ; on launch of closeobs game
-; 			; windowexist := true
-; 			; ToolTip true
-; 			break
-; 		} else {
-; 			if (!openapps["closeobs"]) {
-; 				openapps["closeobs"] := true
-; 				tooltip "Closing OBS!"
-; 			} else {
-; 				tooltip "(nothing)"
-; 			}
-; 		}
-; 	}
+    switch norm {
+        case "-2", "l", "low":
+            prio := "Low"
+        case "-1", "b", "belownormal":
+            prio := "BelowNormal"
+        case "0", "n", "normal":
+            prio := "Normal"
+        case "1", "a", "abovenormal":
+            prio := "AboveNormal"
+        case "2", "h", "high":
+            prio := "High"
+        case "3", "r", "realtime":
+            prio := "Realtime"
+        Default:
+            prio := "Normal"
+    }
 
-; For (index, value in closelbm)
-; {
-; 	if (WinExist(value))
-; 	{
-; 		windowexist2 := true
-; 		ToolTip true
-; 		break
-; 	} else {
-; 		ToolTip false
-; 		continue
-; 	}
-; }
+    DetectHiddenWindows(true)
+    hwnds := WinGetList(appname)
 
-; on close of closeobs game
+    pids := Map()
+    for hwnd in hwnds {
+        pid := WinGetPID("ahk_id " hwnd)
+        if (pid && !pids.Has(pid)) {
+            pids[pid] := true
+        }
+    }
 
-; if WinExist("osu! ahk_exe osu!.exe") {
-; 	if (openapps["osu"] != true) {
-; 		; when this app is launched
-; 		; run some code
-; 		RunWait("taskkill /im obs64.exe", , "Hide")
-; 		ToolTip("Closed obs!")
-; 		Sleep(3000)
-; 		ToolTip()
-; 	}
-; 	openapps["osu"] := true
-; } else {
-; 	if (openapps["osu"] != false) {
-; 		; when this app is closed
-; 		; run some code
-; 		Run("`"C:\Program Files\obs-studio\bin\64bit\obs64.exe`" --startreplaybuffer --scene default", "C:\Program Files\obs-studio\bin\64bit", "Hide")
-; 		ToolTip("Re-launched obs!")
-; 		Sleep(3000)
-; 		ToolTip()
 
-; 	}
-; 	openapps["osu"] := false
-; }
+    exeName := ""
+    if RegExMatch(appname, ".*ahk_exe\s+([^\s\\]+).*", &m) {
+        exeName := m[1]
+    }
 
-; if WinExist("ahk_exe Beat Saber.exe") {
-; 	if (openapps["bs"] != true) {
-; 		; when this app is launched
-; 		; run some code
-; 		RunWait("taskkill /im obs64.exe", , "Hide")
-; 		ToolTip("Closed obs!")
-; 		Sleep(3000)
-; 		ToolTip()
-; 	}
-; 	openapps["bs"] := true
-; } else {
-; 	if (openapps["bs"] != false) {
-; 		; when this app is closed
-; 		; run some code
-; 		Run("`"C:\Program Files\obs-studio\bin\64bit\obs64.exe`" --startreplaybuffer --scene default", "C:\Program Files\obs-studio\bin\64bit", "Hide")
-; 		ToolTip("Re-launched obs!")
-; 		Sleep(3000)
-; 		ToolTip()
+    if (!exeName) {
+        MsgBox("Cannot extract exe name from: " appname)
+        return
+    }
+    exepids := GetPIDsByExeName(exeName)
 
-; 	}
-; 	openapps["bs"] := false
-; }
+    for pid in exepids {
+        pids[pid] := true
+    }
 
-; ; these break with littlebigmouse
-; if (WinExist("ahk_exe FortniteClient-Win64-Shipping.exe")
-; 	|| WinExist("ahk_exe Palworld-Win64-Shipping.exe")
-; 	|| WinExist("ahk_exe League of Legends.exe")
-; ) {
-; 	if (openapps["fn"] != true) {
-; 		; when this app is launched
-; 		; run some code
-; 		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --exit")
 
-; 		ToolTip("Closed lbm!")
-; 		Sleep(3000)
-; 		ToolTip()
-; 	}
-; 	openapps["fn"] := true
-; } else {
-; 	if (openapps["fn"] != false) {
-; 		; when this app is closed
-; 		; run some code
-; 		Run("`"C:\Program Files\LittleBigMouse\LittleBigMouse_Daemon.exe`" --start")
-; 		ToolTip("Re-launched lbm!")
-; 		Sleep(3000)
-; 		ToolTip()
+    for pid in pids {
+        if pidcache.Has(pid) {
+            lastPrio := pidcache[pid]
+        } else {
+            lastPrio := ""
+        }
+        if (lastPrio != prio) {
+            CenteredTooltip("changing priority of " appname " to " prio "`n" pid)
+            ProcessSetPriority(prio, pid)
+            pidcache[pid] := prio
+        }
 
-; 	}
-; 	openapps["fn"] := false
-; }
+    }
+    DetectHiddenWindows(false)
+}
+GetPIDsByExeName(exeName) {
+    pids := []
+    wmi := ComObjGet("winmgmts:")
+    query := "Select ProcessId from Win32_Process Where Name='" exeName ".exe'"
+    processes := wmi.ExecQuery(query)
+    for proc in processes {
+        pids.Push(proc.ProcessId)
+    }
+    return pids
+}
+SetAffinity(appname, affinityMask) {
+    static pidcache := Map()
 
-; 	if (ProcessExist("obs64.exe")) {
-; 		; obs open yey
-; 		SetNumLockState("Off")
+    exeName := ""
+    if RegExMatch(appname, ".*ahk_exe\s+([^\s\\]+).*", &m)
+        exeName := m[1]
 
-; 	} else {
-; 		SetNumLockState("On")
+    if !exeName {
+        MsgBox("Cannot extract exe name from: " appname)
+        return
+    }
 
-; 	}
+    DetectHiddenWindows(true)
+    hwnds := WinGetList(appname)
 
-; 	Sleep(2500) ; this should be fine considering obs takes a bit to launch
-; }
+    pids := Map()
+    for hwnd in hwnds {
+        pid := WinGetPID("ahk_id " hwnd)
+        if (pid && !pids.Has(pid)) {
+            pids[pid] := true
+        }
+    }
 
+
+    exepids := GetPIDsByExeName(exeName)
+
+    for pid in exepids {
+        pids[pid] := true
+    }
+    for pid in pids {
+        if pidcache.Has(pid) {
+            lastAffinity := pidcache[pid]
+        } else {
+            lastAffinity := ""
+        }
+        if (lastAffinity != affinityMask) {
+            CenteredTooltip("changing affinity of " exeName " to " affinityMask "`nPID: " pid)
+            ; set affinity using DllCall
+            hProcess := DllCall("OpenProcess", "UInt", 0x0200 | 0x0400, "Int", false, "UInt", pid, "Ptr")
+            if hProcess {
+                DllCall("SetProcessAffinityMask", "Ptr", hProcess, "Ptr", affinityMask)
+                DllCall("CloseHandle", "Ptr", hProcess)
+                pidcache[pid] := affinityMask
+            }
+        }
+    }
+    DetectHiddenWindows(false)
+}
+; tooltip in middle of screen
+CenteredTooltip(text, time := 2500) {
+    static tooltipID := 0
+    static activeIDs := Map()
+
+    ; find free ID (1-20)
+    id := 0
+    loop 20 {
+        idx := (tooltipID + A_Index) > 20 ? (tooltipID + A_Index) - 20 : (tooltipID + A_Index)
+        if !activeIDs.Has(idx) {
+            id := idx
+            break
+        }
+    }
+    if !id
+        id := 1  ; fallback if all busy
+
+    tooltipID := id
+    activeIDs[id] := true
+
+    ToolTip(text, A_ScreenWidth / 2, A_ScreenHeight / 2 - id * 50, id)
+
+    SetTimer(() => cleartooltip()
+    , -time)
+
+    cleartooltip() {
+        ToolTip(, , , id)
+        activeIDs.Delete(id)
+    }
+}
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
-~^s::
-{
+~^s:: {
     ; Send("^s")
     ToolTip("Reloading " A_ScriptName ".", A_ScreenWidth / 2, A_ScreenHeight / 2)
-    Sleep(250)
+    Sleep(1000)
     Reload()
     ; MsgBox("reloading !")
     return
 }
-
 homeassistantRequest(requestJSON, url, wait := false) {
     ; get token from variable earlier
     global homeassistantToken
