@@ -171,6 +171,8 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
 <^>!=:: Send("≈")
 
 <^>!v:: {
+    ; "paste" the clipboard as keyboard inputs
+    ; useful for things that dont allow paste (ie. league)
     SendText(A_Clipboard)
 }
 
