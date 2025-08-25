@@ -881,6 +881,11 @@ F21::Ctrl
 }
 F22:: MouseClick("left")
 
+#HotIf WinActive("1.12.2")
+F21:: {
+    Send("[")
+}
+
 #HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe") ||
 WinActive("ahk_exe chrome.exe") || WinActive("ahk_exe WindowsTerminal.exe")
 ; f1::
