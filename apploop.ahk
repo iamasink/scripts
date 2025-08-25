@@ -77,11 +77,11 @@ closelbm(state := true) {
     )
 }
 runblitz(state := true) {
-    closeapp(!state, "blitz", "Blitz.exe", A_AppData "\..\Local\Programs\Blitz\Blitz.exe", false, true)
+    closeapp(!state, "blitz", ["Blitz.exe"], [A_AppData "\..\Local\Programs\Blitz\Blitz.exe"], false, true)
 }
 closeapp(state := true, name := "", closelist := [], runlist := [], hideLaunch := false, forceClose := false) {
-    closelist := Array(closelist)
-    runlist := Array(runlist)
+    closelist := closelist
+    runlist := runlist
 
 
     if (name == "" && runlist.Length)
@@ -273,36 +273,37 @@ SetAffinity(appname, affinityMask) {
     }
     DetectHiddenWindows(false)
 }
-; tooltip in middle of screen
-CenteredTooltip(text, time := 2500) {
+CenteredTooltip(text, time := 2500, radius := 500) {
     static tooltipID := 0
     static activeIDs := Map()
 
-    ; find free ID (1-20)
     id := 0
     loop 20 {
         idx := (tooltipID + A_Index) > 20 ? (tooltipID + A_Index) - 20 : (tooltipID + A_Index)
-        if !activeIDs.Has(idx) {
+        if (!activeIDs.Has(idx)) {
             id := idx
             break
         }
     }
-    if !id
-        id := 1  ; fallback if all busy
+    if (!id)
+        id := 1
 
     tooltipID := id
     activeIDs[id] := true
 
-    ToolTip(text, A_ScreenWidth / 2, A_ScreenHeight / 2 - id * 50, id)
+    angle := (id - 1) * (2 * 3.14159265 / 20) ; equally spaced
+    x := (A_ScreenWidth / 2) + radius * Cos(angle)
+    y := (A_ScreenHeight / 2) + radius * Sin(angle)
+    ToolTip(text, x, y, id)
 
-    SetTimer(() => cleartooltip()
-    , -time)
+    SetTimer(() => cleartooltip(), -time)
 
     cleartooltip() {
         ToolTip(, , , id)
         activeIDs.Delete(id)
     }
 }
+
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
 ~^s:: {
     ; Send("^s")
