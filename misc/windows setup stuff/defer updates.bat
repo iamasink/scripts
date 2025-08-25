@@ -4,9 +4,9 @@
 :: ================================================ ::
 :: You can modify these values
 :: Feature Updates can be deferred 0-365 days
-set "FEATURE_DAYS=30"
+set "FEATURE_DAYS=60"
 :: Quality Updates can be deferred 0-30 days
-set "QUALITY_DAYS=7"
+set "QUALITY_DAYS=15"
 :: ================================================ ::
 
 
