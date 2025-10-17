@@ -1,15 +1,15 @@
 "controller_mappings"
 {
 	"version"		"3"
-	"revision"		"200"
+	"revision"		"208"
 	"title"		"Toggleable Desktop Controls"
 	"description"		"#SettingsController_AutosaveDescription"
 	"creator"		"76561198301681888"
-	"progenitor"		"usercloud://413080/toggleable desktop controls_0"
+	"progenitor"		"usercloud://413080/controller_xboxone"
 	"url"		"autosave://C:\\Program Files (x86)\\Steam\\steamapps\\common\\Steam Controller Configs\\341416160\\config\\413080\\controller_xboxone.vdf"
 	"export_type"		"personal_local"
 	"controller_type"		"controller_xboxone"
-	"controller_caps"		"9978879"
+	"controller_caps"		"1590271"
 	"major_revision"		"0"
 	"minor_revision"		"0"
 	"Timestamp"		"0"
@@ -690,10 +690,11 @@
 		"settings"
 		{
 			"curve_exponent"		"4"
-			"custom_curve_exponent"		"139"
+			"custom_curve_exponent"		"50"
+			"haptic_intensity"		"1"
 			"output_joystick"		"2"
-			"deadzone_inner_radius"		"300"
-			"deadzone_outer_radius"		"8015"
+			"deadzone_inner_radius"		"2113"
+			"deadzone_outer_radius"		"32000"
 			"sensitivity"		"75"
 		}
 	}
@@ -784,9 +785,6 @@
 		{
 			"scroll_angle"		"75"
 			"scroll_friction"		"3"
-		}
-		"gameactions"
-		{
 		}
 	}
 	"group"
@@ -952,38 +950,6 @@
 				{
 				}
 			}
-			"button_back_left"
-			{
-				"activators"
-				{
-					"Full_Press"
-					{
-						"bindings"
-						{
-							"binding"		"mouse_button BACK, , "
-						}
-					}
-				}
-				"disabled_activators"
-				{
-				}
-			}
-			"button_back_right"
-			{
-				"activators"
-				{
-					"Full_Press"
-					{
-						"bindings"
-						{
-							"binding"		"mouse_button FORWARD, , "
-						}
-					}
-				}
-				"disabled_activators"
-				{
-				}
-			}
 		}
 	}
 	"group"
@@ -1061,38 +1027,6 @@
 				{
 				}
 			}
-			"button_back_left"
-			{
-				"activators"
-				{
-					"Full_Press"
-					{
-						"bindings"
-						{
-							"binding"		"mouse_button BACK, , "
-						}
-					}
-				}
-				"disabled_activators"
-				{
-				}
-			}
-			"button_back_right"
-			{
-				"activators"
-				{
-					"Full_Press"
-					{
-						"bindings"
-						{
-							"binding"		"mouse_button FORWARD, , "
-						}
-					}
-				}
-				"disabled_activators"
-				{
-				}
-			}
 			"right_trigger_threshold"
 			{
 				"activators"
@@ -1102,10 +1036,6 @@
 						"bindings"
 						{
 							"binding"		"mode_shift right_joystick 30"
-						}
-						"settings"
-						{
-							"interruptable"		"0"
 						}
 					}
 				}
@@ -1161,7 +1091,7 @@
 			"25"		"right_joystick inactive modeshift"
 			"28"		"right_joystick inactive"
 			"29"		"right_joystick inactive"
-			"30"		"right_joystick active modeshift"
+			"30"		"right_joystick inactive modeshift"
 			"16"		"joystick inactive"
 			"21"		"joystick inactive"
 			"22"		"joystick active"
