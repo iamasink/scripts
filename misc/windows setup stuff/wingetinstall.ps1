@@ -51,7 +51,7 @@ $apps = @(
     "EpicGames.EpicGamesLauncher",
     "osk.tetr",
     "Anki.Anki",
-    "ppy.osu"
+    "QL-Win.QuickLook"
 )
 
 foreach ($app in $apps) {

@@ -3,6 +3,7 @@
 
 addyioToken := FileRead("secrets\addyio.txt")
 email1 := FileRead("secrets\email-1.txt") ; load the token from file
+ProcessSetPriority "High"
 
 ; ^f1:: {
 ;     MsgBox(JEE_RunGetStdOut(A_ComSpec " /C curl -X GET -H `"Authorization: Bearer " addyioToken "`" -H `"Content-Type: application/json`" `"https://app.addy.io/api/v1/api-token-details`""))
@@ -38,6 +39,12 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
     SetCapsLockState("AlwaysOff")
 }
 
+:*?:[date]:: {
+    Send(FormatTime(A_Now, "yyyy-MM-dd HH:mm"))
+}
+:*?:[datef]:: {
+    Send(FormatTime(A_Now, "yyyy-MM-dd_HH-mm"))
+}
 
 ; Subscripts
 :?*:[sub1]::{U+2081} ; 1
@@ -139,10 +146,23 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
 
 
 :?*:[a-]::ā
+:?*:a-​::ā
+
 :?*:[e-]::ē
+:?*:e-​::ē
+
 :?*:[i-]::ī
+:?*:i-​::ī
+
 :?*:[o-]::ō
+:?*:o-​::ō
+
 :?*:[u-]::ū
+:?*:u-​::ū
+
+; short text
+:?*::§:::?*:X§::Y
+
 
 ; these are alt-gr + hotkeys
 <^>!1:: Send("¡")
@@ -179,7 +199,14 @@ email1 := FileRead("secrets\email-1.txt") ; load the token from file
 ; <^>!RShift:: Send("​")
 
 #InputLevel 1 ; this allows the zwsp to trigger the hotstring
-; RShift:: Send("​") ; zwsp character​​​​​​​​​​​​​​​​​​​​​​​​
+~RShift up:: {
+    if (A_PriorKey == "RShift") {
+        Send("§")
+    }
+}
+RShift & Space:: {
+    Send("§ ")
+}
 
 #HotIf WinActive(A_ScriptName " ahk_exe Code.exe")
 ~^s::

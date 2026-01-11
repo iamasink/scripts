@@ -597,6 +597,22 @@ NumLock::BackSpace
     DllCall("LockWorkStation")
     return
 }
+#j::
+{
+    Send("{Media_Stop}")
+    Sleep(50)
+    Send("{Media_Stop}")
+    Sleep(250)
+    Send("{Media_Stop}")
+    Sleep(250)
+    Send("{Media_Stop}")
+    Sleep(5000)
+
+    DllCall("PowrProf\SetSuspendState", "int", 0, "int", 0, "int", 0)
+    return
+}
+
+
 #b::
 {
     try {
@@ -610,7 +626,6 @@ NumLock::BackSpace
         }
     } catch {
         CenteredTooltip("Bluetooth failed", 1000, 4)
-
     }
 }
 
