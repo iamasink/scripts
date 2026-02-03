@@ -14,16 +14,18 @@ homeassistantToken := Fileread("secrets\homeassistant.txt") ; load the token fro
 if (!A_IsAdmin) {
     try {
         Run("*RunAs `"" A_ScriptFullPath "`"")
+        ExitApp()
     }
     catch {
         MsgBox("Couldn't run " A_ScriptName " as admin! Some things may not work")
+        ExitApp()
     }
 }
 
 
 apps := [{
     app: "ahk_exe Blitz\.exe$",
-    affinity: binary("10001000"),
+    ; affinity: binary("10001000"),
     priority: -1,
     flags: []
 }, {
@@ -33,6 +35,7 @@ apps := [{
     app: "ahk_exe League of Legends\.exe$",
     flags: [closelbm]
 }, {
+    ; most unreal engine games end in win65-shipping
     app: "ahk_exe .*-Win64-Shipping\.exe$",
     flags: [closelbm],
 },]
@@ -53,7 +56,8 @@ binary(binStr) {
     }
     return dec
 }
-; collect unique flags from all apps with fast lookup
+
+; collect unique flags from all apps
 states := []
 seen := Map()
 for app in apps {
@@ -94,13 +98,19 @@ closeapp(state := true, name := "", closelist := [], runlist := [], hideLaunch :
             if forceClose
                 cmd .= " /f"
             cmd .= " /im " app
-            Run(cmd, , "Hide")
+            try {
+                Run(cmd, , "Hide")
+            } catch as err {
+            }
         }
     } else {
-        ; app closing → launch targets
         CenteredTooltip("Launching " name)
         for app in runlist {
-            Run(app, , hideLaunch ? "Hide" : "")
+            try {
+                Run(app, , hideLaunch ? "Hide" : "")
+            } catch as err {
+                MsgBox("Failed to launch: " app "`n" err.Message)
+            }
         }
     }
 }
@@ -207,9 +217,11 @@ SetPriority(appname, Level := "Normal") {
             lastPrio := ""
         }
         if (lastPrio != prio) {
-            CenteredTooltip("changing priority of " appname " to " prio "`n" pid)
-            ProcessSetPriority(prio, pid)
-            pidcache[pid] := prio
+            try {
+                ProcessSetPriority(prio, pid)
+                pidcache[pid] := prio
+                CenteredTooltip("changing priority of " appname " to " prio "`n" pid)
+            }
         }
 
     }
@@ -233,18 +245,21 @@ SetAffinity(appname, affinityMask) {
         exeName := m[1]
 
     if !exeName {
-        MsgBox("Cannot extract exe name from: " appname)
+        ; MsgBox("Cannot extract exe name from: " appname)
         return
     }
 
     DetectHiddenWindows(true)
-    hwnds := WinGetList(appname)
 
     pids := Map()
-    for hwnd in hwnds {
-        pid := WinGetPID("ahk_id " hwnd)
-        if (pid && !pids.Has(pid)) {
-            pids[pid] := true
+    try {
+        hwnds := WinGetList(appname)
+
+        for hwnd in hwnds {
+            pid := WinGetPID("ahk_id " hwnd)
+            if (pid && !pids.Has(pid)) {
+                pids[pid] := true
+            }
         }
     }
 
@@ -291,7 +306,7 @@ CenteredTooltip(text, time := 2500, radius := 500) {
     tooltipID := id
     activeIDs[id] := true
 
-    angle := (id - 1) * (2 * 3.14159265 / 20) ; equally spaced
+    angle := (id - 1) * (2 * 3.14159265 / 20)
     x := (A_ScreenWidth / 2) + radius * Cos(angle)
     y := (A_ScreenHeight / 2) + radius * Sin(angle)
     ToolTip(text, x, y, id)
