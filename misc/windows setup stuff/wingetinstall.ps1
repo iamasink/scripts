@@ -56,14 +56,8 @@ $apps = @(
 
 foreach ($app in $apps) {
     Write-Host "Processing $app..."
-    $installed = winget list --id $app --exact --source winget 2>$null
 
-    if ($installed) {
-        Write-Host "   Found $app. checking for updates..."
-        winget upgrade --id $app --exact --accept-package-agreements --accept-source-agreements -h
-    }
-    else {
-        Write-Host "   Installing $app..."
-        winget install --id $app --exact --accept-package-agreements --accept-source-agreements -h
-    }
+
+    winget install --id $app --exact --accept-package-agreements --accept-source-agreements -h
+    
 }

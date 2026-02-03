@@ -901,8 +901,7 @@ F21:: {
     Send("[")
 }
 
-#HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe") ||
-WinActive("ahk_exe chrome.exe") || WinActive("ahk_exe WindowsTerminal.exe")
+#HotIf WinActive("ahk_exe firefox.exe") || WinActive("ahk_exe floorp.exe") || WinActive("ahk_exe waterfox.exe") || WinActive("ahk_exe WindowsTerminal.exe")
 ; f1::
 ; {
 ; 	switchFancyZonesLayout(1, 2)
@@ -1038,6 +1037,33 @@ F23:: ; DPI Down / G7
         Send("{Ctrl Down}{Shift Down}p{Shift Up}{Ctrl Up}") ; select address bar
 
 }
+#HotIf WinActive("ahk_exe chrome.exe")
+F23::
+{
+    moveval := mousemovegesture()
+    if (moveval = 0) ; no movement
+        Send("{Ctrl Down}{LButton}{Ctrl Up}")
+    ; close tabs shortcuts set in settings
+    if (moveval = 1) ; Big Right
+        Send("{Shift Down}{Alt Down}0{Shift Up}{Alt Up}") ; close tabs to the right
+    if (moveval = 2) ; Big Left
+        Send("{Shift Down}{Alt Down}9{Shift Up}{Alt Up}") ; close tabs to the left
+    ;
+    if (moveval = 3) ; Big Down
+        Send("{Ctrl Down}w{Ctrl Up}")
+    if (moveval = 4) ; Big Up
+        Send("{Ctrl Down}{Shift Down}t{Shift Up}{Ctrl Up}")
+    if (moveval = 5) ; Right
+        Send("{Ctrl Down}{tab}{Ctrl Up}")
+    if (moveval = 6) ; Left
+        Send("{Ctrl Down}{Shift Down}{tab}{Shift Up}{Ctrl Up}")
+    if (moveval = 7) ; Down
+        Send("{Ctrl Down}w{Ctrl Up}")
+    if (moveval = 8) ; Up
+        Send("{Ctrl Down}l{Ctrl Up}") ; select address bar
+}
+
+
 #HotIf WinActive("ahk_class CabinetWClass ahk_exe explorer.exe") ; Only run if Explorer is active
 ; CapsLock & .:: { ; unzip selected archive(s) (buggy and laggy so commented out :)
 ; 	tab := GetActiveExplorerTab() ; get the active windows 11 explorer tab
@@ -1138,17 +1164,17 @@ CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead o
 
 #HotIf WinActive("ahk_exe anki.exe")
 #HotIf WinActive("Anki ahk_exe pythonw.exe") ;; new 2025-07 releases use a launcher and the window exe is different?
-SC053:: ; numpad period
+SC053:: ; numpad period - again
 {
     Send("1")
 }
 SC052:: Send("^z") ; numpad zero
 SC04F:: return         ; Numpad1
 SC050:: return         ; Numpad2
-SC051:: Send("2")         ; Numpad3
+SC051:: Send("2")         ; Numpad3 - hard
 SC04B:: return         ; Numpad4
 SC04C:: return         ; Numpad5
-SC04D:: Send("4")         ; Numpad6
+SC04D:: Send("4")         ; Numpad6 - easy
 SC047:: return         ; Numpad7
 SC048:: return         ; Numpad8
 SC049:: return         ; Numpad9
