@@ -421,7 +421,7 @@ CapsLock & e:: {
     ; 	WinWait("ahk_exe Spotify.exe")
     ; 	Sleep(1000)
     ; }
-    PostMessage(0x319, , 0xB0000, , "ahk_exe Firefox.exe")	 ;Send Media_Next to spotify
+    PostMessage(0x319, , 0xB0000, , "ahk_exe chrome.exe")	 ;Send Media_Next to spotify
     ; Send("{Media_Next}")
 }
 CapsLock & q:: {
@@ -430,7 +430,7 @@ CapsLock & q:: {
     ; 	WinWait("ahk_exe Spotify.exe")
     ; 	Sleep(1000)
     ; }
-    PostMessage(0x319, , 0xC0000, , "ahk_exe Firefox.exe")	 ;Send  Media_Prev to spotify
+    PostMessage(0x319, , 0xC0000, , "ahk_exe chrome.exe")	 ;Send  Media_Prev to spotify
 }
 
 CapsLock & Space:: {
