@@ -562,11 +562,22 @@ NumLock::BackSpace
 #Numpad2:: lightoff2()
 
 ; on lock
+
+SendAnkiSync() {
+    cmd := 'curl localhost:8765 -X POST -H "Content-Type: application/json" -d "{\"action\":\"sync\",\"version\":6}"'
+    outputVar := JEE_RunGetStdOut(A_ComSpec ' /C ' cmd)
+    return outputVar
+}
+
 #l::
 {
     try {
         bluetooth := RadioModule('Bluetooth')
         bluetooth.State := 'Off'
+    }
+
+    try {
+        SendAnkiSync()
     }
 
     Run("taskkill /im obs64.exe", , "Hide")
@@ -1164,6 +1175,23 @@ CapsLock & ,:: ; open full path for folder, ie C:\Users\user\Documents instead o
 
 #HotIf WinActive("ahk_exe anki.exe")
 #HotIf WinActive("Anki ahk_exe pythonw.exe") ;; new 2025-07 releases use a launcher and the window exe is different?
+; +----------+-----------+----------+----------+
+; | Numlock  | Backslash | Multiply | Divide   |
+; |          |           |Susp.Note |Bury Card |
+; +----------+-----------+----------+----------+
+; | Numpad 7 | Numpad 8  | Numpad 9 | Add      |
+; |          |           |          | Easy     |
+; +----------+-----------+----------+          +
+; | Numpad 4 | Numpad 5  | Numpad 6 |          |
+; |          |           |          |          |
+; +----------+-----------+----------+----------+
+; | Numpad 1 | Numpad 2  | Numpad 3 | Enter    |
+; |          |           | -Hard    | (Good)   |
+; +----------+-----------+----------+          +
+; | Numpad 0             | .        |          |
+; | -Undo                |          |          |
+; +----------+-----------+----------+----------+
+
 SC053:: ; numpad period - again
 {
     Send("1")
@@ -1174,10 +1202,12 @@ SC050:: return         ; Numpad2
 SC051:: Send("2")         ; Numpad3 - hard
 SC04B:: return         ; Numpad4
 SC04C:: return         ; Numpad5
-SC04D:: Send("4")         ; Numpad6 - easy
+SC04D:: return       ; Numpad6
 SC047:: return         ; Numpad7
 SC048:: return         ; Numpad8
 SC049:: return         ; Numpad9
+SC037:: Send("+1")      ; Numpad Multiply
+SC04E:: Send("4")       ; Numpad Plus - Easy
 RShift:: Send("{Shift Up}1")
 RCtrl:: Send("^z")
 #HotIf
