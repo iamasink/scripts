@@ -8,6 +8,8 @@ random scripts and AutoHotkey v2 stuff i use because im weird :)
   - DPI Up  /  G8       - F22
   - DPI Down  /  G7     - F23
   - Top middle  / G9    - F24
+you can change these using Logitech [Onboard Memory Manager](https://support.logi.com/hc/en-gb/articles/360059641133-Onboard-Memory-Manager)  
+i dont use g-hub at all anymore.  
 
 ### Keyboard: Wooting 2 HE
   - A1	 - F13
@@ -18,6 +20,7 @@ random scripts and AutoHotkey v2 stuff i use because im weird :)
 The original functions for these keys (switching keyboard profile) are in the FN layer.
 
 ### Tablet: Huion Q11k
+haven;t used in ages so might not work but  
 Using [OpenTabletDriver](https://github.com/OpenTabletDriver/OpenTabletDriver)
   - Pen 1 - F17
   - Pen 2 - E
@@ -37,6 +40,7 @@ I advise you use shortcuts instead of copying the file, so all scripts are in th
 The following scripts can go here:  
 
 <!-- - spotify.ahk -->
+- there used to be stuff here but not anymore
 
 ### Task Scheduler
 Some things need to go in Task Scheduler because they run weirdly!  
